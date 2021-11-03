@@ -1,11 +1,11 @@
 // -*- mode: c++ -*-
 
 // --------------------------------------------------------------
-// Yeray Candel Sampedro
-// 01 - 11 - 2021
+// Autor: Yeray Candel Sampedro
+// Date: 01 - 11 - 2021
 //
-// Clase 4G encargada de manejar el protocolo de comunicacion con
-// la plataforma via 4G
+// Description: Clase 4G encargada de manejar el protocolo de comunicacion con
+// la plataforma via MQTT con 4G
 // --------------------------------------------------------------
 
 #ifndef PROTOCOL_4G_H_INCLUDED
@@ -14,6 +14,7 @@
 #include "Publisher.h"
 #include <Arduino.h>
 #include <Wire.h>
+#include <ArduinoMqttClient.h>
 // #include <TinyGsmClient.h>
 
 // TTGO T-Call pins
@@ -33,6 +34,7 @@
 // Configure TinyGSM library
 #define TINY_GSM_MODEM_SIM7070  // Modem is SIM800
 #define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
+
 #include "TinyGsmClientSIM7080.h"
 typedef TinyGsmSim7080 TinyGsm;
 typedef TinyGsmSim7080::GsmClientSim7080 TinyGsmClient;
@@ -46,13 +48,23 @@ TinyGsm modem(debugger);
 TinyGsm modem(SerialAT);
 #endif
 
+// variable para indicar si se ha conectado a la red o no
+bool joined = false;
 TinyGsmClient client(modem);
 
 // I2C
 TwoWire I2CPower = TwoWire(0);
 
-// variable para indicar si se ha conectado a la red o no
-bool joined = false;
+// MQTT CLIENT
+MqttClient mqttClient(client);
+
+const char broker[] = "broker.hivemq.com";
+int port = 1883;
+const char topic[] = "gesinen/sensores/values";
+const char topicSubscribed[] = "gesinen/#";
+
+const long interval = 1000;
+unsigned long previousMillis = 0;
 // --------------------------------------------------------------
 // --------------------------------------------------------------
 class Protocol4G : public Publisher
@@ -65,6 +77,66 @@ private:
     const char *gprsPass = "";
 
     const char *simPin = "";
+
+    /**
+     * Se contecta al broker MQTT
+     */
+    void connectMqtt()
+    {
+        while (1)
+        {
+            if (mqttClient.connect(broker, port))
+            {
+                break;
+            }
+        }
+        if (!mqttClient.connect(broker, port))
+        {
+            Serial.print("MQTT connection failed! Error code = ");
+            Serial.println(mqttClient.connectError());
+
+            while (1)
+                ;
+        }
+
+        Serial.println("You're connected to the MQTT broker!");
+        Serial.println();
+    }
+
+    void subscribeToTopic(const char *topic)
+    {
+        mqttClient.onMessage(onMqttMessage);
+
+        Serial.print("Subscribing to topic: ");
+        Serial.println(topic);
+        Serial.println();
+
+        // Suscripcion a un 'topic'
+        // mqttClient.subscribe(topic);
+    }
+
+    /**
+     * Recibe mensajes de los topicos 
+     */
+    static void onMqttMessage(int messageSize)
+    {
+
+        // we received a message, print out the topic and contents
+        String topic = mqttClient.messageTopic();
+        String payload = mqttClient.readString();
+        Serial.println("incoming: " + topic + ", length: " + messageSize + " ");
+        Serial.println(payload);
+        if (payload == "ON")
+        {
+            Serial.println("Encender Dispositivo");
+        }
+        else if (payload == "OFF")
+        {
+            Serial.println("Apagar Dispositivo");
+        }
+
+        Serial.println();
+    }
 
 public:
     /**
@@ -81,31 +153,24 @@ public:
 
     /**
      * join() Se une a la red.
-     *  @returns bool -> devuelve TRUE si se ha conectado a la red y FALSE si no.
+     *  @returns bool -> devuelve TRUE si se ha conectado a la red y al MQTT y FALSE si no.
      */
     bool join()
     {
-        if (!joined)
-        {
-            SerialMon.print("Connecting to APN: ");
-            SerialMon.print(apn);
+        SerialMon.print("Connecting to APN: ");
+        SerialMon.print(apn);
 
-            if (!modem.gprsConnect(apn, gprsUser, gprsPass))
-            {
-                SerialMon.println(" fail");
-                joined = false;
-                return joined;
-            }
-            else
-            {
-                SerialMon.println(" Connected");
-                joined = true;
-                return joined;
-            }
+        if (!modem.gprsConnect(apn, gprsUser, gprsPass))
+        {
+            SerialMon.println(" fail");
             return false;
         }
         else
         {
+
+            SerialMon.println(" Connected");
+            connectMqtt();
+            subscribeToTopic(topicSubscribed);
             return true;
         }
     }
@@ -115,9 +180,32 @@ public:
      * 
      * @param arrayData -> Array de bytes con los datos a enviar
      */
-    void sendData(uint8_t *arrayData)
+    void
+    sendData(uint8_t *arrayData)
     {
+        String topicSend = topic;
 
+        mqttClient.poll();
+
+        // avoid having delays in loop, we'll use the strategy from BlinkWithoutDelay
+        // see: File -> Examples -> 02.Digital -> BlinkWithoutDelay for more info
+        unsigned long currentMillis = millis();
+        if (currentMillis - previousMillis >= interval)
+        {
+            // save the last time a message was sent
+            previousMillis = currentMillis;
+
+            Serial.println("Sending message to topic: ");
+            Serial.println(topicSend);
+
+            // send message, the Print interface can be used to set the message contents
+            mqttClient.beginMessage(topicSend);
+            mqttClient.println(*arrayData);
+            mqttClient.endMessage();
+
+            Serial.println(" ");
+            Serial.println(" ");
+        }
     }
 
     void receiveData()
@@ -127,6 +215,8 @@ public:
 }; // class
 void Protocol4G::initPublisher(const char *apn, const char *gprsUser, const char *gprsPass, const char *simPin)
 {
+    Serial.begin(115200);
+
     (*this).apn = apn;
     (*this).gprsUser = gprsUser;
     (*this).gprsPass = gprsPass;
@@ -159,10 +249,6 @@ void Protocol4G::initPublisher(const char *apn, const char *gprsUser, const char
     if (strlen(simPin) && modem.getSimStatus() != 3)
     {
         modem.simUnlock(simPin);
-    }
-    else
-    {
-        Serial.print("Pin Incorrect");
     }
 }
 
