@@ -9,7 +9,7 @@
 #include <Arduino.h>
 #include <../lib/IBM/src/lmic.h>
 #include <../lib/IBM/src/hal/hal.h>
-
+//This is the address LORA
 #define APPEUI_DEF                                     \
     {                                                  \
         0x64, 0x47, 0x1d, 0xa3, 0xe1, 0x71, 0x99, 0x13 \
@@ -22,14 +22,15 @@
     {                                                                                                  \
         0xd6, 0x37, 0xf7, 0x50, 0xc3, 0xa7, 0xc2, 0x25, 0x21, 0xdc, 0x53, 0x27, 0x19, 0xaa, 0x6c, 0x53 \
     }
-
+//--------------------------------------------------------//
+//---------------------LORA UTILIES--------------------------//
 static u1_t APPEUI[8] = APPEUI_DEF;
 void os_getArtEui(u1_t *buf) { memcpy(buf, APPEUI, 8); }
 static const u1_t PROGMEM DEVEUI[8] = DEVEUI_DEF;
 void os_getDevEui(u1_t *buf) { memcpy_P(buf, DEVEUI, 8); }
 static u1_t APPKEY[16] = APPKEY_DEF;
 void os_getDevKey(u1_t *buf) { memcpy(buf, APPKEY, 16); }
-
+// Pinout to lora
 const lmic_pinmap lmic_pins = {
     .nss = 18,
     .rxtx = LMIC_UNUSED_PIN,
@@ -38,7 +39,6 @@ const lmic_pinmap lmic_pins = {
 };
 bool txComplete;
 
-uint8_t recivedData[52];
 //******************************************************* TODO: CREATE CLASS UTILS *****************************************************
 // (lastMillis:R , TX_interval:R) -> timerTrue -> bool
 bool timerTrue(unsigned long lastmillis_, int interval)
@@ -49,17 +49,37 @@ bool timerTrue(unsigned long lastmillis_, int interval)
     return false;
 }
 //******************************************************* TODO: CREATE CLASS UTILS *****************************************************
+//--------------------------------------------------------//
 class LoraOTAA : public Publisher
 {
 private:
     bool joined;
     unsigned long joinMillis;
+    //--------------------------------------------------------//
+    // cleanRecivedData 
+    // before recive data you need clean this array which will get the data
+
+    void cleanRecivedData()
+    {
+        for (int i = 0; i < sizeof(recivedData); i++)
+        {
+            recivedData[i] = 0;
+        }
+    }
+    //--------------------------------------------------------//
 public:
+    
+    uint8_t recivedData[52];
+//--------------------------------------------------------//
     LoraOTAA()
     {
         txComplete = true;
         joined = false;
     }
+    //--------------------------------------------------------//
+    // initPublisher
+    // initialize the Lora OS system and set up the libraries LMIC and hardware LORA
+    // making the first send to comprube this module is ready
     void initPublisher()
     {
         Serial.print("INit");
@@ -68,6 +88,10 @@ public:
         uint8_t firstData[10] = "FirstSend";
         sendData(firstData);
     }
+    //--------------------------------------------------------//
+    // join() -> boolean
+    // before to send we need get joined with the gateway
+    // when we are ready this return will be true
     bool join()
     {
         if (joined)
@@ -84,6 +108,9 @@ public:
             }
         }
     }
+    //--------------------------------------------------------//
+    // data:bytes[] ->  sendData  
+    // data to send
     void sendData(uint8_t *data)
     {
         // Check if there is not a current TX/RX job running
@@ -104,6 +131,9 @@ public:
         }
         // Next TX is scheduled after TX_COMPLETE event.
     }
+    //--------------------------------------------------------//
+    // once()
+    // void once run the loop SO Lora one time to set the address and others utilities
     void once()
     {
         os_runloop_once();
@@ -125,9 +155,11 @@ public:
             }
         }
     }
-    // ev_t → onEventLora 
+    //--------------------------------------------------------//
+
+    // ev_t → onEventLora
     /*
-    Recive a event and depends of the event show what recive
+    Recive a event and depends of the event show it
     */
     void onEventLora(ev_t ev)
     {
@@ -174,10 +206,11 @@ public:
                 Serial.println(F("Received ack"));
             if (LMIC.dataLen)
             {
+                cleanRecivedData();
                 Serial.print("$Received$");
                 for (int i = 0; i < LMIC.dataLen; i++)
                 {
-                    // recive array 
+                    recivedData[i] = LMIC.frame[LMIC.dataBeg + i];
                     Serial.print("_");
                     Serial.print(LMIC.frame[LMIC.dataBeg + i]);
                 }
@@ -205,4 +238,7 @@ public:
             break;
         }
     }
+    //--------------------------------------------------------//
+    //--------------------------------------------------------//
+
 };
