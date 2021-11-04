@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "lmic.h": "c",
+        "arduino.h": "c"
+    }
+}
