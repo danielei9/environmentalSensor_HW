@@ -13,7 +13,6 @@
 
 #include "Publisher.h"
 #include <Arduino.h>
-#include <Wire.h>
 #include <ArduinoMqttClient.h>
 // #include <TinyGsmClient.h>
 
@@ -49,6 +48,7 @@ TinyGsm modem(SerialAT);
 #endif
 
 TinyGsmClient client(modem);
+#include <Wire.h>
 
 // I2C
 TwoWire I2CPower = TwoWire(0);
