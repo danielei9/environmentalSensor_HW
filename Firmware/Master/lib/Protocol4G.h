@@ -222,7 +222,7 @@ public:
         }
     }
 
-    void receiveData()
+    void receiveData(byte *arrayData)
     {
     }
 
