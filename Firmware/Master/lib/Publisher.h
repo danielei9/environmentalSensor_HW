@@ -9,9 +9,9 @@
 // arduino.
 // --------------------------------------------------------------
 
+#include <Arduino.h>
 #ifndef PUBLISHER_H_INCLUDED
 #define PUBLISHER_H_INCLUDED
-#include <Arduino.h>
 
 // --------------------------------------------------------------
 // si el metodo es puramente virtual = 0 -> no se puede hacer overload
@@ -27,14 +27,15 @@ public:
         Serial.println("Failed on Init Publisher: Needs to be initialized as 4G or LORA");
     }
 
+    
+    // publica los datos
+    virtual void sendData(uint8_t *) {}
+
     /**
      *  Se une a la red.
      *  @returns bool -> devuelve TRUE si se ha conectado a la red  y FALSE si no.
      */
     virtual bool join() = 0;
-
-    // publica los datos
-    virtual void sendData(uint8_t *) = 0;
 
     /**
      * cleanData() Borra los datos del array
@@ -48,10 +49,6 @@ public:
             arrayData[i] = 0;
         }
     };
-
-    // recibe datos
-    virtual void receiveData() = 0;
-
 }; // class
 
 // --------------------------------------------------------------
