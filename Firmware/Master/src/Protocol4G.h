@@ -48,8 +48,6 @@ TinyGsm modem(debugger);
 TinyGsm modem(SerialAT);
 #endif
 
-// variable para indicar si se ha conectado a la red o no
-bool joined = false;
 TinyGsmClient client(modem);
 
 // I2C
@@ -60,7 +58,11 @@ MqttClient mqttClient(client);
 
 const char broker[] = "broker.hivemq.com";
 int port = 1883;
-const char topic[] = "gesinen/sensores/values";
+// /codigoPostal/ambiental/idDispositivo/
+char topic[] = "46701/ambiental/1/";
+const char codigoPostal[] = "";
+const char idDispositivo[] = "";
+
 const char topicSubscribed[] = "gesinen/#";
 
 const long interval = 1000;
@@ -81,8 +83,9 @@ private:
     /**
      * Se contecta al broker MQTT
      */
-    void connectMqtt()
+    void initMqtt()
     {
+        // inicializa la conexion MQTT
         while (1)
         {
             if (mqttClient.connect(broker, port))
@@ -103,6 +106,10 @@ private:
         Serial.println();
     }
 
+    /**
+     * Se subscribe a un topico
+     * @param topic direccion del topico a subscribirse
+     */
     void subscribeToTopic(const char *topic)
     {
         mqttClient.onMessage(onMqttMessage);
@@ -112,11 +119,12 @@ private:
         Serial.println();
 
         // Suscripcion a un 'topic'
-        // mqttClient.subscribe(topic);
+        mqttClient.subscribe(topic);
     }
 
     /**
      * Recibe mensajes de los topicos 
+     * @param messageSize tamaño del mensaje
      */
     static void onMqttMessage(int messageSize)
     {
@@ -147,7 +155,12 @@ public:
         // void
     }
     /**
-     *Inicializa el publicador
+     * (Virtual)
+     * Inicializa el publicador
+     * @param apn
+     * @param gprsUser
+     * @param gprsPass
+     * @param simPin
      */
     virtual void initPublisher(const char *apn, const char *gprsUser, const char *gprsPass, const char *simPin);
 
@@ -167,28 +180,27 @@ public:
         }
         else
         {
-
             SerialMon.println(" Connected");
-            connectMqtt();
-            subscribeToTopic(topicSubscribed);
+
+            // Inicializa el MQTT despues de conectarse
+            initMqtt();
+
+            // se suscribe a un topico
+            // subscribeToTopic(topicSubscribed);
             return true;
         }
     }
 
     /**
      * sendData() Envia los datos a la plataforma
-     * 
      * @param arrayData -> Array de bytes con los datos a enviar
      */
-    void
-    sendData(uint8_t *arrayData)
+    void sendData(uint8_t *arrayData)
     {
         String topicSend = topic;
 
         mqttClient.poll();
 
-        // avoid having delays in loop, we'll use the strategy from BlinkWithoutDelay
-        // see: File -> Examples -> 02.Digital -> BlinkWithoutDelay for more info
         unsigned long currentMillis = millis();
         if (currentMillis - previousMillis >= interval)
         {
@@ -200,7 +212,9 @@ public:
 
             // send message, the Print interface can be used to set the message contents
             mqttClient.beginMessage(topicSend);
-            mqttClient.println(*arrayData);
+
+            String message = "{\"deviceEui\":1,\"value\": 25.222,\"type\": \"co2\", \"unit\": \"ppm\"}";
+            mqttClient.println(message);
             mqttClient.endMessage();
 
             Serial.println(" ");
@@ -213,7 +227,15 @@ public:
     }
 
 }; // class
-void Protocol4G::initPublisher(const char *apn, const char *gprsUser, const char *gprsPass, const char *simPin)
+
+/**
+ * Inicializa la clase 4G
+ * @param apn
+ * @param gprsUser
+ * @param gprsPass
+ * @param simPin pin de la tarjeta sim
+ */
+void Protocol4G::initPublisher(const char *apn, const char *gprsUser, const char *gprsPass, const char *simPin = "")
 {
     Serial.begin(115200);
 

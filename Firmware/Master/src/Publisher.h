@@ -24,10 +24,13 @@ public:
     //no es puramente virtual por que se necesita hacer overload tanto en la clase lora como 4g
     virtual void initPublisher()
     {
-        Serial.println("Failed on Init Publisher: Needs to be 4G or Lora");
+        Serial.println("Failed on Init Publisher: Needs to be initialized as 4G or LORA");
     }
 
-    // se conecta a la red
+    /**
+     *  Se une a la red.
+     *  @returns bool -> devuelve TRUE si se ha conectado a la red  y FALSE si no.
+     */
     virtual bool join() = 0;
 
     // publica los datos
@@ -48,7 +51,7 @@ public:
 
     // recibe datos
     virtual void receiveData() = 0;
-    virtual ~Publisher() {}
+
 }; // class
 
 // --------------------------------------------------------------

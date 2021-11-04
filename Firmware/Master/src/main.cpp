@@ -13,9 +13,8 @@ uint8_t arrayData[52]; // array Data
 
 void setup()
 {
-
   // constructor 4G
-  protocol4G.initPublisher("orangeworld", "orange", "orange", "");
+  protocol4G.initPublisher("orangeworld", "orange", "orange");
   publisher->initPublisher();
 
   // se conecta a la red
@@ -28,5 +27,5 @@ void loop()
 {
   mqttClient.poll();
   delay(5000);
-  publisher->sendData(arrayData);
+  // publisher->sendData(arrayData);
 }
