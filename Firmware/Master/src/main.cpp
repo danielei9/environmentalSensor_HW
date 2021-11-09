@@ -6,6 +6,7 @@
 #include <EEPROM.h>
 #include <../lib/IBM/src/lmic.h>
 #include <../lib/IBM/src/hal/hal.h>
+#include <../lib/SlaveController.h>
 
 Protocol4G protocol4G; // constructor normal
 LoraOTAA Lora;
