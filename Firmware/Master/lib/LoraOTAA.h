@@ -3,6 +3,7 @@
 #include <../lib/IBM/src/lmic.h>
 #include <../lib/IBM/src/hal/hal.h>
 #include <EEPROM.h>
+#include <../lib/Utils.h>
 
 #define APPEUI_DEF                                     \
     {                                                  \
@@ -32,20 +33,18 @@ const lmic_pinmap lmic_pins = {
 bool txComplete;
 
 uint8_t recivedData[52];
-//******************************************************* TODO: CREATE CLASS UTILS *****************************************************
-// (lastMillis:R , TX_interval:R) -> timerTrue -> bool
-bool timerTrue(unsigned long lastmillis_, int interval)
-{
-    if (millis() > (lastmillis_ + interval))
-        return true;
 
-    return false;
-}
 class LoraOTAA : public Publisher
 {
 private:
     bool joined;
     unsigned long joinMillis;
+
+    void once()
+    {
+        os_runloop_once();
+    }
+
 public:
     LoraOTAA()
     {
@@ -54,6 +53,8 @@ public:
     }
     void initPublisher()
     {
+        Serial.begin(9600);
+        Serial.println("Starting");
         Serial.print("INit");
         os_init();
         LMIC_reset();
@@ -62,6 +63,8 @@ public:
     }
     bool join()
     {
+        once();
+
         if (joined)
         {
             return true;
@@ -75,10 +78,6 @@ public:
                 return false;
             }
         }
-    }
-    void hola()
-    {
-        Serial.println("hola");
     }
     void sendData(uint8_t *data)
     {
@@ -100,10 +99,7 @@ public:
         }
         // Next TX is scheduled after TX_COMPLETE event.
     }
-    void once()
-    {
-        os_runloop_once();
-    }
+
     void makePing(int interval, long previousMillis)
     {
         unsigned long currentMillis = millis();

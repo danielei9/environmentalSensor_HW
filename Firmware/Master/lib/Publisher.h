@@ -10,6 +10,7 @@
 // --------------------------------------------------------------
 
 #include <Arduino.h>
+
 #ifndef PUBLISHER_H_INCLUDED
 #define PUBLISHER_H_INCLUDED
 
@@ -17,19 +18,16 @@
 // si el metodo es puramente virtual = 0 -> no se puede hacer overload
 // si se necesita hacer overload ha de ser quitando "= 0" y poner "{}"
 // --------------------------------------------------------------
+
 class Publisher
 {
 public:
     // inicializa el publicador
     //no es puramente virtual por que se necesita hacer overload tanto en la clase lora como 4g
-    virtual void initPublisher()
-    {
-        Serial.println("Failed on Init Publisher: Needs to be initialized as 4G or LORA");
-    }
+    virtual void initPublisher() = 0;
 
-    
     // publica los datos
-    virtual void sendData(uint8_t *) {}
+    virtual void sendData(uint8_t *) = 0;
 
     /**
      *  Se une a la red.

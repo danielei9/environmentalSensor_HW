@@ -14,7 +14,7 @@
 #include "Publisher.h"
 #include <Arduino.h>
 #include <ArduinoMqttClient.h>
-// #include <TinyGsmClient.h>
+#include <../lib/Utils.h>
 
 // TTGO T-Call pins
 #define MODEM_RST 5
@@ -33,11 +33,7 @@
 // Configure TinyGSM library
 #define TINY_GSM_MODEM_SIM7070  // Modem is SIM800
 #define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
-
-#include "TinyGsmClientSIM7080.h"
-typedef TinyGsmSim7080 TinyGsm;
-typedef TinyGsmSim7080::GsmClientSim7080 TinyGsmClient;
-typedef TinyGsmSim7080::GsmClientSecureSIM7080 TinyGsmClientSecure;
+#include <TinyGsmClient.h>
 
 #ifdef DUMP_AT_COMMANDS
 #include <StreamDebugger.h>
@@ -150,8 +146,12 @@ public:
     /**
      * Crea el protocolo.
      */
-    Protocol4G()
+    Protocol4G(const char *apn, const char *gprsUser, const char *gprsPass, const char *simPin = "")
     {
+        (*this).apn = apn;
+        (*this).gprsUser = gprsUser;
+        (*this).gprsPass = gprsPass;
+        (*this).simPin = simPin;
         // void
     }
     /**
@@ -162,7 +162,7 @@ public:
      * @param gprsPass
      * @param simPin
      */
-    virtual void initPublisher(const char *apn, const char *gprsUser, const char *gprsPass, const char *simPin);
+    virtual void initPublisher();
 
     /**
      * join() Se une a la red.
@@ -170,23 +170,30 @@ public:
      */
     bool join()
     {
-        SerialMon.print("Connecting to APN: ");
-        SerialMon.print(apn);
-
-        if (!modem.gprsConnect(apn, gprsUser, gprsPass))
+        if (!modem.isGprsConnected())
         {
-            SerialMon.println(" fail");
-            return false;
+            SerialMon.print("Connecting to APN: ");
+            SerialMon.print(apn);
+
+            if (!modem.gprsConnect(apn, gprsUser, gprsPass))
+            {
+                SerialMon.println(" fail");
+                return false;
+            }
+            else
+            {
+                SerialMon.println(" Connected");
+
+                // Inicializa el MQTT despues de conectarse
+                initMqtt();
+
+                // se suscribe a un topico
+                // subscribeToTopic(topicSubscribed);
+                return true;
+            }
         }
         else
         {
-            SerialMon.println(" Connected");
-
-            // Inicializa el MQTT despues de conectarse
-            initMqtt();
-
-            // se suscribe a un topico
-            // subscribeToTopic(topicSubscribed);
             return true;
         }
     }
@@ -235,16 +242,9 @@ public:
  * @param gprsPass
  * @param simPin pin de la tarjeta sim
  */
-void Protocol4G::initPublisher(const char *apn, const char *gprsUser, const char *gprsPass, const char *simPin = "")
+void Protocol4G::initPublisher()
 {
     Serial.begin(115200);
-
-    (*this).apn = apn;
-    (*this).gprsUser = gprsUser;
-    (*this).gprsPass = gprsPass;
-    (*this).simPin = simPin;
-
-    Serial.print((*this).simPin);
 
     // Start I2C communication
     I2CPower.begin(I2C_SDA, I2C_SCL, 400000);
