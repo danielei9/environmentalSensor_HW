@@ -10,6 +10,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#ifndef SLAVE_CONTROLLER_H_INCLUDED
+#define SLAVE_CONTROLLER_H_INCLUDED
 
 class SlaveController
 {
@@ -22,6 +24,7 @@ public:
     /**
      * Constructor de la clase SlaveController
      */
+    SlaveController(int8_t sda, int8_t scl)
     {
         (*this).SDA = sda;
         (*this).SCL = scl;
@@ -52,7 +55,7 @@ public:
      * @param slaveAdress direccion del esclavo.
      * @returns array de bytes (Todas las mesuras)
      */
-    byte* getSlaveMeasures(int8_t slaveAdress, unsigned int bytesNumber = 50)
+    byte *getSlaveMeasures(int8_t slaveAdress, unsigned int bytesNumber = 50)
     {
         Wire.requestFrom(slaveAdress, bytesNumber); // request 6 bytes from slave device #8
 
@@ -67,6 +70,13 @@ public:
             arrayData[i] = c;
             i++;
         }
+
         return arrayData;
     }
 };
+
+// --------------------------------------------------------------
+// --------------------------------------------------------------
+// --------------------------------------------------------------
+// --------------------------------------------------------------
+#endif
