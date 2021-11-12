@@ -15,7 +15,8 @@
 #include <Arduino.h>
 #include <ArduinoMqttClient.h>
 #include <../lib/Utils.h>
-
+#include <esp_tls.h>
+#include <../lib/TLS/clientcert.h>
 // TTGO T-Call pins
 #define MODEM_RST 5
 #define MODEM_PWKEY 4
@@ -43,7 +44,7 @@ TinyGsm modem(debugger);
 TinyGsm modem(SerialAT);
 #endif
 
-TinyGsmClient client(modem);
+TinyGsmClientSecure client(modem);
 #include <Wire.h>
 
 // I2C
@@ -52,8 +53,10 @@ TwoWire I2CPower = TwoWire(0);
 // MQTT CLIENT
 MqttClient mqttClient(client);
 
-const char broker[] = "broker.hivemq.com";
-int port = 1883;
+const char broker[] = "gesinen.es";
+int port = 8882;
+const char *username = "gesinen";
+const char *password = "gesinen2110";
 // /codigoPostal/ambiental/idDispositivo/
 char topic[] = "46701/ambiental/1/";
 const char codigoPostal[] = "";
@@ -81,6 +84,7 @@ private:
      */
     void initMqtt()
     {
+
         // inicializa la conexion MQTT
         while (1)
         {
@@ -119,7 +123,7 @@ private:
     }
 
     /**
-     * Recibe mensajes de los topicos 
+     * Recibe mensajes de los topicos
      * @param messageSize tamaño del mensaje
      */
     static void onMqttMessage(int messageSize)
@@ -140,6 +144,16 @@ private:
         }
 
         Serial.println();
+    }
+
+    /*
+    * Instancia los credenciales
+    */
+    void setMqttCredentials()
+    {
+        esp_err_t err = esp_tls_set_global_ca_store(DSTroot_CA, sizeof(DSTroot_CA));
+        ESP_LOGI("TEST", "CA store set. Error = %d %s", err, esp_err_to_name(err));
+        mqttClient.setUsernamePassword(username, password);
     }
 
 public:
@@ -184,11 +198,15 @@ public:
             {
                 SerialMon.println(" Connected");
 
+                // Setting Up Credentials
+                setMqttCredentials();
+
                 // Inicializa el MQTT despues de conectarse
                 initMqtt();
 
                 // se suscribe a un topico
-                // subscribeToTopic(topicSubscribed);
+                subscribeToTopic(topicSubscribed);
+
                 return true;
             }
         }
