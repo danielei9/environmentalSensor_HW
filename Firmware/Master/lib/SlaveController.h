@@ -12,7 +12,6 @@
 #include <Wire.h>
 #ifndef SLAVE_CONTROLLER_H_INCLUDED
 #define SLAVE_CONTROLLER_H_INCLUDED
-
 class SlaveController
 {
 private:
@@ -29,16 +28,6 @@ public:
         (*this).SDA = sda;
         (*this).SCL = scl;
     }
-
-    /**
-     * Inicializa el esclavo por I2C
-     */
-    void initSlave(int baudios = 115200)
-    {
-        Wire.begin();          // join i2c bus (address optional for master)
-        Serial.begin(baudios); // start serial for output
-    }
-
     /**
       * Cambia los pines del Slave Controller
      * @param sda pin sda
@@ -51,27 +40,80 @@ public:
     }
 
     /**
+     * Inicializa el esclavo por I2C
+     * @param baudios velocidad del Serial
+     */
+    void initMaster(int baudios = 115200)
+    {
+        Wire.begin(SDA, SCL);  // join i2c bus (address optional for master)
+        Serial.begin(baudios); // start serial for output
+    }
+
+    /**
      * Devuelve las mesuras de los sensores del esclavo seleccionado.
-     * @param slaveAdress direccion del esclavo.
+     * @param slaveAdress direccion del esclavo
+     * @param bytesNumber bytes a pedir al esclavo.
      * @returns array de bytes (Todas las mesuras)
      */
-    byte *getSlaveMeasures(int8_t slaveAdress, unsigned int bytesNumber = 50)
+    byte *requestMeasuresToSlave(uint8_t slaveAdress, uint8_t bytesNumber)
     {
-        Wire.requestFrom(slaveAdress, bytesNumber); // request 6 bytes from slave device #8
-
         // crea un array vacio
         byte *arrayData = new byte[bytesNumber];
-        int i = 0; // contador
+        uint16_t i = 0; // contador
+        
+        Wire.requestFrom(slaveAdress, bytesNumber);
 
         while (Wire.available())
-        {                         // slave may send less than requested
-            byte c = Wire.read(); // receive a byte as character
-            // poniendo los bytes transmitidos por el eslavo en el array de bytes
-            arrayData[i] = c;
+        {
+            // se llena el array con los datos
+            arrayData[i] =  (byte) Wire.read();
             i++;
         }
-
         return arrayData;
+    }
+
+    /**
+     * Escanea la comunicacion I2C en busca de esclavos
+     */
+    void scanSlaves()
+    {
+        byte error, address;
+        int nDevices;
+        Serial.println("Scanning...");
+        nDevices = 0;
+        for (address = 1; address < 127; address++)
+        {
+            Wire.beginTransmission(address);
+            error = Wire.endTransmission();
+            if (error == 0)
+            {
+                Serial.print("I2C device found at address 0x");
+                if (address < 16)
+                {
+                    Serial.print("0");
+                }
+                Serial.println(address, HEX);
+                nDevices++;
+            }
+            else if (error == 4)
+            {
+                Serial.print("Unknow error at address 0x");
+                if (address < 16)
+                {
+                    Serial.print("0");
+                }
+                Serial.println(address, HEX);
+            }
+        }
+        if (nDevices == 0)
+        {
+            Serial.println("No I2C devices found\n");
+        }
+        else
+        {
+            Serial.println("done\n");
+        }
+        delay(5000);
     }
 };
 
