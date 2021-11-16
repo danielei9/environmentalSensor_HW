@@ -12,4 +12,13 @@ bool timerTrue(unsigned long lastmillis_, int interval)
   return false;
 }
 
+// print array
+// @param size tamaño del array
+void printBytesArray(byte *arrayData, uint8_t size)
+{
+  for (int i = 0; i < size; i++)
+  {
+    Serial.println(arrayData[i]);
+  }
+}
 #endif

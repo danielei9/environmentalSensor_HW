@@ -151,7 +151,7 @@ private:
     */
     void setMqttCredentials()
     {
-        esp_err_t err = esp_tls_set_global_ca_store(DSTroot_CA, sizeof(DSTroot_CA));
+        esp_tls_set_global_ca_store(DSTroot_CA, sizeof(DSTroot_CA));
         ESP_LOGI("TEST", "CA store set. Error = %d %s", err, esp_err_to_name(err));
         mqttClient.setUsernamePassword(username, password);
     }
