@@ -91,6 +91,7 @@ private:
             if (mqttClient.connect(broker, port))
             {
                 break;
+                
             }
         }
         if (!mqttClient.connect(broker, port))
