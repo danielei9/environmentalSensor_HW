@@ -18,6 +18,7 @@ private:
     // pines RX TX de cada sensor
     int8_t RX = 0;
     int8_t TX = 0;
+    uint16_t baudios = 9600;
     SoftwareSerial *sensorSerial;
 
 public:
@@ -36,28 +37,49 @@ public:
      */
     void initSensor(int baudios = 9600)
     {
-        delay(1000);
-        sensorSerial->listen();
+        (*this).baudios = baudios;
         sensorSerial->begin(baudios);
         sensorSerial->print("Inicializando");
-        while (sensorSerial->available() > 0)
+        if (sensorSerial->available())
         {
-
             char inByte = sensorSerial->read();
-
+    
             Serial.write(inByte);
         }
-        Serial.print("iniciando" + (*this).RX);
     }
 
-    void print(String word)
+    /**
+     * Obtiene la medida del sensor
+     */
+    void getMeasure(char* c)
     {
-        sensorSerial->listen();
-        sensorSerial->print(word);
+        sensorSerial->begin((*this).baudios);
+        delay(500);
+        sensorSerial->println(c);
         if (sensorSerial->available())
         {
             Serial.write(sensorSerial->read());
         }
+        sensorSerial->end();
+        Serial.println();
+    }
+    
+
+    /**
+     * Obtiene el tipo de sensor
+     */
+    byte getType()
+    {
+        sensorSerial->begin((*this).baudios);
+        delay(500);
+        sensorSerial->println("5");
+        if (sensorSerial->available())
+        {
+            Serial.write(sensorSerial->read());
+        }
+        sensorSerial->end();
+        Serial.println();
+        return 0x25;
     }
 };
 

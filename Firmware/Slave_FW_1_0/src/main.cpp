@@ -37,16 +37,15 @@ void requestEvent()
 
   Wire.write(arrayData, arrayLength);
 }
-// SensorUART sensor1(10, 11);
-SoftwareSerial serial25(10, 11);
-SoftwareSerial serial2(2, 3);
+SensorUART sensor1(10, 11);
+SensorUART sensor2(2, 3);
+SensorUART sensor3(4, 5);
+SensorUART sensor4(6, 7);
+SensorUART sensor5(8, 9);
 
 void setup()
 {
   Serial.begin(9600);
-  serial25.begin(9600);
-
-  //serial25.print("25");
 
   // Wire.begin(I2C_SLAVE_ADDR);
   // Wire.onRequest(requestEvent);
@@ -55,21 +54,9 @@ void setup()
 
 void loop()
 {
-  serial25.begin(9600);
-  delay(500);
-  serial25.print("1");
-  if (serial25.available())
-  {
-    Serial.write(serial25.read());
-  }
-  serial25.end();
-
-  serial2.begin(9600);
-  delay(500);
-  serial2.println("2");
-  if (serial2.available())
-  {
-    Serial.write(serial2.read());
-  }
-  serial2.end();
+  sensor1.getMeasure("1");
+  sensor2.getMeasure("2");
+  sensor3.getMeasure("3");
+  sensor4.getMeasure("4");
+  sensor5.getMeasure("5");
 }
