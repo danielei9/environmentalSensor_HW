@@ -24,39 +24,41 @@ byte *arrayData = new byte[arrayLength];
 // para Hum necesito 7 bits 1 byte
 // total 103 bits = 13 bytes // 18 sin juntar todos los bits
 
-void requestEvent()
-{
-  arrayData[0] = 10;
-  arrayData[1] = 255;
-  arrayData[2] = B00000001;
-  arrayData[3] = 255;
-  arrayData[4] = 255;
-  arrayData[5] = 255;
-  arrayData[6] = 255;
-  arrayData[7] = 255;
-
-  Wire.write(arrayData, arrayLength);
-}
 SensorUART sensor1(10, 11);
 SensorUART sensor2(2, 3);
 SensorUART sensor3(4, 5);
 SensorUART sensor4(6, 7);
 SensorUART sensor5(8, 9);
 
+void requestEvent()
+{
+  // rellenando el array
+  arrayData[0] = sensor1.getMeasure();
+  arrayData[1] = sensor2.getMeasure();
+  arrayData[2] = sensor3.getMeasure();
+  arrayData[3] = sensor4.getMeasure();
+  arrayData[4] = sensor5.getMeasure();
+  // arrayData[5] = 255;
+  // arrayData[6] = 255;
+  // arrayData[7] = 255;
+
+  Wire.write(arrayData, arrayLength);
+}
+
 void setup()
 {
   Serial.begin(9600);
 
-  // Wire.begin(I2C_SLAVE_ADDR);
-  // Wire.onRequest(requestEvent);
-  // sensor1.initSensor(115200);
+  Wire.begin(I2C_SLAVE_ADDR);
+  Wire.onRequest(requestEvent);
 }
 
 void loop()
 {
-  sensor1.getMeasure("1");
-  sensor2.getMeasure("2");
-  sensor3.getMeasure("3");
-  sensor4.getMeasure("4");
-  sensor5.getMeasure("5");
+  sensor1.testUart("1");
+  sensor2.testUart("2");
+  sensor3.testUart("3");
+  sensor4.testUart("4");
+  sensor5.testUart("5");
+  delay(100);
 }
