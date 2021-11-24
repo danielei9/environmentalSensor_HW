@@ -1,5 +1,7 @@
-EESchema Schematic File Version 4
-EELAYER 30 0
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:PlacaSlave3AGesinen-cache
+EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -64,7 +66,7 @@ Wire Notes Line
 Wire Notes Line
 	9700 650  9700 475 
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x02 P3
+L Connector_Generic:Conn_01x02 P3
 U 1 1 56D74FB3
 P 9450 3050
 F 0 "P3" H 9450 3200 50  0000 C CNN
@@ -75,7 +77,7 @@ F 3 "" H 9450 3050 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x06 P2
+L Connector_Generic:Conn_01x06 P2
 U 1 1 56D75238
 P 9750 1200
 F 0 "P2" H 9750 1550 50  0000 C CNN
@@ -88,7 +90,7 @@ $EndComp
 Text Label 9650 1000 1    60   ~ 0
 TX0
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR01
+L power:GND #PWR01
 U 1 1 56D7539A
 P 10200 1000
 F 0 "#PWR01" H 10200 750 50  0001 C CNN
@@ -99,7 +101,7 @@ F 3 "" H 10200 1000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x12 P1
+L Connector_Generic:Conn_01x12 P1
 U 1 1 56D754D1
 P 9550 2100
 F 0 "P1" H 9550 2750 50  0000 C CNN
@@ -110,7 +112,7 @@ F 3 "" H 9550 2100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x12 P4
+L Connector_Generic:Conn_01x12 P4
 U 1 1 56D755F3
 P 10050 2100
 F 0 "P4" H 10050 2750 50  0000 C CNN
@@ -121,7 +123,7 @@ F 3 "" H 10050 2100 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR02
+L power:GND #PWR02
 U 1 1 56D756B8
 P 9250 2800
 F 0 "#PWR02" H 9250 2550 50  0001 C CNN
@@ -166,7 +168,7 @@ Wire Wire Line
 Wire Wire Line
 	10350 1700 10350 2800
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR03
+L power:GND #PWR03
 U 1 1 56D75A03
 P 10350 2800
 F 0 "#PWR03" H 10350 2550 50  0001 C CNN
@@ -207,14 +209,14 @@ Text Notes 9650 1600 0    60   ~ 0
 Wire Wire Line
 	9950 1000 9950 950 
 Wire Wire Line
-	9950 950  10050 950 
+	9950 950  10200 950 
 Wire Wire Line
 	10050 950  10050 1000
 Wire Wire Line
 	10200 950  10200 1000
 Connection ~ 10050 950 
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x04 S4
+L Connector_Generic:Conn_01x04 S4
 U 1 1 617E6D34
 P 10200 4700
 F 0 "S4" H 10279 4692 50  0000 L CNN
@@ -225,7 +227,7 @@ F 3 "~" H 10200 4700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x04 S5
+L Connector_Generic:Conn_01x04 S5
 U 1 1 617E7237
 P 10200 5150
 F 0 "S5" H 10279 5142 50  0000 L CNN
@@ -236,7 +238,7 @@ F 3 "~" H 10200 5150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x04 S3
+L Connector_Generic:Conn_01x04 S3
 U 1 1 617E7746
 P 10200 4250
 F 0 "S3" H 10279 4242 50  0000 L CNN
@@ -247,7 +249,7 @@ F 3 "~" H 10200 4250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x04 S6
+L Connector_Generic:Conn_01x04 S6
 U 1 1 617E8177
 P 10200 5600
 F 0 "S6" H 10279 5592 50  0000 L CNN
@@ -336,7 +338,29 @@ GND
 Text Label 9800 5800 0    50   ~ 0
 TX5
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_CP1 C1
+L PlacaSlave3AGesinen-rescue:ATmega328-AU-MCU_Microchip_ATmega U2
+U 1 1 617F25B7
+P 4050 4750
+F 0 "U2" H 4050 3164 50  0000 C CNN
+F 1 "ATmega328-AU" H 3950 3900 50  0000 C CNN
+F 2 "Package_QFP:TQFP-32_7x7mm_P0.8mm" H 4050 4750 50  0001 C CIN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/ATmega328_P%20AVR%20MCU%20with%20picoPower%20Technology%20Data%20Sheet%2040001984A.pdf" H 4050 4750 50  0001 C CNN
+	1    4050 4750
+	1    0    0    -1  
+$EndComp
+$Comp
+L PlacaSlave3AGesinen-rescue:MIC5219-5.0-Regulator_Linear U1
+U 1 1 617F3A56
+P 2550 1250
+F 0 "U1" H 2550 1592 50  0000 C CNN
+F 1 "MIC5219-5.0" H 2550 1501 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23-5" H 2550 1575 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/devicedoc/mic5219.pdf" H 2550 1250 50  0001 C CNN
+	1    2550 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP1 C1
 U 1 1 617F4045
 P 1750 1350
 F 0 "C1" H 1865 1396 50  0000 L CNN
@@ -347,7 +371,7 @@ F 3 "~" H 1750 1350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_LED D1
+L Device:LED D1
 U 1 1 617F435C
 P 3350 1600
 F 0 "D1" V 3388 1483 50  0000 R CNN
@@ -358,7 +382,7 @@ F 3 "~" H 3350 1600 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R1
+L Device:R R1
 U 1 1 617F4405
 P 3350 1900
 F 0 "R1" H 3420 1946 50  0000 L CNN
@@ -369,7 +393,7 @@ F 3 "~" H 3350 1900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_CP1 C3
+L Device:CP1 C3
 U 1 1 617F4467
 P 3850 1350
 F 0 "C3" H 3965 1396 50  0000 L CNN
@@ -380,7 +404,7 @@ F 3 "~" H 3850 1350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_C C4
+L Device:C C4
 U 1 1 617F57A7
 P 4250 1350
 F 0 "C4" H 4365 1396 50  0000 L CNN
@@ -391,16 +415,16 @@ F 3 "~" H 4250 1350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1500 1150 1750 1150
+	1500 1150 2250 1150
 Wire Wire Line
 	1750 1150 1750 1200
 Connection ~ 1750 1150
 Wire Wire Line
 	3350 1200 3350 1150
 Wire Wire Line
-	2850 1150 3350 1150
+	2850 1150 4300 1150
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR04
+L power:GND #PWR04
 U 1 1 617FE354
 P 3350 2050
 F 0 "#PWR04" H 3350 1800 50  0001 C CNN
@@ -414,18 +438,21 @@ Wire Wire Line
 	3850 1150 3850 1200
 Connection ~ 3350 1150
 Wire Wire Line
-	4250 800  4250 1150
+	4250 800  4250 1200
 Connection ~ 3850 1150
 Wire Wire Line
-	3850 2050 3850 1950
+	3850 2050 3850 1500
 Wire Wire Line
 	3850 1950 4250 1950
 Wire Wire Line
 	4250 1950 4250 1500
 Wire Wire Line
-	2550 1550 2550 1950
+	2550 1550 2550 2050
 Wire Wire Line
-	4050 3250 4100 3250
+	2250 1150 2250 1250
+Connection ~ 2250 1150
+Wire Wire Line
+	4050 3250 4150 3250
 Wire Wire Line
 	4650 3550 4950 3550
 Text Label 4800 3550 0    50   ~ 0
@@ -503,7 +530,7 @@ Wire Wire Line
 Wire Wire Line
 	4650 4950 5650 4950
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R2
+L Device:R R2
 U 1 1 618315C1
 P 5450 4650
 F 0 "R2" H 5520 4696 50  0000 L CNN
@@ -514,7 +541,7 @@ F 3 "~" H 5450 4650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R3
+L Device:R R3
 U 1 1 61831623
 P 5650 4650
 F 0 "R3" H 5720 4696 50  0000 L CNN
@@ -525,7 +552,7 @@ F 3 "~" H 5650 4650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:power_+5V #PWR05
+L power:+5V #PWR05
 U 1 1 6183566A
 P 5450 4500
 F 0 "#PWR05" H 5450 4350 50  0001 C CNN
@@ -536,7 +563,7 @@ F 3 "" H 5450 4500 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:power_+5V #PWR06
+L power:+5V #PWR06
 U 1 1 618356A4
 P 5650 4500
 F 0 "#PWR06" H 5650 4350 50  0001 C CNN
@@ -549,7 +576,7 @@ $EndComp
 Text Notes 5950 4400 3    50   ~ 0
 PULL UP I2C\n
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_Crystal Y1
+L Device:Crystal Y1
 U 1 1 61839BE5
 P 5200 4250
 F 0 "Y1" V 5154 4381 50  0000 L CNN
@@ -572,7 +599,7 @@ Wire Wire Line
 Text Label 3300 3850 0    50   ~ 0
 A7
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR07
+L power:GND #PWR07
 U 1 1 6184FD81
 P 4050 6250
 F 0 "#PWR07" H 4050 6000 50  0001 C CNN
@@ -601,7 +628,7 @@ Wire Wire Line
 Wire Wire Line
 	4950 4250 4950 4400
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_LED D2
+L Device:LED D2
 U 1 1 61883984
 P 6050 4050
 F 0 "D2" H 6042 3795 50  0000 C CNN
@@ -614,7 +641,7 @@ $EndComp
 Wire Wire Line
 	4650 4050 5900 4050
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R5
+L Device:R R5
 U 1 1 61888AB0
 P 6500 4050
 F 0 "R5" V 6707 4050 50  0000 C CNN
@@ -629,7 +656,7 @@ Wire Wire Line
 Wire Wire Line
 	6650 4050 6800 4050
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR08
+L power:GND #PWR08
 U 1 1 61892E8A
 P 6800 4050
 F 0 "#PWR08" H 6800 3800 50  0001 C CNN
@@ -640,7 +667,7 @@ F 3 "" H 6800 4050 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:power_+5V #PWR09
+L power:+5V #PWR09
 U 1 1 618931A2
 P 4300 1150
 F 0 "#PWR09" H 4300 1000 50  0001 C CNN
@@ -654,7 +681,7 @@ Connection ~ 4250 1150
 Text Label 1500 1150 0    50   ~ 0
 VIN
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x02 J1
+L Connector_Generic:Conn_01x02 J1
 U 1 1 6189E05D
 P 800 1350
 F 0 "J1" H 720 1025 50  0000 C CNN
@@ -665,18 +692,18 @@ F 3 "~" H 800 1350 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	1500 800  1500 1150
+	1500 800  1500 1250
 Wire Wire Line
 	1500 1250 1000 1250
 Wire Wire Line
-	1000 1950 1750 1950
+	1000 1950 2550 1950
 Connection ~ 1750 1950
 Wire Wire Line
 	1000 1350 1000 1950
 Wire Wire Line
-	1750 1950 1750 1500
+	1750 1500 1750 1950
 $Comp
-L PlacaSlave3AGesinen-rescue:power_+5V #PWR010
+L power:+5V #PWR010
 U 1 1 618BB0CD
 P 4100 3250
 F 0 "#PWR010" H 4100 3100 50  0001 C CNN
@@ -688,7 +715,7 @@ F 3 "" H 4100 3250 50  0001 C CNN
 $EndComp
 Connection ~ 4100 3250
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_C C2
+L Device:C C2
 U 1 1 618BB162
 P 3300 3400
 F 0 "C2" H 3415 3446 50  0000 L CNN
@@ -701,7 +728,7 @@ $EndComp
 Wire Wire Line
 	3450 3550 3300 3550
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR011
+L power:GND #PWR011
 U 1 1 618C1330
 P 3300 3250
 F 0 "#PWR011" H 3300 3000 50  0001 C CNN
@@ -714,7 +741,7 @@ $EndComp
 Wire Wire Line
 	4650 5050 6250 5050
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R4
+L Device:R R4
 U 1 1 618C75E8
 P 6250 4900
 F 0 "R4" V 6457 4900 50  0000 C CNN
@@ -725,7 +752,7 @@ F 3 "~" H 6250 4900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:power_+5V #PWR012
+L power:+5V #PWR012
 U 1 1 618D95D3
 P 6250 4750
 F 0 "#PWR012" H 6250 4600 50  0001 C CNN
@@ -736,19 +763,19 @@ F 3 "" H 6250 4750 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Switch_SW_DIP_x01 SW1
+L Switch:SW_DIP_x01 SW1
 U 1 1 618D96FD
 P 6250 5350
 F 0 "SW1" V 6204 5480 50  0000 L CNN
 F 1 "SW_DIP_x01" V 6295 5480 50  0000 L CNN
-F 2 "Button_Switch_THT:SW_DIP_SPSTx01_Slide_6.7x4.1mm_W7.62mm_P2.54mm_LowProfile" H 6250 5350 50  0001 C CNN
+F 2 "Button_Switch_SMD:SW_Push_1P1T_NO_6x6mm_H9.5mm" H 6250 5350 50  0001 C CNN
 F 3 "" H 6250 5350 50  0001 C CNN
 	1    6250 5350
 	0    1    1    0   
 $EndComp
 Connection ~ 6250 5050
 $Comp
-L PlacaSlave3AGesinen-rescue:power_GND #PWR013
+L power:GND #PWR013
 U 1 1 618D9798
 P 6250 5650
 F 0 "#PWR013" H 6250 5400 50  0001 C CNN
@@ -759,7 +786,7 @@ F 3 "" H 6250 5650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:power_+5V #PWR014
+L power:+5V #PWR014
 U 1 1 618EDA09
 P 10450 1500
 F 0 "#PWR014" H 10450 1350 50  0001 C CNN
@@ -770,7 +797,7 @@ F 3 "" H 10450 1500 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:power_+5V #PWR015
+L power:+5V #PWR015
 U 1 1 618EDDDC
 P 9850 1000
 F 0 "#PWR015" H 9850 850 50  0001 C CNN
@@ -783,7 +810,7 @@ $EndComp
 Text Label 2700 2050 0    50   ~ 0
 GND
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_Jumper JP1
+L Device:Jumper JP1
 U 1 1 61829D0F
 P 2550 800
 F 0 "JP1" H 2550 1064 50  0000 C CNN
@@ -797,7 +824,7 @@ Wire Wire Line
 	1500 800  2250 800 
 Connection ~ 1500 1150
 Wire Wire Line
-	4250 800  2850 800 
+	2850 800  4250 800 
 Wire Notes Line
 	500  2350 8500 2350
 Text Notes 5050 1650 0    50   ~ 0
@@ -819,7 +846,7 @@ A5_SCL
 Text Label 4950 4850 0    50   ~ 0
 A4_SDA
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_Jumper_NC_Small JP2
+L Device:Jumper_NC_Small JP2
 U 1 1 6195BEDA
 P 3350 1300
 F 0 "JP2" V 3304 1374 50  0000 L CNN
@@ -830,7 +857,7 @@ F 3 "~" H 3350 1300 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	2550 2050 3350 2050
+	2550 2050 3850 2050
 Connection ~ 3350 2050
 Wire Wire Line
 	3350 1400 3350 1450
@@ -845,7 +872,7 @@ A5_SCL
 Text Label 4200 1150 2    50   ~ 0
 VCC
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x04 S1
+L Connector_Generic:Conn_01x04 S1
 U 1 1 6194109C
 P 10200 3800
 F 0 "S1" V 10279 3792 50  0000 L CNN
@@ -866,7 +893,7 @@ TX5
 Text Notes 10700 2600 0    50   ~ 0
 12\n11\n
 $Comp
-L PlacaSlave3AGesinen-rescue:Transistor_FET_BSS138 Q1
+L Transistor_FET:BSS138 Q1
 U 1 1 618D5DA2
 P 1800 5950
 F 0 "Q1" V 2050 5950 50  0000 C CNN
@@ -877,7 +904,7 @@ F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 1800 5950 50  000
 	0    1    1    0   
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R6
+L Device:R R6
 U 1 1 618DC211
 P 1250 5650
 F 0 "R6" H 1320 5696 50  0000 L CNN
@@ -888,7 +915,7 @@ F 3 "~" H 1250 5650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R8
+L Device:R R8
 U 1 1 618DC2BB
 P 2250 5650
 F 0 "R8" H 2320 5696 50  0000 L CNN
@@ -899,7 +926,7 @@ F 3 "~" H 2250 5650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Connector_Generic_Conn_01x05 S2
+L Connector_Generic:Conn_01x05 S2
 U 1 1 618E27F3
 P 2500 3800
 F 0 "S2" H 2579 3842 50  0000 L CNN
@@ -914,7 +941,7 @@ Wire Wire Line
 Text Label 2100 3600 0    50   ~ 0
 3V3
 Wire Wire Line
-	1250 5300 1250 5450
+	1250 5300 1250 5500
 Text Label 1250 5400 0    50   ~ 0
 3V3
 Wire Wire Line
@@ -927,9 +954,9 @@ Wire Wire Line
 	1800 5450 1800 5750
 Connection ~ 1250 5450
 Wire Wire Line
-	950  6050 1250 6050
+	950  6050 1600 6050
 Wire Wire Line
-	2000 6050 2250 6050
+	2000 6050 2500 6050
 Connection ~ 1250 6050
 Connection ~ 2250 6050
 Text Label 2450 6050 2    50   ~ 0
@@ -937,7 +964,7 @@ A5_SCL
 Text Label 1150 6050 2    50   ~ 0
 A5_SCL_3V3
 $Comp
-L PlacaSlave3AGesinen-rescue:Transistor_FET_BSS138 Q2
+L Transistor_FET:BSS138 Q2
 U 1 1 6197057B
 P 1800 7200
 F 0 "Q2" V 2050 7200 50  0000 C CNN
@@ -948,7 +975,7 @@ F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 1800 7200 50  000
 	0    1    1    0   
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R7
+L Device:R R7
 U 1 1 61970581
 P 1250 6900
 F 0 "R7" H 1320 6946 50  0000 L CNN
@@ -959,7 +986,7 @@ F 3 "~" H 1250 6900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PlacaSlave3AGesinen-rescue:Device_R R9
+L Device:R R9
 U 1 1 61970587
 P 2250 6900
 F 0 "R9" H 2320 6946 50  0000 L CNN
@@ -970,7 +997,7 @@ F 3 "~" H 2250 6900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1250 6550 1250 6700
+	1250 6550 1250 6750
 Text Label 1250 6650 0    50   ~ 0
 3V3
 Wire Wire Line
@@ -983,13 +1010,13 @@ Wire Wire Line
 	1800 6700 1800 7000
 Connection ~ 1250 6700
 Wire Wire Line
-	950  7300 1250 7300
+	950  7300 1600 7300
 Wire Wire Line
-	1250 7050 1250 7300
+	1250 7050 1250 7700
 Wire Wire Line
-	2000 7300 2250 7300
+	2000 7300 2500 7300
 Wire Wire Line
-	2250 7050 2250 7300
+	2250 7050 2250 7700
 Connection ~ 1250 7300
 Connection ~ 2250 7300
 Text Label 2450 7300 2    50   ~ 0
@@ -1003,7 +1030,7 @@ Wire Notes Line
 Text Notes 1050 5150 0    50   ~ 0
 CONVERSOR DE NIVEL 3v3 - 5V
 $Comp
-L PlacaSlave3AGesinen-rescue:Jumper_SolderJumper_2_Bridged JP4
+L Jumper:SolderJumper_2_Bridged JP4
 U 1 1 619B33E6
 P 1750 7700
 F 0 "JP4" H 1750 7905 50  0000 C CNN
@@ -1018,11 +1045,11 @@ Wire Wire Line
 Wire Wire Line
 	1250 7700 1600 7700
 Wire Wire Line
-	2250 5800 2250 6050
+	2250 5800 2250 6450
 Wire Wire Line
-	1250 5800 1250 6050
+	1250 5800 1250 6450
 $Comp
-L PlacaSlave3AGesinen-rescue:Jumper_SolderJumper_2_Bridged JP3
+L Jumper:SolderJumper_2_Bridged JP3
 U 1 1 619D6C5E
 P 1750 6450
 F 0 "JP3" H 1750 6655 50  0000 C CNN
@@ -1042,114 +1069,4 @@ Text Label 2250 3700 2    50   ~ 0
 A4_SDA_3V3
 Text Notes 550  4950 0    50   ~ 0
 EN CASO DE TENER I2C EN 3v3 soldar componentes y no soldar jumper\nen caso de tenert I2C en 5v soldar jumper no poner componentes
-$Comp
-L PlacaSlave3AGesinen-rescue:Mechanical_MountingHole MH1
-U 1 1 618DC7C4
-P 7700 3150
-F 0 "MH1" H 7800 3196 50  0000 L CNN
-F 1 "MountingHole" H 7800 3105 50  0000 L CNN
-F 2 "MountingHole:MountingHole_3.2mm_M3" H 7700 3150 50  0001 C CNN
-F 3 "~" H 7700 3150 50  0001 C CNN
-	1    7700 3150
-	1    0    0    -1  
-$EndComp
-$Comp
-L PlacaSlave3AGesinen-rescue:Mechanical_MountingHole MH2
-U 1 1 618DC888
-P 7700 3400
-F 0 "MH2" H 7800 3446 50  0000 L CNN
-F 1 "MountingHole" H 7800 3355 50  0000 L CNN
-F 2 "MountingHole:MountingHole_3.2mm_M3" H 7700 3400 50  0001 C CNN
-F 3 "~" H 7700 3400 50  0001 C CNN
-	1    7700 3400
-	1    0    0    -1  
-$EndComp
-$Comp
-L PlacaSlave3AGesinen-rescue:Mechanical_MountingHole MH3
-U 1 1 618E58D2
-P 7700 3650
-F 0 "MH3" H 7800 3696 50  0000 L CNN
-F 1 "MountingHole" H 7800 3605 50  0000 L CNN
-F 2 "MountingHole:MountingHole_3.2mm_M3" H 7700 3650 50  0001 C CNN
-F 3 "~" H 7700 3650 50  0001 C CNN
-	1    7700 3650
-	1    0    0    -1  
-$EndComp
-$Comp
-L PlacaSlave3AGesinen-rescue:Mechanical_MountingHole MH4
-U 1 1 61900A22
-P 7700 3900
-F 0 "MH4" H 7800 3946 50  0000 L CNN
-F 1 "Logo" H 7800 3855 50  0000 L CNN
-F 2 "Logo:GesinenLogo" H 7700 3900 50  0001 C CNN
-F 3 "~" H 7700 3900 50  0001 C CNN
-	1    7700 3900
-	1    0    0    -1  
-$EndComp
-$Comp
-L PlacaSlave3AGesinen-rescue:MCU_Microchip_ATmega_ATmega328-AU U2
-U 1 1 618DC9F9
-P 4050 4750
-F 0 "U2" H 4050 3164 50  0000 C CNN
-F 1 "ATmega328-AU" H 4050 3073 50  0000 C CNN
-F 2 "Package_QFP:TQFP-32_7x7mm_P0.8mm" H 4050 4750 50  0001 C CIN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/ATmega328_P%20AVR%20MCU%20with%20picoPower%20Technology%20Data%20Sheet%2040001984A.pdf" H 4050 4750 50  0001 C CNN
-	1    4050 4750
-	1    0    0    -1  
-$EndComp
-$Comp
-L PlacaSlave3AGesinen-rescue:Regulator_Linear_MIC5219-5.0 U1
-U 1 1 618DCCDF
-P 2550 1250
-F 0 "U1" H 2550 1592 50  0000 C CNN
-F 1 "MIC5219-5.0" H 2550 1501 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-23-5" H 2550 1575 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/devicedoc/mic5219.pdf" H 2550 1250 50  0001 C CNN
-	1    2550 1250
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	10050 950  10200 950 
-Wire Wire Line
-	1750 1150 2250 1150
-Wire Wire Line
-	3350 1150 3850 1150
-Wire Wire Line
-	3850 1150 4250 1150
-Wire Wire Line
-	4250 1150 4250 1200
-Wire Wire Line
-	4250 1150 4300 1150
-Wire Wire Line
-	1750 1950 2550 1950
-Wire Wire Line
-	4100 3250 4150 3250
-Wire Wire Line
-	1500 1150 1500 1250
-Wire Wire Line
-	3350 2050 3850 2050
-Wire Wire Line
-	3850 1950 3850 1500
-Wire Wire Line
-	2550 1950 2550 2050
-Wire Wire Line
-	1250 5450 1250 5500
-Wire Wire Line
-	1250 6050 1600 6050
-Wire Wire Line
-	1250 6050 1250 6450
-Wire Wire Line
-	2250 6050 2500 6050
-Wire Wire Line
-	2250 6050 2250 6450
-Wire Wire Line
-	1250 6700 1250 6750
-Wire Wire Line
-	1250 7300 1600 7300
-Wire Wire Line
-	1250 7300 1250 7700
-Wire Wire Line
-	2250 7300 2500 7300
-Wire Wire Line
-	2250 7300 2250 7700
 $EndSCHEMATC

@@ -1,0 +1,28 @@
+Drill report for C:\Users\dbs99\Desktop\Gesinen\PlacaMaster3AGesinen\Master3A\Master3A__2.kicad_pcb
+Created on 24/11/2021 17:07:02
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'Master3A__2-PTH.drl' contains
+    plated through holes:
+    =============================================================
+    T1  0,30mm  0,012"  (18 holes)
+    T2  0,40mm  0,016"  (27 holes)
+    T3  0,75mm  0,030"  (10 holes)
+    T4  0,76mm  0,030"  (32 holes)
+    T5  1,00mm  0,039"  (36 holes)
+    T6  1,52mm  0,060"  (4 holes)
+
+    Total plated holes count 127
+
+
+Drill file 'Master3A__2-NPTH.drl' contains
+    unplated through holes:
+    =============================================================
+    T1  3,20mm  0,126"  (3 holes)
+
+    Total unplated holes count 3
