@@ -24,6 +24,6 @@ En el caso de LORA: el dispositivo “Master” envía datos a un Gateway de LOR
 En el caso de 4G: se envía directamente a través de MQTT.
 
 Master:
-[[https://github.com/danielei9/environmentalSensor_HW/tree/main/doc/Master.png|alt=octocat]]
+(https://github.com/danielei9/environmentalSensor_HW/blob/main/doc/Master.png)
 Slave:
-[[https://github.com/danielei9/environmentalSensor_HW/tree/main/doc/Slave.png|alt=octocat]]
+(https://github.com/danielei9/environmentalSensor_HW/blob/main/doc/Slave.png)
