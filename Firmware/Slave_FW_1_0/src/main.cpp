@@ -30,19 +30,13 @@ SensorUART sensor3(4, 5);
 SensorUART sensor4(6, 7);
 SensorUART sensor5(8, 9);
 
+bool requested = false;
 void requestEvent()
 {
-  // rellenando el array
-  arrayData[0] = sensor1.getMeasure();
-  arrayData[1] = sensor2.getMeasure();
-  arrayData[2] = sensor3.getMeasure();
-  arrayData[3] = sensor4.getMeasure();
-  arrayData[4] = sensor5.getMeasure();
-  // arrayData[5] = 255;
-  // arrayData[6] = 255;
-  // arrayData[7] = 255;
-
+  Serial.println("Requested from Master");
+  requested = true;
   Wire.write(arrayData, arrayLength);
+  // rellenando el array
 }
 
 void setup()
@@ -55,10 +49,23 @@ void setup()
 
 void loop()
 {
-  sensor1.testUart("1");
-  sensor2.testUart("2");
-  sensor3.testUart("3");
-  sensor4.testUart("4");
-  sensor5.testUart("5");
-  delay(100);
+
+  if (requested)
+  {
+    arrayData[0] = sensor1.testUart("1");
+    arrayData[1] = sensor2.testUart("2");
+    arrayData[2] = sensor3.testUart("3");
+    arrayData[3] = sensor4.testUart("4");
+    arrayData[4] = sensor5.testUart("5");
+
+    Serial.println("Writting Array");
+    for (int i = 0; i < 8; i++)
+    {
+      Serial.print(arrayData[i]);
+      Serial.print(":");
+    }
+    Serial.println();
+    requested = false;
+  }
+  delay(500);
 }

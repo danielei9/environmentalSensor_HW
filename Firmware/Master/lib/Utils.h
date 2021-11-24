@@ -18,7 +18,9 @@ void printBytesArray(byte *arrayData, uint8_t size)
 {
   for (int i = 0; i < size; i++)
   {
-    Serial.println(arrayData[i]);
+    Serial.print(arrayData[i]);
+    Serial.print(":");
   }
+  Serial.println();
 }
 #endif

@@ -61,8 +61,10 @@ public:
         byte *arrayData = new byte[bytesNumber];
         uint16_t i = 0; // contador
         
+        // first call to get data   
         Wire.requestFrom(slaveAdress, bytesNumber);
 
+        // timer to read sensors
         while (Wire.available())
         {
             // se llena el array con los datos
