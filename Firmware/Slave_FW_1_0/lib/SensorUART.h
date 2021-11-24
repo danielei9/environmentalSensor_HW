@@ -31,7 +31,7 @@ private:
     {
         return highConcentration * 256 + lowConcentration;
     }
-    
+
 public:
     /**
      * Constructor de la clase SensorUART
@@ -41,6 +41,35 @@ public:
         (*this).RX = rx;
         (*this).TX = tx;
         sensorSerial = new SoftwareSerial(rx, tx);
+    }
+    void initSensor()
+    {
+        sensorSerial->begin((*this).baudios);
+    }
+
+    void writeSerial(char *c)
+    {
+        delay(20);
+        sensorSerial->println(c);
+        delay(10);
+        sensorSerial->write(c);
+        Serial.println();
+    }
+    byte listenSensor()
+    {
+        Serial.println("listening");
+        sensorSerial->begin((*this).baudios);
+        delay(500);
+        byte b;
+        while (sensorSerial->available())
+        {
+            b = sensorSerial->read();
+            Serial.write(b);
+        }
+        Serial.println(b);
+        sensorSerial->end();
+        Serial.println();
+        return b;
     }
 
     byte testUart(char *c)
@@ -58,13 +87,14 @@ public:
         Serial.println();
         return b;
     }
-
     /**
      * Obtiene la medida del sensor
      * @returns devuelve un array
      */
     int getMeasure()
     {
+        sensorSerial->begin((*this).baudios);
+        delay(500);
         Serial.println("Enviando comando : 0xFF 0x01 0x86 0x00 0x00 0x00 0x00 0x00 0x79");
         byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
 
@@ -88,6 +118,7 @@ public:
             Serial.write(sensorSerial->read());
             index++;
         }
+        sensorSerial->end();
 
         // devolviendo la lectura de hexadecimal a decimal
         return getGasConcentration(arrayData[6], arrayData[7]);

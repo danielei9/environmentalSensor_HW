@@ -27,14 +27,19 @@ void loop()
   // {
   //   if (timerTrue(mill, 2000))
   //   {
-  //     // publisher->sendData(arrayData);
+      
+
+  //     publisher->sendData(arrayData);
   //     mill = millis();
   //   }
   // }
-  // slaveController.scanSlaves();
 
+  // get arrayData
+  Serial.println("Requesting sensors data..");
   uint8_t bytesToRequest = 8;
   byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
   printBytesArray(arrayData, bytesToRequest);
-  delay(2000);
+  delay(10000);
+
+  // slaveController.scanSlaves();
 }
