@@ -7,6 +7,7 @@
 // this function is registered as an event, see setup()
 
 const byte I2C_SLAVE_ADDR = 0x20;
+const byte REQUEST_COMMAND = 0x30;
 uint8_t arrayLength = 8;
 byte *arrayData = new byte[arrayLength];
 
@@ -30,13 +31,36 @@ SensorUART sensor3(4, 5);
 SensorUART sensor4(6, 7);
 SensorUART sensor5(8, 9);
 
-bool requested = false;
+// Request event para enviar los datos
 void requestEvent()
 {
-  Serial.println("Requested from Master");
-  requested = true;
+  Serial.println("Requested data from Master...");
+  Serial.println("Sending Data: ");
+  for (int i = 0; i < 8; i++)
+  {
+    Serial.print(arrayData[i]);
+    if (i < 7)
+      Serial.print(":");
+  }
+  Serial.println();
+  Serial.println();
   Wire.write(arrayData, arrayLength);
-  // rellenando el array
+}
+
+// Funcion para recibir comandos desde el master
+byte data = 0;
+void receiveEvent(int bytes)
+{
+  data = 0;
+  uint8_t index = 0;
+  Serial.println("Requested command from Master");
+  // lee el comando
+  while (Wire.available())
+  {
+    byte *pointer = (byte *)&data;
+    *(pointer + index) = (byte)Wire.read();
+    index++;
+  }
 }
 
 void setup()
@@ -45,27 +69,33 @@ void setup()
 
   Wire.begin(I2C_SLAVE_ADDR);
   Wire.onRequest(requestEvent);
+  Wire.onReceive(receiveEvent);
 }
 
 void loop()
 {
 
-  if (requested)
+  if (data != 0)
   {
-    arrayData[0] = sensor1.testUart("1");
-    arrayData[1] = sensor2.testUart("2");
-    arrayData[2] = sensor3.testUart("3");
-    arrayData[3] = sensor4.testUart("4");
-    arrayData[4] = sensor5.testUart("5");
-
-    Serial.println("Writting Array");
-    for (int i = 0; i < 8; i++)
-    {
-      Serial.print(arrayData[i]);
-      Serial.print(":");
-    }
+    Serial.print("Command received: 0x");
+    Serial.println(data, HEX);
     Serial.println();
-    requested = false;
+
+    if (data == REQUEST_COMMAND)
+    {
+      // rellenando el array
+      Serial.println("Getting Sensors Data");
+      arrayData[0] = sensor1.testUart("1");
+      arrayData[1] = sensor2.testUart("2");
+      arrayData[2] = sensor3.testUart("3");
+      arrayData[3] = sensor4.testUart("4");
+      arrayData[4] = sensor5.testUart("5");
+      arrayData[5] = 25;
+      arrayData[6] = 30;
+      arrayData[7] = 90;
+      // ejecutar el comando
+    }
+    data = 0;
   }
   delay(500);
 }
