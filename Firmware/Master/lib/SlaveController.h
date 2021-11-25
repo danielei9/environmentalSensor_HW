@@ -57,25 +57,37 @@ public:
      */
     byte *requestMeasuresToSlave(uint8_t slaveAdress, uint8_t bytesNumber)
     {
+
+        long data = 100; // comando
+        byte command = 0x30;
+        
+        // Envia una peticion para que cargue los valores de los sensores
+        Wire.beginTransmission(slaveAdress);
+        Wire.write((byte *)&command, sizeof(command));
+        Wire.endTransmission();
+        
+        Serial.println("Waiting 5 seconds");
+        // espera 5 segundos para la recepcion de datos y leidas de uarts
+        delay(5000);
+
         // crea un array vacio
         byte *arrayData = new byte[bytesNumber];
         uint16_t i = 0; // contador
-        
-        // first call to get data   
+
+        // first call to get data
         Wire.requestFrom(slaveAdress, bytesNumber);
 
         // timer to read sensors
         while (Wire.available())
         {
             // se llena el array con los datos
-            arrayData[i] =  (byte) Wire.read();
+            arrayData[i] = (byte)Wire.read();
             i++;
         }
         return arrayData;
     }
 
-    /**
-     * Escanea la comunicacion I2C en busca de esclavos
+    /* Escanea la comunicacion I2C en busca de esclavos
      */
     void scanSlaves()
     {
