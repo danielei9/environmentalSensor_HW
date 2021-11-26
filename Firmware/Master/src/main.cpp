@@ -6,6 +6,9 @@
 #include <../lib/SlaveController.h>
 #include "../lib/CJMCU.h"
 #include "../lib/Modbus/Modbus.hpp"
+#include "Adafruit_CCS811.h"
+#include "Adafruit_GFX.h"
+#include "ESP32httpUpdate.h"
 
 #define PROTOCOL_4G
 #include <../lib/PublishersClient.h>
@@ -16,7 +19,6 @@ unsigned long mill = 0;
 
 #define TTGO_SOFTWARE_SERIAL 1 // If use ttgo
 #define SENSOR_SUELO 1         // If we have sensor floor
-#include <modbus.hpp>
 
 #ifdef SENSOR_SUELO
 //#define sensorPowerController 1
