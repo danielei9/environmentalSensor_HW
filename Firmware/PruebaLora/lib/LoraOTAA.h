@@ -9,6 +9,9 @@
 #include <Arduino.h>
 #include <../lib/IBM/src/lmic.h>
 #include <../lib/IBM/src/hal/hal.h>
+#define PORT_PING 2
+#define PORT_DATA 1
+#define PORT_INFO 3
 //This is the address LORA
 #define APPEUI_DEF                                     \
     {                                                  \
@@ -24,6 +27,7 @@
     }
 //--------------------------------------------------------//
 //---------------------LORA UTILIES--------------------------//
+static osjob_t sendjob;
 static u1_t APPEUI[8] = APPEUI_DEF;
 void os_getArtEui(u1_t *buf) { memcpy(buf, APPEUI, 8); }
 static const u1_t PROGMEM DEVEUI[8] = DEVEUI_DEF;
@@ -56,7 +60,7 @@ private:
     bool joined;
     unsigned long joinMillis;
     //--------------------------------------------------------//
-    // cleanRecivedData 
+    // cleanRecivedData
     // before recive data you need clean this array which will get the data
 
     void cleanRecivedData()
@@ -68,9 +72,8 @@ private:
     }
     //--------------------------------------------------------//
 public:
-    
     uint8_t recivedData[52];
-//--------------------------------------------------------//
+    //--------------------------------------------------------//
     LoraOTAA()
     {
         txComplete = true;
@@ -86,7 +89,7 @@ public:
         os_init();
         LMIC_reset();
         uint8_t firstData[10] = "FirstSend";
-        sendData(firstData);
+        sendData(&sendjob, firstData, PORT_INFO);
     }
     //--------------------------------------------------------//
     // join() -> boolean
@@ -96,12 +99,17 @@ public:
     {
         if (joined)
         {
+             Serial.print(os_getTime());
+                Serial.print(": ");
+                Serial.println("JOINED");
             return true;
         }
         else
         {
             if (timerTrue(joinMillis, 2000))
             {
+                Serial.print(os_getTime());
+                Serial.print(": ");
                 Serial.println("JOINING...");
                 joinMillis = millis();
                 return false;
@@ -109,10 +117,12 @@ public:
         }
     }
     //--------------------------------------------------------//
-    // data:bytes[] ->  sendData  
+    // data:bytes[], port:R ->  sendData
     // data to send
-    void sendData(uint8_t *data)
+    void sendData(osjob_t *j, uint8_t *data, unsigned int port)
     {
+        Serial.print(os_getTime());
+        Serial.print(": ");
         // Check if there is not a current TX/RX job running
         if (LMIC.opmode & OP_TXRXPEND)
         {
@@ -124,7 +134,7 @@ public:
             {
                 Serial.print("Sending... ");
                 // Prepare upstream data transmission at the next possible time.
-                LMIC_setTxData2(1, data, sizeof(data) - 1, 0);
+                LMIC_setTxData2(port, data, sizeof(data) - 1, 0);
                 Serial.println(F("Packet queued"));
                 txComplete = false;
             }
@@ -138,6 +148,7 @@ public:
     {
         os_runloop_once();
     }
+    // send a ping still a live 
     void makePing(int interval, long previousMillis)
     {
         unsigned long currentMillis = millis();
@@ -146,12 +157,14 @@ public:
             previousMillis = currentMillis;
             if (LMIC.opmode & OP_TXRXPEND)
             {
+                Serial.print(os_getTime());
+                Serial.print(": ");
                 Serial.println(F("OP_TXRXPEND, not sending"));
             }
             else
             {
                 uint8_t ping[] = "PING";
-                sendData(ping);
+                sendData(&sendjob, ping, PORT_PING);
             }
         }
     }
@@ -207,7 +220,7 @@ public:
             if (LMIC.dataLen)
             {
                 cleanRecivedData();
-                Serial.print("$Received$");
+                Serial.print("Received: ");
                 for (int i = 0; i < LMIC.dataLen; i++)
                 {
                     recivedData[i] = LMIC.frame[LMIC.dataBeg + i];
@@ -240,5 +253,4 @@ public:
     }
     //--------------------------------------------------------//
     //--------------------------------------------------------//
-
 };
