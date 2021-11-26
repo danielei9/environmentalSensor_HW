@@ -8,6 +8,7 @@
 #include <Update.h>
 #include <FS.h>
 #include <ESP32httpUpdate.h>
+#include <Modbus.hpp>
 #include <../lib/IBM/src/lmic.h>
 #include <../lib/IBM/src/hal/hal.h>
 #include <../lib/SlaveController.h>
@@ -17,10 +18,8 @@
 uint8_t arrayData[52]; // array Data
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
-<<<<<<< Updated upstream
 #include <../lib/PublishersClient.h>
 #include <SPI.h>
-=======
 
 #define TTGO_SOFTWARE_SERIAL 1 // If use ttgo
 #define SENSOR_SUELO 1         // If we have sensor floor
@@ -61,7 +60,6 @@ void readFile(fs::FS &fs, const char *path);
 // Construct the modbus instance
 Modbus modbus;
 uint32_t knownCRC32 = 0x6f50d767;
->>>>>>> Stashed changes
 
 // 33 SDA 32 SCL
 void setup()
@@ -141,13 +139,6 @@ void loop()
 
     while (readLength < contentLength )
     {
-<<<<<<< Updated upstream
-      // get arrayData
-      Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 8;
-      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
-      printBytesArray(arrayData, bytesToRequest);
-=======
       int i = 0;
       while (readLength < contentLength)
       {
@@ -159,7 +150,7 @@ void loop()
         }
         int c = client.read();
         Serial.print((char)c); // COMMENT THis shit pls
-        crc.update((char)c);   //
+        // crc.update((char)c);   //
         readLength++;
 
         if (readLength % (contentLength / 13) == 0)
@@ -208,7 +199,6 @@ void loop()
     readFile(SPIFFS, "/firmware.bin");
 
     updateFromFS();
->>>>>>> Stashed changes
 
     // Do nothing forevermoreContent-Type
     while (true)
