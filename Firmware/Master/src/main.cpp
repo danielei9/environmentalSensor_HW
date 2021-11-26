@@ -17,6 +17,9 @@ uint8_t arrayData[52]; // array Data
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
 
+void initModbus();
+void getModbusData();
+
 #define TTGO_SOFTWARE_SERIAL 1 // If use ttgo
 #define SENSOR_SUELO 1         // If we have sensor floor
 
@@ -41,6 +44,54 @@ Modbus modbus;
 
 // 33 SDA 32 SCL
 void setup()
+{
+  initModbus();
+  publisher->initPublisher();
+  slaveController.initMaster();
+  // initCJM();
+}
+
+void loop()
+{
+  // getCJMData();
+  if (publisher->join())
+  {
+    if (timerTrue(mill, 10000))
+    {
+      // get arrayData
+      Serial.println("Requesting sensors data..");
+      uint8_t bytesToRequest = 8;
+      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+      getModbusData();
+
+      printBytesArray(arrayData, bytesToRequest);
+
+      publisher->sendData(arrayData);
+      mill = millis();
+    }
+  }
+  // slaveController.scanSlaves();
+}
+
+void getModbusData()
+{
+  float temp = modbus.getTemperature();
+  Serial.println("Temperatura: ");
+  Serial.println(temp);
+  arrayData[5] = temp;
+
+  float epsi = modbus.getEpsilon();
+  Serial.println("Epsilon: ");
+  Serial.println(epsi);
+  arrayData[6] = epsi;
+
+  float soil = modbus.getSoilMoisture();
+  Serial.println("Soil: ");
+  Serial.println(soil);
+  arrayData[7] = soil;
+}
+
+void initModbus()
 {
 
 #ifdef SENSOR_SUELO
@@ -76,45 +127,4 @@ void setup()
 #endif
   modbus.begin(0x01, modbusSerial, DEREPin);
 #endif
-
-  publisher->initPublisher();
-  slaveController.initMaster();
-  // initCJM();
-}
-
-void loop()
-{
-  // getCJMData();
-  if (publisher->join())
-  {
-    if (timerTrue(mill, 10000))
-    {
-      // get arrayData
-      Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 8;
-      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
-
-      float temp = modbus.getTemperature();
-      Serial.println("Temperatura: ");
-      Serial.println(temp);
-      arrayData[5] = temp;
-
-      float epsi = modbus.getEpsilon();
-      Serial.println("Epsilon: ");
-      Serial.println(epsi);
-      arrayData[6] = epsi;
-
-      float soil = modbus.getSoilMoisture();
-      Serial.println("Soil: ");
-      Serial.println(soil);
-      arrayData[7] = soil;
-
-
-      printBytesArray(arrayData, bytesToRequest);
-
-      publisher->sendData(arrayData);
-      mill = millis();
-    }
-  }
-  // slaveController.scanSlaves();
 }

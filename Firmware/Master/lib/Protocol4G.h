@@ -239,37 +239,37 @@ public:
             mqttClient.beginMessage(topicSend);
             mqttClient.print("{\"deviceEui\":1,\"value\": ");
             mqttClient.print((String)arrayData[0]);
-            mqttClient.println(",\"type\": \"Sensor1\", \"unit\": \"void\"}");
+            mqttClient.println(",\"type\": \"Co2\", \"unit\": \"ppm\"}");
             mqttClient.endMessage();
 
             mqttClient.beginMessage(topicSend);
             mqttClient.print("{\"deviceEui\":1,\"value\": ");
             mqttClient.print((String)arrayData[1]);
-            mqttClient.println(",\"type\": \"Sensor2\", \"unit\": \"void\"}");
+            mqttClient.println(",\"type\": \"HSO\", \"unit\": \"ppm\"}");
             mqttClient.endMessage();
 
             mqttClient.beginMessage(topicSend);
             mqttClient.print("{\"deviceEui\":1,\"value\": ");
             mqttClient.print((String)arrayData[2]);
-            mqttClient.println(",\"type\": \"Sensor3\", \"unit\": \"void\"}");
+            mqttClient.println(",\"type\": \"O3\", \"unit\": \"ppm\"}");
             mqttClient.endMessage();
 
             mqttClient.beginMessage(topicSend);
             mqttClient.print("{\"deviceEui\":1,\"value\": ");
             mqttClient.print((String)arrayData[3]);
-            mqttClient.println(",\"type\": \"Sensor4\", \"unit\": \"void\"}");
+            mqttClient.println(",\"type\": \"CO\", \"unit\": \"pmm\"}");
             mqttClient.endMessage();
 
             mqttClient.beginMessage(topicSend);
             mqttClient.print("{\"deviceEui\":1,\"value\": ");
             mqttClient.print((String)arrayData[4]);
-            mqttClient.println(",\"type\": \"Sensor5\", \"unit\": \"void\"}");
+            mqttClient.println(",\"type\": \"H2\", \"unit\": \"ppm\"}");
             mqttClient.endMessage();
 
             mqttClient.beginMessage(topicSend);
             mqttClient.print("{\"deviceEui\":1,\"value\": ");
             mqttClient.print((String)arrayData[5]);
-            mqttClient.println(",\"type\": \"temperature\", \"unit\": \"Cº\"}");
+            mqttClient.println(",\"type\": \"Temperature\", \"unit\": \"Cº\"}");
             mqttClient.endMessage();
 
             mqttClient.beginMessage(topicSend);
@@ -281,7 +281,7 @@ public:
             mqttClient.beginMessage(topicSend);
             mqttClient.print("{\"deviceEui\":1,\"value\": ");
             mqttClient.print((String)arrayData[7]);
-            mqttClient.println(",\"type\": \"Soil\", \"unit\": \"soil\"}");
+            mqttClient.println(",\"type\": \"Soil\", \"unit\": \"Sº\"}");
             mqttClient.endMessage();
 
             Serial.println(" ");
