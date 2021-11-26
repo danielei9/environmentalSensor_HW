@@ -44,7 +44,7 @@ TinyGsm modem(debugger);
 TinyGsm modem(SerialAT);
 #endif
 
-TinyGsmClientSecure client(modem);
+TinyGsmClient client(modem);
 #include <Wire.h>
 
 // I2C
@@ -200,13 +200,13 @@ public:
                 SerialMon.println(" Connected");
 
                 // Setting Up Credentials
-                setMqttCredentials();
+                // setMqttCredentials();
 
                 // Inicializa el MQTT despues de conectarse
-                initMqtt();
+                // initMqtt();
 
                 // se suscribe a un topico
-                subscribeToTopic(topicSubscribed);
+                // subscribeToTopic(topicSubscribed);
 
                 return true;
             }
