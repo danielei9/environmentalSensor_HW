@@ -1,3 +1,10 @@
+/* ----------------------------------------------------------------
+ *   AUTHOR:        Daniel Burruchaga Sola 
+ *   FILE:           modbus.cpp
+ *   DATE:           22/11/2021
+ *   STATE:          DONE
+ *  ---------------------------------------------------------------- */
+
 #include "Arduino.h"
 #include "Modbus.hpp"
 #define RESPONSE_BUFFER_SIZE 256
@@ -13,6 +20,10 @@ byte Modbus::crcFrame[2] = {
 };
 byte Modbus::command[8] = {0x01, 0x04, 0x00, 0x00, 0x00, 0x03, 0xB0, 0x0B};
 
+/*
+This function will send a command request to the slave Modbus waiting to get Response
+command:byte[], commandLength:R -> sendCommand -> return stat:R
+*/
 // This sends a command to the sensor bus and listens for a response
 int Modbus::sendCommand(byte command[], int commandLength)
 {
@@ -117,28 +128,32 @@ int Modbus::sendCommand(byte command[], int commandLength)
 }
 
 //----------------------------------------------------------------------------
-//                           PRIVATE HELPER FUNCTIONS
+//                           HELPER FUNCTIONS
 //----------------------------------------------------------------------------
-
+// getTemperature -> temp:R
 float Modbus::getTemperature()
 {
     sendCommand(command, sizeof(command));
     return ((responseBuffer[3] * 256 + responseBuffer[4]) / 100);
 }
+// getSoilMoisture -> soil:R
 float Modbus::getSoilMoisture()
 {
     sendCommand(command, sizeof(command));
     return ((responseBuffer[5] * 256 + responseBuffer[6]) / 100);
 }
+// getEpsilon -> Epsilon:R
 float Modbus::getEpsilon()
 {
     sendCommand(command, sizeof(command));
     return responseBuffer[7] * 256 + responseBuffer[8];
 }
+// modbusSlaveId:R, Stream:Serial, enablePin:R -> begin ()
 bool Modbus::begin(byte modbusSlaveID, Stream &stream, int enablePin)
 {
     return begin(modbusSlaveID, &stream, enablePin);
 }
+// modbusSlaveId:R, Stream:Serial, enablePin:R -> begin ()
 bool Modbus::begin(byte modbusSlaveID, Stream *stream, int enablePin)
 {
     // Give values to variables;
@@ -156,6 +171,7 @@ bool Modbus::begin(byte modbusSlaveID, Stream *stream, int enablePin)
     return true;
 }
 // This flips the device/receive enable to DRIVER so the arduino can send text
+// driverEnable ()
 void Modbus::driverEnable(void)
 {
     if (_enablePin >= 0)
@@ -169,6 +185,7 @@ void Modbus::driverEnable(void)
 }
 
 // This flips the device/receive enable to RECIEVER so the sensor can send text
+// recieverEnable()
 void Modbus::recieverEnable(void)
 {
     if (_enablePin >= 0)
@@ -182,6 +199,7 @@ void Modbus::recieverEnable(void)
 }
 
 // This empties the serial buffer
+// Stream:Serial -> emptySerialBuffer()
 void Modbus::emptySerialBuffer(Stream *stream)
 {
     while (stream->available() > 0)
@@ -193,6 +211,7 @@ void Modbus::emptySerialBuffer(Stream *stream)
 
 // Just a function to pretty-print the modbus hex frames
 // This is purely for debugging
+//  modbusFrame:R, length:R -> printFrameHex()
 void Modbus::printFrameHex(byte modbusFrame[], int frameLength)
 {
     Serial.print("{");
@@ -210,6 +229,8 @@ void Modbus::printFrameHex(byte modbusFrame[], int frameLength)
 
 // Calculates a Modbus RTC cyclical redudancy code (CRC)
 // and adds it to the last two bytes of a frame
+//  modbusFrame:R, length:R -> printFrameHex()
+//
 void Modbus::calculateCRC(byte modbusFrame[], int frameLength)
 {
     // Reset the CRC frame
@@ -241,6 +262,7 @@ void Modbus::calculateCRC(byte modbusFrame[], int frameLength)
     crcFrame[0] = crcLow;
     crcFrame[1] = crcHigh;
 }
+//  insertCRC:R, length:R -> printFrameHex()
 void Modbus::insertCRC(byte modbusFrame[], int frameLength)
 {
     // Calculate the CRC
@@ -253,6 +275,7 @@ void Modbus::insertCRC(byte modbusFrame[], int frameLength)
 
 // This slices one array out of another
 // Used for slicing one or more registers out of a returned modbus RTU frame
+// inputArr:R , outPutArr:R, start:R, numBytes:R, reverseOrder:Bool -> SliceArray() 
 void Modbus::sliceArray(byte inputArray[], byte outputArray[],
                         int start_index, int numBytes, bool reverseOrder)
 {
