@@ -9,6 +9,11 @@
         "initializer_list": "cpp",
         "new": "cpp",
         "*.tpp": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "*.tcc": "cpp",
+        "functional": "cpp",
+        "istream": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp"
     }
 }

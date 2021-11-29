@@ -33,7 +33,7 @@
 
 // Configure TinyGSM library
 #define TINY_GSM_MODEM_SIM7070  // Modem is SIM800
-#define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
+#define TINY_GSM_RX_BUFFER 1024  // Set RX buffer to 1Kb
 #include <TinyGsmClient.h>
 
 #ifdef DUMP_AT_COMMANDS
@@ -86,6 +86,7 @@ private:
     {
 
         // inicializa la conexion MQTT
+        Serial.println("Connecting to MQTT..");
         while (1)
         {
             if (mqttClient.connect(broker, port))
@@ -199,13 +200,13 @@ public:
                 SerialMon.println(" Connected");
 
                 // Setting Up Credentials
-                setMqttCredentials();
+                // setMqttCredentials();
 
                 // Inicializa el MQTT despues de conectarse
-                initMqtt();
+                // initMqtt();
 
                 // se suscribe a un topico
-                subscribeToTopic(topicSubscribed);
+                // subscribeToTopic(topicSubscribed);
 
                 return true;
             }
@@ -332,6 +333,7 @@ void Protocol4G::initPublisher()
     {
         modem.simUnlock(simPin);
     }
+    
 }
 
 // --------------------------------------------------------------
