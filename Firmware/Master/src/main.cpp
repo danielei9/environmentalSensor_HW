@@ -14,6 +14,10 @@
 #define PROTOCOL_4G
 #include <../lib/PublishersClient.h>
 #include <SPI.h>
+#include <SD.h>
+#include <Ticker.h>
+#include "../lib/GPS.hpp"
+
 uint8_t arrayData[52]; // array Data
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
@@ -39,7 +43,7 @@ SoftwareSerial modbusSerial(SSRxPin, SSTxPin);
 HardwareSerial modbusSerial = Serial1;
 #endif
 #endif
-uint32_t knownCRC32 = 0x6f50d767;
+uint32_t knownCRC32 = 0xD9971BA9;
 // Construct the modbus instance
 Modbus modbus;
 
@@ -56,171 +60,59 @@ const char resource[] = "/firmware.bin"; //here de bin file
 uint32_t knownFileSize = 1024; // In case server does not send it
 void performUpdate(Stream &updateSource, size_t updateSize);
 void readFile(fs::FS &fs, const char *path);
+void OTAUpdate();
 
 long contentLength; // How many bytes of data the .bin is
 bool isValidContentType = false;
 
+GPS gps;
+
 void setup()
 {
-
+  gps.init();
   // initModbus();
-  if (!SPIFFS.begin(true))
-  {
-    Serial.println("SPIFFS Mount Failed");
-    return;
-  }
-  SPIFFS.format();
-  listDir(SPIFFS, "/", 0);
-  
-  publisher->initPublisher();
-  esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
+  // if (!SPIFFS.begin(true))
+  // {
+  //   Serial.println("SPIFFS Mount Failed");
+  //   return;
+  // }
+  // SPIFFS.format();
+  // listDir(SPIFFS, "/", 0);
+
+  // publisher->initPublisher();
+  // Serial.print("CA");
+  // Serial.println(esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam)));
 
   // slaveController.initMaster();
   // initCJM();
-}
-void GSMOTA();
-int readLength = 0;
 
+  // Set console baud rate
+}
+int readLength = 0;
 void loop()
 {
+
+  gps.testLoop();
   // getCJMData();
-  if (publisher->join())
-  {
-    Serial.print("Connecting to ");
-    Serial.print(server);
-    // if you get a connection, report back via serial:
+  // if (publisher->join())
+  // {
+  // OTAUpdate();
+  // if (timerTrue(mill, 10000))
+  // {
+  //   // get arrayData
+  //   Serial.println("Requesting sensors data..");
+  //   uint8_t bytesToRequest = 8;
+  //   byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+  //   getModbusData();
 
-    Serial.println(" OK");
-  }
+  //   printBytesArray(arrayData, bytesToRequest);
 
-  if (client.connect(server, portServer))
-  {
-    Serial.println("Fetching bin file at: " + String("https://ycansam.upv.edu.es/js/firmware.bin")); // tells where its going to get the .bin and the name its looking for
-
-    // Get the contents of the bin file
-    client.print(String("GET ") + "https://ycansam.upv.edu.es/js/firmware.bin" + " HTTP/1.1\r\n" +
-                 "Host: " + String(server) + "\r\n" +
-                 "Cache-Control: no-cache\r\n" +
-                 "Connection: close\r\n\r\n");
-    unsigned long timeout = millis();
-    while (client.available() == 0)
-    {
-      if (millis() - timeout > 5000)
-      {
-        Serial.println("Client Timeout !");
-        client.stop();
-        return;
-      }
-    }
-    Serial.println("Reading header");
-
-    uint32_t contentLength = knownFileSize;
-
-    File file = SPIFFS.open("/firmware.bin", FILE_APPEND);
-
-    while (client.available())
-    {
-      String line = client.readStringUntil('\n');
-      line.trim();
-      Serial.println(line); // Uncomment this to show response header
-      line.toLowerCase();
-      if (line.startsWith("content-length:"))
-      {
-        contentLength = line.substring(line.lastIndexOf(':') + 1).toInt();
-      }
-      else if (line.length() <= 0)
-      {
-        break;
-      }
-    }
-
-    timeout = millis();
-    CRC32 crc;
-
-    unsigned long timeElapsed = millis();
-    // printPercent(readLength, contentLength);
-
-    while (readLength < contentLength && client.connected() && millis() - timeout < 10000L)
-    {
-      while (client.available() && readLength < contentLength)
-      {
-        // read file data to spiffs
-        int c = client.read();
-        // client.write(file);
-        file.print((char)c);
-        // crc.update((char)c);
-        readLength++;
-
-        printPercent(readLength, contentLength);
-        timeout = millis();
-      }
-      if (client.available() <= 0)
-        Serial.println("Client not Available");
-      if (millis() - timeout < 9500L)
-        Serial.println("TimeOut");
-    }
-
-    file.close();
-    Serial.println("  file.close();");
-    printPercent(readLength, contentLength);
-    timeElapsed = millis() - timeElapsed;
-    Serial.println();
-
-    client.stop();
-    Serial.println("stop client");
-
-    modem.gprsDisconnect();
-    Serial.println("gprs disconnect");
-    Serial.println();
-
-    float duration = float(timeElapsed) / 1000;
-
-    Serial.print("Tamaño de Archivo: ");
-    Serial.println(contentLength);
-    Serial.print("Leido:  ");
-    Serial.println(readLength);
-    Serial.print("Calculado. CRC32:    0x");
-    Serial.println(crc.finalize(), HEX);
-    Serial.print("Conocido CRC32:    0x");
-    Serial.println(knownCRC32, HEX);
-    Serial.print("Bajado en:       ");
-    Serial.print(duration);
-    Serial.println("s");
-
-    Serial.println("Se genera una espera de 3 segundos");
-    for (int i = 0; i < 3; i++)
-    {
-      Serial.print(String(i + 1) + "...");
-      delay(1000);
-    }
-
-    // Check if there is enough to OTA Update
-
-    readFile(SPIFFS, "/firmware.bin");
-
-    updateFromFS();
-
-    // Do nothing forevermoreContent-Type
-    while (true)
-    {
-      delay(1000);
-    }
-    // if (timerTrue(mill, 10000))
-    // {
-    //   // get arrayData
-    //   Serial.println("Requesting sensors data..");
-    //   uint8_t bytesToRequest = 8;
-    //   byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
-    //   getModbusData();
-
-    //   printBytesArray(arrayData, bytesToRequest);
-
-    //   publisher->sendData(arrayData);
-    //   mill = millis();
-    // }
-  }
-  // slaveController.scanSlaves();
+  //   publisher->sendData(arrayData);
+  //   mill = millis();
+  // }
+  // }
 }
+// slaveController.scanSlaves();
 void appendFile(fs::FS &fs, const char *path, const char *message)
 {
   Serial.printf("Appending to file: %s\n", path);
@@ -475,4 +367,127 @@ void initModbus()
 #endif
   modbus.begin(0x01, modbusSerial, DEREPin);
 #endif
+}
+
+void OTAUpdate()
+{
+  Serial.print("Connecting to ");
+  Serial.print(server);
+  // if you get a connection, report back via serial:
+
+  Serial.println(" OK");
+
+  if (client.connect(server, portServer))
+  {
+    Serial.println("Fetching bin file at: " + String("https://ycansam.upv.edu.es/js/firmware.bin")); // tells where its going to get the .bin and the name its looking for
+
+    // Get the contents of the bin file
+    client.print(String("GET ") + "https://ycansam.upv.edu.es/js/firmware.bin" + " HTTP/1.1\r\n" +
+                 "Host: " + String(server) + "\r\n" +
+                 "Cache-Control: no-cache\r\n" +
+                 "Connection: close\r\n\r\n");
+    unsigned long timeout = millis();
+    while (client.available() == 0)
+    {
+      if (millis() - timeout > 5000)
+      {
+        Serial.println("Client Timeout !");
+        client.stop();
+        return;
+      }
+    }
+    Serial.println("Reading header");
+
+    uint32_t contentLength = knownFileSize;
+
+    File file = SPIFFS.open("/firmware.bin", FILE_APPEND);
+
+    while (client.available())
+    {
+      String line = client.readStringUntil('\n');
+      line.trim();
+      Serial.println(line); // Uncomment this to show response header
+      line.toLowerCase();
+      if (line.startsWith("content-length:"))
+      {
+        contentLength = line.substring(line.lastIndexOf(':') + 1).toInt();
+      }
+      else if (line.length() <= 0)
+      {
+        break;
+      }
+    }
+
+    timeout = millis();
+    CRC32 crc;
+
+    unsigned long timeElapsed = millis();
+    // printPercent(readLength, contentLength);
+
+    while (readLength < contentLength && client.connected() && millis() - timeout < 10000L)
+    {
+      while (client.available() && readLength < contentLength)
+      {
+        // read file data to spiffs
+        int c = client.read();
+        // client.write(file);
+        file.print((char)c);
+        crc.update((char)c);
+        readLength++;
+
+        printPercent(readLength, contentLength);
+        timeout = millis();
+      }
+      if (client.available() <= 0)
+        Serial.println("Client not Available");
+      if (millis() - timeout < 9500L)
+        Serial.println("TimeOut");
+    }
+
+    file.close();
+    Serial.println("  file.close();");
+    printPercent(readLength, contentLength);
+    timeElapsed = millis() - timeElapsed;
+    Serial.println();
+
+    client.stop();
+    Serial.println("stop client");
+
+    modem.gprsDisconnect();
+    Serial.println("gprs disconnect");
+    Serial.println();
+
+    float duration = float(timeElapsed) / 1000;
+
+    Serial.print("Tamaño de Archivo: ");
+    Serial.println(contentLength);
+    Serial.print("Leido:  ");
+    Serial.println(readLength);
+    Serial.print("Calculado. CRC32:    0x");
+    Serial.println(crc.finalize(), HEX);
+    Serial.print("Conocido CRC32:    0x");
+    Serial.println(knownCRC32, HEX);
+    Serial.print("Bajado en:       ");
+    Serial.print(duration);
+    Serial.println("s");
+
+    Serial.println("Se genera una espera de 3 segundos");
+    for (int i = 0; i < 3; i++)
+    {
+      Serial.print(String(i + 1) + "...");
+      delay(1000);
+    }
+
+    // Check if there is enough to OTA Update
+
+    readFile(SPIFFS, "/firmware.bin");
+
+    updateFromFS();
+
+    // Do nothing forevermoreContent-Type
+    while (true)
+    {
+      delay(1000);
+    }
+  }
 }
