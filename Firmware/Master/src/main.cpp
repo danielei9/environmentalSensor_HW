@@ -64,6 +64,7 @@ void OTAUpdate();
 
 long contentLength; // How many bytes of data the .bin is
 bool isValidContentType = false;
+int readLength = 0;
 
 GPS gps;
 
@@ -80,239 +81,37 @@ void setup()
   // listDir(SPIFFS, "/", 0);
 
   // publisher->initPublisher();
-  // Serial.print("CA");
-  // Serial.println(esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam)));
+  //esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
 
   // slaveController.initMaster();
   // initCJM();
 
   // Set console baud rate
 }
-int readLength = 0;
 void loop()
 {
 
+  // float *coords = gps.getCoords();
   gps.testLoop();
   // getCJMData();
   // if (publisher->join())
   // {
-  // OTAUpdate();
-  // if (timerTrue(mill, 10000))
-  // {
-  //   // get arrayData
-  //   Serial.println("Requesting sensors data..");
-  //   uint8_t bytesToRequest = 8;
-  //   byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
-  //   getModbusData();
+  //   if (timerTrue(mill, 10000))
+  //   {
+  //     // get arrayData
+  //     Serial.println("Requesting sensors data..");
+  //     uint8_t bytesToRequest = 8;
+  //     byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+  //     getModbusData();
 
-  //   printBytesArray(arrayData, bytesToRequest);
+  //     printBytesArray(arrayData, bytesToRequest);
 
-  //   publisher->sendData(arrayData);
-  //   mill = millis();
-  // }
+  //     publisher->sendData(arrayData);
+  //     mill = millis();
+  //   }
   // }
 }
 // slaveController.scanSlaves();
-void appendFile(fs::FS &fs, const char *path, const char *message)
-{
-  Serial.printf("Appending to file: %s\n", path);
-
-  File file = fs.open(path, FILE_APPEND);
-  if (!file)
-  {
-    Serial.println("Failed to open file for appending");
-    return;
-  }
-  if (file.print(message))
-  {
-    Serial.println("APOK");
-  }
-  else
-  {
-    Serial.println("APX");
-  }
-}
-
-void readFile(fs::FS &fs, const char *path)
-{
-  Serial.printf("Reading file: %s\n", path);
-
-  File file = fs.open(path);
-  if (!file || file.isDirectory())
-  {
-    Serial.println("Failed to open file for reading");
-    return;
-  }
-
-  Serial.print("Read from file: ");
-  while (file.available())
-  {
-    Serial.write(file.read());
-    delayMicroseconds(100);
-  }
-}
-
-void writeFile(fs::FS &fs, const char *path, const char *message)
-{
-  Serial.printf("Writing file: %s\n", path);
-
-  File file = fs.open(path, FILE_WRITE);
-  if (!file)
-  {
-    Serial.println("Failed to open file for writing");
-    return;
-  }
-  if (file.print(message))
-  {
-    Serial.println("File written");
-  }
-  else
-  {
-    Serial.println("Write failed");
-  }
-}
-
-void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
-{
-  Serial.printf("Listing directory: %s\n", dirname);
-
-  File root = fs.open(dirname);
-  if (!root)
-  {
-    Serial.println("Failed to open directory");
-    return;
-  }
-  if (!root.isDirectory())
-  {
-    Serial.println("Not a directory");
-    return;
-  }
-
-  File file = root.openNextFile();
-  while (file)
-  {
-    if (file.isDirectory())
-    {
-      Serial.print("  DIR : ");
-      Serial.println(file.name());
-      if (levels)
-      {
-        listDir(fs, file.name(), levels - 1);
-      }
-    }
-    else
-    {
-      Serial.print("  FILE: ");
-      Serial.print(file.name());
-      Serial.print("  SIZE: ");
-      Serial.println(file.size());
-    }
-    file = root.openNextFile();
-  }
-}
-
-void deleteFile(fs::FS &fs, const char *path)
-{
-  Serial.printf("Deleting file: %s\n", path);
-  if (fs.remove(path))
-  {
-    Serial.println("File deleted");
-  }
-  else
-  {
-    Serial.println("Delete failed");
-  }
-}
-
-void updateFromFS()
-{
-  File updateBin = SPIFFS.open("/firmware.bin");
-  Serial.print(updateBin);
-  if (updateBin)
-  {
-    if (updateBin.isDirectory())
-    {
-      Serial.println("Directory error");
-      updateBin.close();
-      return;
-    }
-
-    size_t updateSize = updateBin.size();
-
-    if (updateSize > 0)
-    {
-      Serial.println("Starting update");
-      performUpdate(updateBin, updateSize);
-    }
-    else
-    {
-      Serial.println("Error, archivo vacío");
-    }
-
-    updateBin.close();
-
-    // remove from dir
-    //fs.remove("/update.bin");
-  }
-  else
-  {
-    Serial.println("no such binary");
-  }
-}
-
-void performUpdate(Stream &updateSource, size_t updateSize)
-{
-  if (Update.begin(updateSize))
-  {
-    size_t written = Update.writeStream(updateSource);
-    if (written == updateSize)
-    {
-      Serial.println("Writes : " + String(written) + " successfully");
-    }
-    else
-    {
-      Serial.println("Written only : " + String(written) + "/" + String(updateSize) + ". Retry?");
-    }
-    if (Update.end())
-    {
-      Serial.println("OTA finished!");
-      if (Update.isFinished())
-      {
-        Serial.println("Restart ESP device!");
-        ESP.restart();
-      }
-      else
-      {
-        Serial.println("OTA not fiished");
-      }
-    }
-    else
-    {
-      Serial.println("Error occured #: " + String(Update.getError()));
-    }
-  }
-  else
-  {
-    Serial.println("Cannot beggin update");
-  }
-}
-
-void printPercent(uint32_t readLength, uint32_t contentLength)
-{
-  Serial.println("printPercent");
-  // If we know the total length
-  if (contentLength != -1)
-  {
-    Serial.print("\r ");
-    Serial.print((100.0 * readLength) / contentLength);
-    Serial.print('%');
-  }
-  else
-  {
-    Serial.println(readLength);
-  }
-}
-
 void getModbusData()
 {
   float temp = modbus.getTemperature();

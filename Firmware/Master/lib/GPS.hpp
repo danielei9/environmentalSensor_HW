@@ -40,11 +40,10 @@ private:
         // CMD:AT+SGPIO=0,4,1,1
         // Only in version 20200415 is there a function to control GPS power
 
-        modem.sendAT("+SGPIO=0,4,1,1");
+        modem.sendAT(GF("+SGPIO=0,4,1,1"));
         delay(2000);
         modem.sendAT(GF("+CGNSPWR=1"));
         delay(2000);
-        modem.gpsON();
         modem.enableGPS();
     }
 
@@ -53,11 +52,10 @@ private:
         // Set SIM7000G GPIO4 LOW ,turn off GPS power
         // CMD:AT+SGPIO=0,4,1,0
         // Only in version 20200415 is there a function to control GPS power
-        modem.sendAT("+SGPIO=0,4,1,0");
+        modem.sendAT(GF("+SGPIO=0,4,1,0"));
         delay(2000);
         modem.sendAT(GF("+CGNSPWR=0"));
         delay(2000);
-        modem.gpsOFF();
         modem.disableGPS();
     }
 
@@ -88,7 +86,6 @@ public:
     void init()
     {
         SerialMon.begin(115200);
-        Wire.begin(I2C_SDA, I2C_SCL);
         delay(10);
 
         // Set LED OFF
@@ -118,6 +115,12 @@ public:
 
     float *getCoords()
     {
+        if (!modem.testAT())
+        {
+            Serial.println("Failed to restart modem, attempting to continue without restarting");
+            modemRestart();
+        }
+
         float *coords[2];
 
         Serial.println("Start positioning . Make sure to locate outdoors.");
@@ -125,8 +128,13 @@ public:
 
         enableGPS();
 
+        unsigned int timeGettingCoords = 0;
+        const unsigned int timeOut = 10000;
+        bool foundCoords = false;
+
         float lat, lon;
-        while (1)
+        //timeout de 10 segundos
+        while ((millis() - timeGettingCoords) >= timeOut)
         {
             if (modem.getGPS(&lat, &lon))
             {
@@ -135,15 +143,26 @@ public:
                 Serial.println(lat);
                 Serial.print("longitude:");
                 Serial.println(lon);
+                foundCoords = true;
                 break;
             }
             digitalWrite(LED_PIN, !digitalRead(LED_PIN));
             delay(2000);
+
+            timeGettingCoords = millis();
         }
 
         disableGPS();
 
-        return *coords;
+        if (foundCoords)
+        {
+            return *coords;
+        }
+        else
+        {
+            Serial.println("GPS TIMEOUT!");
+            return *coords;
+        }
     }
 
     void testLoop()

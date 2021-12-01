@@ -32,10 +32,11 @@
 #define SerialAT Serial1
 
 // Configure TinyGSM library
-#define TINY_GSM_MODEM_SIM7070  // Modem is SIM800
-#define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
+#define TINY_GSM_MODEM_SIM7000SSL // Modem is SIM800
+#define TINY_GSM_RX_BUFFER 1024   // Set RX buffer to 1Kb
 #include <TinyGsmClient.h>
 
+// #define DUMP_AT_COMMANDS
 #define DUMP_AT_COMMANDS
 #ifdef DUMP_AT_COMMANDS
 #include <StreamDebugger.h>
