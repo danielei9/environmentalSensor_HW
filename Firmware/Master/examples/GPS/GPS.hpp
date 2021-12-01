@@ -12,7 +12,6 @@
 
 #include <Arduino.h>
 #include <../lib/Utils.h>
-#include <../lib/Protocol4G.h>
 
 #define uS_TO_S_FACTOR 1000000ULL // Conversion factor for micro seconds to seconds
 #define TIME_TO_SLEEP 60          // Time ESP32 will go to sleep (in seconds)
@@ -28,12 +27,12 @@
 
 // Set serial for debug console (to Serial Monitor, default speed 115200)
 #define SerialMon Serial
-// Set serial for AT commands (to SIM800 module)
+// Set serial for AT commands (to SIM7000 module)
 #define SerialAT Serial1
 #ifndef MODEM
 #define MODEM
 // Configure TinyGSM library
-#define TINY_GSM_MODEM_SIM7000SSL // Modem is SIM800
+#define TINY_GSM_MODEM_SIM7000SSL // Modem is SIM7000
 #define TINY_GSM_RX_BUFFER 1024   // Set RX buffer to 1Kb
 #include <TinyGsmClient.h>
 

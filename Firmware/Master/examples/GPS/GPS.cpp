@@ -1,6 +1,5 @@
 #include <Arduino.h>
-#include <Wire.h>
-#include "../lib/GPS.hpp"
+#include "GPS.hpp"
 
 // definimos el GPS
 GPS gps;
