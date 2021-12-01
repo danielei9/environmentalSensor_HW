@@ -18,6 +18,9 @@
 #include <esp_tls.h>
 #include <../lib/TLS/clientcert.h>
 // TTGO T-Call pins
+
+#ifndef MODEM
+#define MODEM
 #define MODEM_RST 5
 #define MODEM_PWKEY 4
 #define MODEM_POWER_ON 23
@@ -44,6 +47,7 @@ StreamDebugger debugger(SerialAT, SerialMon);
 TinyGsm modem(debugger);
 #else
 TinyGsm modem(SerialAT);
+#endif
 #endif
 
 TinyGsmClientSecure client(modem);

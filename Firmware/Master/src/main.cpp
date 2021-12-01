@@ -91,8 +91,9 @@ void setup()
 void loop()
 {
 
-  // float *coords = gps.getCoords();
-  gps.testLoop();
+  float *coords = gps.getCoords();
+  delay(2000);
+  // gps.getCoords();
   // getCJMData();
   // if (publisher->join())
   // {
