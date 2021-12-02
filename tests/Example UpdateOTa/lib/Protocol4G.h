@@ -32,12 +32,10 @@
 #define SerialAT Serial1
 
 // Configure TinyGSM library
-#define TINY_GSM_MODEM_SIM7000SSL // Modem is SIM800
-#define TINY_GSM_RX_BUFFER 1024   // Set RX buffer to 1Kb
+#define TINY_GSM_MODEM_SIM7070  // Modem is SIM800
+#define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
 #include <TinyGsmClient.h>
 
-// #define DUMP_AT_COMMANDS
-#define DUMP_AT_COMMANDS
 #ifdef DUMP_AT_COMMANDS
 #include <StreamDebugger.h>
 StreamDebugger debugger(SerialAT, SerialMon);
@@ -46,7 +44,7 @@ TinyGsm modem(debugger);
 TinyGsm modem(SerialAT);
 #endif
 
-TinyGsmClient client(modem);
+TinyGsmClientSecure client(modem);
 #include <Wire.h>
 
 // I2C
@@ -88,12 +86,12 @@ private:
     {
 
         // inicializa la conexion MQTT
-        Serial.println("Connecting to MQTT..");
         while (1)
         {
             if (mqttClient.connect(broker, port))
             {
                 break;
+                
             }
         }
         if (!mqttClient.connect(broker, port))
@@ -154,7 +152,7 @@ private:
     */
     void setMqttCredentials()
     {
-        esp_tls_set_global_ca_store(DSTroot_CA, sizeof(DSTroot_CA));
+        esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
         ESP_LOGI("TEST", "CA store set. Error = %d %s", err, esp_err_to_name(err));
         mqttClient.setUsernamePassword(username, password);
     }
@@ -240,51 +238,9 @@ public:
 
             // send message, the Print interface can be used to set the message contents
             mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[0]);
-            mqttClient.println(",\"type\": \"Co2\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
 
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[1]);
-            mqttClient.println(",\"type\": \"HSO\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[2]);
-            mqttClient.println(",\"type\": \"O3\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[3]);
-            mqttClient.println(",\"type\": \"CO\", \"unit\": \"pmm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[4]);
-            mqttClient.println(",\"type\": \"H2\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[5]);
-            mqttClient.println(",\"type\": \"Temperature\", \"unit\": \"Cº\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[6]);
-            mqttClient.println(",\"type\": \"Epsilon\", \"unit\": \"Epsilon\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[7]);
-            mqttClient.println(",\"type\": \"Soil\", \"unit\": \"Sº\"}");
+            String message = "{\"deviceEui\":1,\"value\": 25.222,\"type\": \"co2\", \"unit\": \"ppm\"}";
+            mqttClient.println(message);
             mqttClient.endMessage();
 
             Serial.println(" ");
