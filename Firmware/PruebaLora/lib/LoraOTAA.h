@@ -36,10 +36,10 @@ static u1_t APPKEY[16] = APPKEY_DEF;
 void os_getDevKey(u1_t *buf) { memcpy(buf, APPKEY, 16); }
 // Pinout to lora
 const lmic_pinmap lmic_pins = {
-    .nss = 18,
+    .nss = 5,
     .rxtx = LMIC_UNUSED_PIN,
     .rst = 14,
-    .dio = {26, 33, LMIC_UNUSED_PIN},
+    .dio = {2, 0, LMIC_UNUSED_PIN},
 };
 bool txComplete;
 

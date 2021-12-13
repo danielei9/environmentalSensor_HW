@@ -79,12 +79,12 @@ static void hal_io_check() {
 static const SPISettings settings(10E6, MSBFIRST, SPI_MODE0);
 
 static void hal_spi_init () {
-    SPI.begin();
+    SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
 }
 
 void hal_pin_nss (u1_t val) {
     if (!val)
-        SPI.beginTransaction(settings);
+    SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
     else
         SPI.endTransaction();
 

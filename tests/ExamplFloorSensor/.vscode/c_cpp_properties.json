@@ -8,10 +8,10 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/include",
-                "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/src",
-                "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
-                "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
+                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/include",
+                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/src",
+                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
+                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/config",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_trace",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_update",
@@ -103,15 +103,16 @@
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
+                "C:/Users/dbs99/.platformio/packages/tool-unity",
                 ""
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/include",
-                    "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/src",
-                    "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
-                    "C:/Users/dbs99/OneDrive/Documentos/PlatformIO/Projects/MODBUS/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
+                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/include",
+                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/src",
+                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
+                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/config",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_trace",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_update",
@@ -203,6 +204,7 @@
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
+                    "C:/Users/dbs99/.platformio/packages/tool-unity",
                     ""
                 ]
             },

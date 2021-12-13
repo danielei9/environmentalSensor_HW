@@ -15,7 +15,7 @@
 
 const int sensorPwrPin = 34;  // The pin sending power to the sensor
 const int adapterPwrPin = 35; // The pin sending power to the RS485 adapter
-const int DEREPin = 25;       // The pin controlling Recieve Enable and Driver Enable
+const int DEREPin = 0;       // The pin controlling Recieve Enable and Driver Enable
                               // on the RS485 adapter, if applicable (else, -1)
                               // Setting HIGH enables the driver (arduino) to send text
                               // Setting LOW enables the receiver (sensor) to send text
@@ -24,9 +24,11 @@ class Modbus
 {
 
 public:
+float getNoise();
     int sendCommand(byte command[], int commandLength);
     void driverEnable(void);
     float getTemperature();
+    void changeAddrNoise();
     float getSoilMoisture();
     float getEpsilon();
     void recieverEnable(void);
@@ -48,6 +50,8 @@ public:
 
     static byte crcFrame[2];
     static byte command[8];
+    static byte commandNoise[8];
+    static byte changAddrNoise[8];
 
     // The modbus protocol defines that there can be no more than 1.5 characters
     // of silence between characters in a frame and any space over 3.5 characters

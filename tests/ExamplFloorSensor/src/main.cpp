@@ -10,8 +10,8 @@
 #if defined(TTGO_SOFTWARE_SERIAL)
 #include <SoftwareSerial.h>
 #ifdef TTGO_SOFTWARE_SERIAL
-const int SSRxPin = 32; // 2 Recieve pin for software serial (Rx on RS485 adapter)
-const int SSTxPin = 33; // 3 Send pin for software serial (Tx on RS485 adapter)
+const int SSRxPin = 15; // 2 Recieve pin for software serial (Rx on RS485 adapter)
+const int SSTxPin = 13; // 3 Send pin for software serial (Tx on RS485 adapter)
 #endif
 SoftwareSerial modbusSerial(SSRxPin, SSTxPin);
 #else
@@ -62,6 +62,7 @@ void setup()
 #endif
 
   Serial.begin(9600);
+  modbus.changeAddrNoise();
 }
 
 // ---------------------------------------------------------------------------
@@ -70,13 +71,13 @@ void setup()
 void loop()
 {
 
-  delay(2000);
-  Serial.println("Temperatura: ");
+  delay(500);
+  Serial.println("getNoise: ");
+  Serial.println(modbus.getNoise());
+  Serial.println("getTemperature: ");
   Serial.println(modbus.getTemperature());
-  
-  Serial.println("Epsilon: ");
-  Serial.println(modbus.getEpsilon());
-  
-  Serial.println("Soil: ");
+  Serial.println("getSoilMoisture: ");
   Serial.println(modbus.getSoilMoisture());
+  Serial.println("getEpsilon: ");
+  Serial.println(modbus.getEpsilon());
 }

@@ -3,7 +3,7 @@
 #define RESPONSE_BUFFER_SIZE 256
 #define MODBUS_TIMEOUT 500
 #define MODBUS_FRAME_TIMEOUT 4
-
+//#define DEBUG
 // initialize the response buffer
 byte Modbus::responseBuffer[RESPONSE_BUFFER_SIZE] = {
     0x00,
@@ -12,6 +12,8 @@ byte Modbus::crcFrame[2] = {
     0x00,
 };
 byte Modbus::command[8] = {0x01, 0x04, 0x00, 0x00, 0x00, 0x03, 0xB0, 0x0B};
+byte Modbus::commandNoise[8] = {0x02, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};//commandNoise
+byte Modbus::changAddrNoise[8] = {0xFF, 0x06, 0x07, 0xD0, 0x00, 0x02, 0x1D, 0x58};//commandNoise addr new 2
 
 // This sends a command to the sensor bus and listens for a response
 int Modbus::sendCommand(byte command[], int commandLength)
@@ -124,6 +126,16 @@ float Modbus::getTemperature()
 {
     sendCommand(command, sizeof(command));
     return ((responseBuffer[3] * 256 + responseBuffer[4]) / 100);
+}
+void Modbus::changeAddrNoise()
+{
+    sendCommand(changAddrNoise, sizeof(command));
+   // return ((responseBuffer[3] * 256 + responseBuffer[4]) / 100);
+}
+float Modbus::getNoise()
+{
+    sendCommand(commandNoise, sizeof(commandNoise));
+    return (((responseBuffer[3]* 256  + responseBuffer[4])/ 10));
 }
 float Modbus::getSoilMoisture()
 {

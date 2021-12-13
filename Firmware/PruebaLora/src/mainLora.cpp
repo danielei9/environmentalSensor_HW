@@ -27,7 +27,7 @@ void loop()
     {
         if (timerTrue(mill, 20000))
         {
-            Lora.sendData(mydata);
+            Lora.sendData(&sendjob,mydata,PORT_DATA);
             mill = millis();
         }
     }
