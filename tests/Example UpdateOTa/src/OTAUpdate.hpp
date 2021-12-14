@@ -38,19 +38,23 @@ public:
   void updateFromServer();
 };
 
-//#include "OTAUpdate.hpp"
-//#ifdef DEBUG
+// DEBUG DEIFNE TO SHOW DATA DEBUG
 #define DEBUG
-//#endif
+
 const char server[] = "ycansam.upv.edu.es";
   String updateUrl = "https://ycansam.upv.edu.es/js/firmware.bin";
 // //----------------------------------------------------------------------------
 // //                           PRIVATE FUNCTIONS
 // //----------------------------------------------------------------------------
-
+// Constructor
  OTAUpdate::OTAUpdate(){
-
  }
+/**
+     * appendFile to update
+     * @param fs File bin with firmware
+     * @param path path to find the file in the server 
+     * @param message the content of the File 
+     */
 void OTAUpdate::appendFile(fs::FS &fs, const char *path, const char *message)
 {
 #ifdef DEBUG
@@ -77,6 +81,11 @@ void OTAUpdate::appendFile(fs::FS &fs, const char *path, const char *message)
 #endif
       }
 }
+/**
+     * Read the file
+     * @param fs File bin with firmware
+     * @param path path to find the file in the server 
+     */
 void OTAUpdate::readFile(fs::FS &fs, const char *path)
 {
 #ifdef DEBUG
@@ -104,6 +113,12 @@ void OTAUpdate::readFile(fs::FS &fs, const char *path)
       }
 }
 
+/**
+     * Write bin File to update to mem
+     * @param fs File bin with firmware
+     * @param path path to find the file in the server 
+     * @param message the content of the File 
+     */
 void OTAUpdate::writeFile(fs::FS &fs, const char *path, const char *message)
 {
 #ifdef DEBUG
@@ -131,6 +146,12 @@ void OTAUpdate::writeFile(fs::FS &fs, const char *path, const char *message)
       }
 }
 
+/**
+     * Show directories
+     * @param fs File bin with firmware
+     * @param dirname name or the directory
+     * @param levels levels to downgrade to search directory
+     */
 void OTAUpdate::listDir(fs::FS &fs, const char *dirname, uint8_t levels)
 {
 #ifdef DEBUG
@@ -181,7 +202,11 @@ void OTAUpdate::listDir(fs::FS &fs, const char *dirname, uint8_t levels)
             file = root.openNextFile();
       }
 }
-
+/**
+     * delete file when updated
+     * @param fs File bin with firmware
+     * @param path path to find the file in the server 
+     */
 void OTAUpdate::deleteFile(fs::FS &fs, const char *path)
 {
 #ifdef DEBUG
@@ -202,6 +227,9 @@ void OTAUpdate::deleteFile(fs::FS &fs, const char *path)
       }
 }
 
+/**
+     *  start Update From File
+     */
 void OTAUpdate::updateFromFS()
 {
       File updateBin = SPIFFS.open("/firmware.bin");
@@ -247,6 +275,11 @@ void OTAUpdate::updateFromFS()
       }
 }
 
+/**
+     * performUpdate on streaming
+     * @param updateSource update Source where is the file
+     * @param updateSize size of the bin file to update
+     */
 void OTAUpdate::performUpdate(Stream &updateSource, size_t updateSize)
 {
       if (Update.begin(updateSize))
@@ -298,6 +331,11 @@ void OTAUpdate::performUpdate(Stream &updateSource, size_t updateSize)
       }
 }
 
+/**
+     * print percentage of the update
+     * @param readLength readed length of file
+     * @param contentLength size of the bin file to update
+     */
 void OTAUpdate::printPercent(uint32_t readLength, uint32_t contentLength)
 {
 #ifdef DEBUG
@@ -318,7 +356,13 @@ void OTAUpdate::printPercent(uint32_t readLength, uint32_t contentLength)
       }
 }
 
-// used to extract header value from headers for ota update
+// 
+
+/**
+     * used to extract header value from headers for ota update
+     * @param header header of the get
+     * @param headerName Name of the get header
+     */
 String OTAUpdate::getHeaderValue(String header, String headerName)
 {
       return header.substring(strlen(headerName.c_str()));
@@ -328,6 +372,9 @@ String OTAUpdate::getHeaderValue(String header, String headerName)
 // //                           PUBLIC FUNCTIONS
 // //----------------------------------------------------------------------------
 
+/**
+     * Init the update 
+     */
 void OTAUpdate::init()
 {
       if (!SPIFFS.begin(true))
@@ -346,6 +393,9 @@ void OTAUpdate::init()
       esp_tls_set_global_ca_store( certYcansam, sizeof(certYcansam)); //  TODO: VER NAME
 }
 
+/**
+     * Start the update from server
+     */
 void OTAUpdate::updateFromServer()
 {
       /*if (publisher->join())
