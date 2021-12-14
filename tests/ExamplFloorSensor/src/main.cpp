@@ -1,6 +1,16 @@
+// -*- mode: c++ -*-
+
+// --------------------------------------------------------------
+// Autor: Daniel Burruchaga Sola
+// Date: 03 - 12 - 2021
+// Name: Example Modbus 
+// Description: Modbus Test 
+// Se encarga de recoger los valores del sensor de suelo y del sensor de ruido mediante modbus
+// --------------------------------------------------------------
 #include <Arduino.h>
 #define TTGO_SOFTWARE_SERIAL 1 // If use ttgo
 #define SENSOR_SUELO 1 // If we have sensor floor
+#define SENSOR_NOISE 1 // If we have sensor floor
 #include <modbus.hpp>
 
 #ifdef SENSOR_SUELO
@@ -62,17 +72,22 @@ void setup()
 #endif
 
   Serial.begin(9600);
+  #ifdef SENSOR_NOISE
   modbus.changeAddrNoise();
+  #endif
 }
 
 // ---------------------------------------------------------------------------
-// Main setup function
+// Main loop function
 // ---------------------------------------------------------------------------
 void loop()
 {
 
   delay(500);
+  #ifdef SENSOR_NOISE
   Serial.println("getNoise: ");
+  #endif
+   #ifdef SENSOR_SUELO
   Serial.println(modbus.getNoise());
   Serial.println("getTemperature: ");
   Serial.println(modbus.getTemperature());
@@ -80,4 +95,6 @@ void loop()
   Serial.println(modbus.getSoilMoisture());
   Serial.println("getEpsilon: ");
   Serial.println(modbus.getEpsilon());
+  #endif
+
 }
