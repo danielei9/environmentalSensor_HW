@@ -21,6 +21,10 @@ private:
     uint16_t baudios = 9600;
     SoftwareSerial *sensorSerial;
 
+    int counter = 0;
+    bool readed = false;
+    bool sendCommand = false;
+
     /**
      * Obtiene la concentracion del gas
      * @param highConcentration concentracion alta del gas
@@ -45,9 +49,9 @@ public:
     /**
      * Inicializa el Sensor
      */
-    void initSensor()
+    void initSensor(uint16_t baudios = 9600)
     {
-        sensorSerial->begin((*this).baudios);
+        sensorSerial->begin(baudios);
     }
 
     /**
@@ -109,35 +113,36 @@ public:
      */
     int getMeasure()
     {
-        sensorSerial->begin((*this).baudios);
-        delay(500);
-        Serial.println("Enviando comando : 0xFF 0x01 0x86 0x00 0x00 0x00 0x00 0x00 0x79");
-        byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-
-        // enviando el comando a la uart del sensor
-        for (int i = 0; i < 9; i++)
+        if (!(*this).sendCommand)
         {
-            sensorSerial->write(arrayCommand[i]);
-        }
+            byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
 
-        Serial.println("Leyendo Sensor..");
-        uint8_t index = 0;
-        byte arrayData[8];
-        // leyendo la respuesta del sensor
-        while (sensorSerial->available() > 0)
+            // enviando el comando a la uart del sensor
+            for (int i = 0; i < 9; i++)
+            {
+                sensorSerial->write(arrayCommand[i]);
+            }
+            (*this).sendCommand = true;
+        }
+        if (!(*this).readed)
         {
-            // recibiendo la respuesta del tipo
-            Serial.print("Byte: " + index);
-            arrayData[index] = sensorSerial->read();
-            Serial.println(" : " + arrayData[index]);
+            sensorSerial->listen();
+            while (sensorSerial->available() > 0)
+            {
 
-            Serial.write(sensorSerial->read());
-            index++;
+                Serial.println(sensorSerial->read());
+                (*this).counter++;
+                if ((*this).counter == 9)
+                {
+                    (*this).readed = true;
+                    return true;
+                }
+                /* code */
+            }
         }
-        sensorSerial->end();
-
+        return false;
         // devolviendo la lectura de hexadecimal a decimal
-        return getGasConcentration(arrayData[6], arrayData[7]);
+        // return getGasConcentration(arrayData[6], arrayData[7]);
     }
 
     /**
