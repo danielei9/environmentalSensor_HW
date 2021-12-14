@@ -108,95 +108,45 @@ bool readedSensor5 = false;
 void loop()
 {
 
-  if (sensor1.getMeasure() == 1)
+  if (!readedSensor1)
   {
-    readedSensor1 = true;
-    Serial.println("Sensor1 Leido");
-  }
-
-  if (readedSensor1)
-  {
-    if (sensor2.getMeasure() == 1)
+    readedSensor1 = sensor1.getMeasure();
+    if (readedSensor1)
     {
-      readedSensor2 = true;
-      Serial.println("Sensor2 Leido");
+      Serial.println(sensor1.getGasConcentration());
     }
   }
 
-  // if (!sendComand)
-  // {
-  //   byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+  if (readedSensor1 && !readedSensor2)
+  {
+    readedSensor2 = sensor2.getMeasure();
+    if (readedSensor2)
+    {
+      Serial.println(sensor2.getGasConcentration());
+    }
+  }
 
-  //   // enviando el comando a la uart del sensor
-  //   for (int i = 0; i < 9; i++)
-  //   {
-  //     serialtest.write(arrayCommand[i]);
-  //   }
-  //   sendComand = true;
-  // }
-  // if (!readed)
-  // {
-  //   serialtest.listen();
-  //   while (serialtest.available() > 0)
-  //   {
+  if (data != 0)
+  {
+    Serial.print("Command received: 0x");
+    Serial.println(data, HEX);
+    Serial.println();
 
-  //     Serial.println(serialtest.read(), HEX);
-  //     counter++;
-  //     if (counter == 9)
-  //     {
-  //       readed = true;
-  //     }
-  //     /* code */
-  //   }
-  // }
-
-  // // serialtest.stopListening();
-  // if (!sendComand2 && readed)
-  // {
-  //   byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-  //   // enviando el comando a la uart del sensor
-  //   for (int i = 0; i < 9; i++)
-  //   {
-  //     serialtest2.write(arrayCommand[i]);
-  //   }
-  //   sendComand2 = true;
-  // }
-  // if (sendComand2)
-  // {
-  //   serialtest2.listen();
-  //   while (serialtest2.available() > 0)
-  //   {
-  //     Serial.println(serialtest2.read());
-  //     /* code */
-  //   }
-  // }
-
-  // serialtest2.stopListening();
-  // int value = rb[3]*256 + rb[4];
-  // Serial.println(value);
-  // sensor1.getMeasure();
-
-  // if (data != 0)
-  // {
-  //   Serial.print("Command received: 0x");
-  //   Serial.println(data, HEX);
-  //   Serial.println();
-
-  //   if (data == REQUEST_COMMAND)
-  //   {
-  //     // rellenando el array
-  //     Serial.println("Getting Sensors Data");
-  //     arrayData[0] = sensor1.testUart("1");
-  //     arrayData[1] = sensor2.testUart("2");
-  //     arrayData[2] = sensor3.testUart("3");
-  //     arrayData[3] = sensor4.testUart("4");
-  //     arrayData[4] = sensor5.testUart("5");
-  //     arrayData[5] = 25;
-  //     arrayData[6] = 30;
-  //     arrayData[7] = 90;
-  //     // ejecutar el comando
-  //   }
-  //   data = 0;
-  // }
-  // delay(500);
+    if (data == REQUEST_COMMAND)
+    {
+      // rellenando el array
+      Serial.println("Getting Sensors Data");
+      arrayData[0] = sensor1.testUart("1");
+      arrayData[1] = sensor2.testUart("2");
+      arrayData[2] = sensor3.testUart("3");
+      arrayData[3] = sensor4.testUart("4");
+      arrayData[4] = sensor5.testUart("5");
+      arrayData[5] = 25;
+      arrayData[6] = 30;
+      arrayData[7] = 90;
+      // ejecutar el comando
+    }
+    data = 0;
+  }
+  delay(500);
 }

@@ -21,20 +21,11 @@ private:
     uint16_t baudios = 9600;
     SoftwareSerial *sensorSerial;
 
+    uint8_t arrayData[9];
+
     int counter = 0;
     bool readed = false;
     bool sendCommand = false;
-
-    /**
-     * Obtiene la concentracion del gas
-     * @param highConcentration concentracion alta del gas
-     * @param lowConcentration concentracion baja del gas
-     * @returns valor de la concentracion del gas
-     */
-    int getGasConcentration(byte highConcentration, byte lowConcentration)
-    {
-        return highConcentration * 256 + lowConcentration;
-    }
 
 public:
     /**
@@ -52,39 +43,6 @@ public:
     void initSensor(uint16_t baudios = 9600)
     {
         sensorSerial->begin(baudios);
-    }
-
-    /**
-     * Escribe en el puerto serial
-     */
-    void writeSerial(char *c)
-    {
-        delay(20);
-        sensorSerial->println(c);
-        delay(10);
-        sensorSerial->write(c);
-        Serial.println();
-    }
-
-    /**
-     * Escucha al sensor para recibir datos
-     * @return array de valores del sensor
-     */
-    byte listenSensor()
-    {
-        Serial.println("listening");
-        sensorSerial->begin((*this).baudios);
-        delay(500);
-        byte b;
-        while (sensorSerial->available())
-        {
-            b = sensorSerial->read();
-            Serial.write(b);
-        }
-        Serial.println(b);
-        sensorSerial->end();
-        Serial.println();
-        return b;
     }
 
     /**
@@ -130,19 +88,33 @@ public:
             while (sensorSerial->available() > 0)
             {
 
-                Serial.println(sensorSerial->read());
+                int data = sensorSerial->read();
+                arrayData[counter] = data;
+                Serial.println(data);
                 (*this).counter++;
                 if ((*this).counter == 9)
                 {
                     (*this).readed = true;
-                    return true;
+                    Serial.println("Sensor Readed");
+                    return (*this).readed;
                 }
                 /* code */
             }
         }
-        return false;
+        return (*this).readed;
         // devolviendo la lectura de hexadecimal a decimal
         // return getGasConcentration(arrayData[6], arrayData[7]);
+    }
+
+    /**
+     * Obtiene la concentracion del gas
+     * @param highConcentration concentracion alta del gas
+     * @param lowConcentration concentracion baja del gas
+     * @returns valor de la concentracion del gas
+     */
+    int getGasConcentration()
+    {
+        return arrayData[2] * 255 + arrayData[3];
     }
 
     /**
