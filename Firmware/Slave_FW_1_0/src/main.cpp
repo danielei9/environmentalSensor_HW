@@ -1,3 +1,14 @@
+// -*- mode: c++ -*-
+// --------------------------------------------------------------
+// Autor: Yeray Candel Sampedro
+// Date: 16 - 10 - 2021
+//
+// Description: El archivo main se encarga de gestionar mediante 
+// el arduino nano todos los sensores actualmente conectados
+// a este mediante UART.
+// --------------------------------------------------------------
+
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <SoftwareSerial.h>

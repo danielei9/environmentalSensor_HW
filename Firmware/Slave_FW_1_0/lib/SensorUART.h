@@ -42,11 +42,17 @@ public:
         (*this).TX = tx;
         sensorSerial = new SoftwareSerial(rx, tx);
     }
+    /**
+     * Inicializa el Sensor
+     */
     void initSensor()
     {
         sensorSerial->begin((*this).baudios);
     }
 
+    /**
+     * Escribe en el puerto serial
+     */
     void writeSerial(char *c)
     {
         delay(20);
@@ -55,6 +61,11 @@ public:
         sensorSerial->write(c);
         Serial.println();
     }
+
+    /**
+     * Escucha al sensor para recibir datos
+     * @return array de valores del sensor
+     */
     byte listenSensor()
     {
         Serial.println("listening");
@@ -72,6 +83,11 @@ public:
         return b;
     }
 
+    /**
+     * Ejecuta un test enviando datos y recibiendo datos
+     * @param c a escribir
+     * @return datos a recibir
+     */
     byte testUart(char *c)
     {
         sensorSerial->begin((*this).baudios);
