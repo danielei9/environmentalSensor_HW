@@ -1,3 +1,11 @@
+// -*- mode: c++ -*-
+
+// --------------------------------------------------------------
+// Autor: Daniel Burruchaga Sola
+// Date: 03 - 12 - 2021
+// Name: Modbus.hpp
+// Description: Modbus class 
+// --------------------------------------------------------------
 #include "Arduino.h"
 #define MODBUS_TIMEOUT 500
 #define MODBUS_FRAME_TIMEOUT 4
@@ -53,9 +61,6 @@ float getNoise();
     static byte commandNoise[8];
     static byte changAddrNoise[8];
 
-    // The modbus protocol defines that there can be no more than 1.5 characters
-    // of silence between characters in a frame and any space over 3.5 characters
-    // defines a new frame.
     const uint32_t modbusTimeout = MODBUS_TIMEOUT;       // The time to wait for response after a command (in ms)
     const int modbusFrameTimeout = MODBUS_FRAME_TIMEOUT; // the time to wait between characters within a frame (in ms)
 };

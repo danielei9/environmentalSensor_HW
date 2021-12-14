@@ -1,35 +1,12 @@
-/*******************************************************************************
- * Copyright (c) 2015 Thomas Telkamp and Matthijs Kooijman
- * Copyright (c) 2018 Terry Moore, MCCI
- *
- * Permission is hereby granted, free of charge, to anyone
- * obtaining a copy of this document and accompanying files,
- * to do whatever they want with them without any restriction,
- * including, but not limited to, copying, modification and redistribution.
- * NO WARRANTY OF ANY KIND IS PROVIDED.
- *
- * This example sends a valid LoRaWAN packet with payload "Hello,
- * world!", using frequency and encryption settings matching those of
- * the The Things Network.
- *
- * This uses OTAA (Over-the-air activation), where where a DevEUI and
- * application key is configured, which are used in an over-the-air
- * activation procedure where a DevAddr and session keys are
- * assigned/generated for use with all further communication.
- *
- * Note: LoRaWAN per sub-band duty-cycle limitation is enforced (1% in
- * g1, 0.1% in g2), but not the TTN fair usage policy (which is probably
- * violated by this sketch when left running for longer)!
+// -*- mode: c++ -*-
 
- * To use this sketch, first register your application and device with
- * the things network, to set or generate an AppEUI, DevEUI and AppKey.
- * Multiple devices can use the same AppEUI, but each device has its own
- * DevEUI and AppKey.
- *
- * Do not forget to define the radio type correctly in
- * arduino-lmic/project_config/lmic_project_config.h or from your BOARDS.txt.
- *
- *******************************************************************************/
+// --------------------------------------------------------------
+// Autor: Daniel Burruchaga Sola
+// Date: 03 - 12 - 2021
+// Name: Example LORA 
+// Description: Lora Test 
+// Se encarga de Realizar join con gateway lora y envio de datos 
+// --------------------------------------------------------------
 #define CFG_sx1276_radio 1 // HPD13A LoRa SoC
 
 #include <Arduino.h>
@@ -38,50 +15,35 @@
 #include <SPI.h>
 void do_send(osjob_t* j);
 
-//
-// For normal use, we require that you edit the sketch to replace FILLMEIN
-// with values assigned by the TTN console. However, for regression tests,
-// we want to be able to compile these scripts. The regression tests define
-// COMPILE_REGRESSION_TEST, and in that case we define FILLMEIN to a non-
-// working but innocuous value.
-//
-
+// APPEUI
 #define APPEUI_DEF                                     \
     {                                                  \
         0x64, 0x47, 0x1d, 0xa3, 0xe1, 0x71, 0x99, 0x13 \
     }
+// DEVEUI
 #define DEVEUI_DEF                                     \
     {                                                  \
         0x64, 0x47, 0x1d, 0xa3, 0xe1, 0x71, 0x99, 0x13 \
     }
+// APPKEY
 #define APPKEY_DEF                                                                                     \
     {                                                                                                  \
         0xd6, 0x37, 0xf7, 0x50, 0xc3, 0xa7, 0xc2, 0x25, 0x21, 0xdc, 0x53, 0x27, 0x19, 0xaa, 0x6c, 0x53 \
     }
-// This EUI must be in little-endian format, so least-significant-byte
-// first. When copying an EUI from ttnctl output, this means to reverse
-// the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
-// 0x70.
 static const u1_t PROGMEM APPEUI[8]=  {                                                  \
         0x64, 0x47, 0x1d, 0xa3, 0xe1, 0x71, 0x99, 0x13 \
     };
-void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
+void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 // This should also be in little endian format, see above.
 static const u1_t PROGMEM DEVEUI[8]={ 0x64, 0x47, 0x1d, 0xa3, 0xe1, 0x71, 0x99, 0x13};
 void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 
-// This key should be in big endian format (or, since it is not really a
-// number but a block of memory, endianness does not really apply). In
-// practice, a key taken from ttnctl can be copied as-is.
 static const u1_t PROGMEM APPKEY[16] = {  0xd6, 0x37, 0xf7, 0x50, 0xc3, 0xa7, 0xc2, 0x25, 0x21, 0xdc, 0x53, 0x27, 0x19, 0xaa, 0x6c, 0x53 };
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 static uint8_t mydata[] = "Hello, world!";
 static osjob_t sendjob;
-
-// Schedule TX every this many seconds (might become longer due to duty
-// cycle limitations).
 const unsigned TX_INTERVAL = 60;
 
 // Pin mapping
@@ -92,6 +54,10 @@ const lmic_pinmap lmic_pins = {
     .dio = {2, 3, 4},
 };
 
+/**
+     * print hex received
+     * @param v index to print
+     */
 void printHex2(unsigned v) {
     v &= 0xff;
     if (v < 16)
@@ -99,6 +65,10 @@ void printHex2(unsigned v) {
     Serial.print(v, HEX);
 }
 
+/**
+     * Schedule events on the OS
+     * @param ev event ocurred in the os
+     */
 void onEvent (ev_t ev) {
     Serial.print(os_getTime());
     Serial.print(": ");
@@ -220,6 +190,13 @@ void onEvent (ev_t ev) {
     }
 }
 
+/**
+     * create a job to send data 
+     * @param j osjob to create the transmission
+     * @param data data arr pointer 
+     * @param port lora port to send
+     * @param size Data to send size
+     */
 void do_send(osjob_t* j,uint8_t *data, unsigned int port, unsigned int size){
     // Check if there is not a current TX/RX job running
     if (LMIC.opmode & OP_TXRXPEND) {
@@ -252,6 +229,12 @@ void setup() {
     do_send(&sendjob,mydata,3,sizeof(mydata));
 }
 unsigned long mill = 0;
+
+/**
+     * create a counter with millis
+     * @param lastmillis_ last time
+     * @param interval time interval to return true
+     */
 bool timerTrue(unsigned long lastmillis_, int interval)
 {
     if (millis() > (lastmillis_ + interval))
@@ -259,6 +242,7 @@ bool timerTrue(unsigned long lastmillis_, int interval)
 
     return false;
 }
+
 void loop() {
     os_runloop_once();
        if (timerTrue(mill, 20000))
