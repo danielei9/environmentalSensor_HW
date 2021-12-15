@@ -153,6 +153,15 @@ public:
 
         return arrayData;
     }
+
+    void reset()
+    {
+        (*this).arrayData[9];
+
+        (*this).counter = 0;
+        (*this).readed = false;
+        (*this).sendCommand = false;
+    }
 };
 
 // --------------------------------------------------------------

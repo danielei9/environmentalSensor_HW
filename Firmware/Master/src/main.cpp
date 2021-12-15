@@ -70,7 +70,7 @@ GPS gps;
 
 void setup()
 {
-  gps.init();
+  // gps.init();
   // initModbus();
   // if (!SPIFFS.begin(true))
   // {
@@ -83,7 +83,7 @@ void setup()
   // publisher->initPublisher();
   //esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
 
-  // slaveController.initMaster();
+  slaveController.initMaster();
   // initCJM();
 
   // Set console baud rate
@@ -92,23 +92,23 @@ void loop()
 {
 
   // float *coords = gps.getCoords();
-  gps.testLoop();
+  // gps.testLoop();
   // getCJMData();
   // if (publisher->join())
   // {
-  //   if (timerTrue(mill, 10000))
-  //   {
-  //     // get arrayData
-  //     Serial.println("Requesting sensors data..");
-  //     uint8_t bytesToRequest = 8;
-  //     byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
-  //     getModbusData();
+  if (timerTrue(mill, 20000))
+  {
+    //     // get arrayData
+    Serial.println("Requesting sensors data..");
+    uint8_t bytesToRequest = 8;
+    byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+    //     getModbusData();
 
-  //     printBytesArray(arrayData, bytesToRequest);
+    printBytesArray(arrayData, bytesToRequest);
 
-  //     publisher->sendData(arrayData);
-  //     mill = millis();
-  //   }
+    //     publisher->sendData(arrayData);
+    mill = millis();
+  }
   // }
 }
 // slaveController.scanSlaves();

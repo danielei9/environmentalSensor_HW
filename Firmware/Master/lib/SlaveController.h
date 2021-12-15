@@ -60,15 +60,15 @@ public:
 
         long data = 100; // comando
         byte command = 0x30;
-        
+
         // Envia una peticion para que cargue los valores de los sensores
         Wire.beginTransmission(slaveAdress);
         Wire.write((byte *)&command, sizeof(command));
         Wire.endTransmission();
-        
-        Serial.println("Waiting 5 seconds");
+
+        Serial.println("Waiting 10 seconds");
         // espera 5 segundos para la recepcion de datos y leidas de uarts
-        delay(5000);
+        delay(10000);
 
         // crea un array vacio
         byte *arrayData = new byte[bytesNumber];

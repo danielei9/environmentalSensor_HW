@@ -44,6 +44,20 @@ SensorUART sensor5(8, 9);
 SoftwareSerial serialtest(5, 4);
 SoftwareSerial serialtest2(9, 8);
 
+bool readedSensor1 = false;
+bool readedSensor2 = false;
+bool readedSensor3 = false;
+bool readedSensor4 = false;
+bool readedSensor5 = false;
+
+void resetSensors()
+{
+  readedSensor1 = false;
+  readedSensor2 = false;
+  readedSensor3 = false;
+  sensor1.reset();
+  sensor2.reset();
+}
 // Request event para enviar los datos
 void requestEvent()
 {
@@ -57,6 +71,7 @@ void requestEvent()
   }
   Serial.println();
   Serial.println();
+  resetSensors();
   Wire.write(arrayData, arrayLength);
 }
 
@@ -76,11 +91,6 @@ void receiveEvent(int bytes)
   }
 }
 
-byte rb[9];
-int i = 0;
-bool sendComand = false;
-bool sendComand2 = false;
-
 void setup()
 {
   Serial.begin(9600);
@@ -96,35 +106,8 @@ void setup()
   Wire.onReceive(receiveEvent);
 }
 
-uint8_t counter = 0;
-bool readed = false;
-
-bool readedSensor1 = false;
-bool readedSensor2 = false;
-bool readedSensor3 = false;
-bool readedSensor4 = false;
-bool readedSensor5 = false;
-
 void loop()
 {
-
-  if (!readedSensor1)
-  {
-    readedSensor1 = sensor1.getMeasure();
-    if (readedSensor1)
-    {
-      Serial.println(sensor1.getGasConcentration());
-    }
-  }
-
-  if (readedSensor1 && !readedSensor2)
-  {
-    readedSensor2 = sensor2.getMeasure();
-    if (readedSensor2)
-    {
-      Serial.println(sensor2.getGasConcentration());
-    }
-  }
 
   if (data != 0)
   {
@@ -134,19 +117,37 @@ void loop()
 
     if (data == REQUEST_COMMAND)
     {
+      if (!readedSensor1)
+      {
+        if (sensor1.getMeasure() == 1)
+        {
+          readedSensor1 = true;
+          Serial.print("Sensor1 Leido ");
+          Serial.println(sensor1.getGasConcentration());
+        }
+      }
+
+      if (readedSensor1 && !readedSensor2)
+      {
+        if (sensor2.getMeasure() == 1)
+        {
+          readedSensor2 = true;
+          Serial.print("Sensor2 Leido :");
+          Serial.println(sensor2.getGasConcentration());
+          data = 0;
+        }
+      }
+
       // rellenando el array
-      Serial.println("Getting Sensors Data");
-      arrayData[0] = sensor1.testUart("1");
-      arrayData[1] = sensor2.testUart("2");
-      arrayData[2] = sensor3.testUart("3");
-      arrayData[3] = sensor4.testUart("4");
-      arrayData[4] = sensor5.testUart("5");
+      arrayData[0] = sensor1.getGasConcentration();
+      arrayData[1] = sensor2.getGasConcentration();
+      arrayData[2] = 0;
+      arrayData[3] = 0;
+      arrayData[4] = 0;
       arrayData[5] = 25;
       arrayData[6] = 30;
       arrayData[7] = 90;
       // ejecutar el comando
     }
-    data = 0;
   }
-  delay(500);
 }
