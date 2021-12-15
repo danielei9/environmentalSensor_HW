@@ -11,6 +11,13 @@ bool timerTrue(unsigned long lastmillis_, int interval)
 
   return false;
 }
+bool timerTrue(unsigned long lastmillis_, int interval, bool estandesp)
+{
+  if (millis() > (lastmillis_ + interval))
+    return true;
+
+  return false;
+}
 
 // print array
 // @param size tamaño del array

@@ -44,79 +44,6 @@ public:
     {
         sensorSerial->begin(baudios);
     }
-
-    /**
-     * Ejecuta un test enviando datos y recibiendo datos
-     * @param c a escribir
-     * @return datos a recibir
-     */
-    byte testUart(char *c)
-    {
-        sensorSerial->begin((*this).baudios);
-        delay(500);
-        sensorSerial->println(c);
-        byte b;
-        if (sensorSerial->available())
-        {
-            b = sensorSerial->read();
-            Serial.write(b);
-        }
-        sensorSerial->end();
-        Serial.println();
-        return b;
-    }
-    /**
-     * Obtiene la medida del sensor
-     * @returns devuelve un array
-     */
-    int getMeasure()
-    {
-        if (!(*this).sendCommand)
-        {
-            byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-
-            // enviando el comando a la uart del sensor
-            for (int i = 0; i < 9; i++)
-            {
-                sensorSerial->write(arrayCommand[i]);
-            }
-            (*this).sendCommand = true;
-        }
-        if (!(*this).readed)
-        {
-            sensorSerial->listen();
-            while (sensorSerial->available() > 0)
-            {
-
-                int data = sensorSerial->read();
-                arrayData[counter] = data;
-                Serial.println(data);
-                (*this).counter++;
-                if ((*this).counter == 9)
-                {
-                    (*this).readed = true;
-                    Serial.println("Sensor Readed");
-                    return (*this).readed;
-                }
-                /* code */
-            }
-        }
-        return (*this).readed;
-        // devolviendo la lectura de hexadecimal a decimal
-        // return getGasConcentration(arrayData[6], arrayData[7]);
-    }
-
-    /**
-     * Obtiene la concentracion del gas
-     * @param highConcentration concentracion alta del gas
-     * @param lowConcentration concentracion baja del gas
-     * @returns valor de la concentracion del gas
-     */
-    int getGasConcentration()
-    {
-        return arrayData[2] * 255 + arrayData[3];
-    }
-
     /**
      * Obtiene un array de datos con la informacion del modulo
      * Informacion de 8 bytes.
@@ -154,10 +81,140 @@ public:
         return arrayData;
     }
 
+    /**
+     * Obtiene la medida del sensor
+     * @returns devuelve un array
+     */
+    int getMeasure()
+    {
+        if (!(*this).sendCommand)
+        {
+
+            byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+
+            // enviando el comando a la uart del sensor
+            for (int i = 0; i < 9; i++)
+            {
+                sensorSerial->write(arrayCommand[i]);
+            }
+            (*this).sendCommand = true;
+        }
+        if (!(*this).readed)
+        {
+            sensorSerial->listen();
+            while (sensorSerial->available() > 0)
+            {
+                int sensorData = sensorSerial->read();
+                arrayData[counter] = sensorData;
+                Serial.print(sensorData);
+                (*this).counter++;
+                if ((*this).counter == 9)
+                {
+                    (*this).readed = true;
+                    Serial.println("Sensor Readed");
+                    return (*this).readed;
+                }
+                /* code */
+            }
+        }
+        return (*this).readed;
+        // devolviendo la lectura de hexadecimal a decimal
+        // return getGasConcentration(arrayData[6], arrayData[7]);
+    }
+
+    /**
+     * Obtiene la concentracion del gas
+     * @param highConcentration concentracion alta del gas
+     * @param lowConcentration concentracion baja del gas
+     * @returns valor de la concentracion del gas
+     */
+    int getGasConcentration()
+    {
+        return arrayData[2] * 255 + arrayData[3];
+    }
+
+    /**
+     * Obtiene la medida del sensor
+     * @returns devuelve un array
+     */
+    bool sleep()
+    {
+        if (!(*this).sendCommand)
+        {
+            //
+            byte arrayCommand[6] = {0xAF, 0x53, 0x6C, 0x65, 0x65, 0x70};
+
+            // enviando el comando a la uart del sensor
+            for (int i = 0; i < 6; i++)
+            {
+                sensorSerial->write(arrayCommand[i]);
+            }
+            (*this).sendCommand = true;
+        }
+        if (!(*this).readed)
+        {
+            sensorSerial->listen();
+            while (sensorSerial->available() > 0)
+            {
+
+                int data = sensorSerial->read();
+                arrayData[counter] = data;
+                Serial.println(data);
+                (*this).counter++;
+                if ((*this).counter == 2)
+                {
+                    (*this).readed = true;
+                    Serial.println("Sensor is sleeping...");
+                    return (*this).readed;
+                }
+                /* code */
+            }
+        }
+        return (*this).readed;
+    }
+
+    /**
+     * Obtiene la medida del sensor
+     * @returns devuelve un array
+     */
+    bool wakeUp()
+    {
+        if (!(*this).sendCommand)
+        {
+            //
+            byte arrayCommand[5] = {0xAE, 0x45, 0x78, 0x69, 0x74};
+
+            // enviando el comando a la uart del sensor
+            for (int i = 0; i < 5; i++)
+            {
+                sensorSerial->write(arrayCommand[i]);
+            }
+            (*this).sendCommand = true;
+        }
+        if (!(*this).readed)
+        {
+            sensorSerial->listen();
+            while (sensorSerial->available() > 0)
+            {
+
+                int data = sensorSerial->read();
+                arrayData[counter] = data;
+                Serial.println(data);
+                (*this).counter++;
+                if ((*this).counter == 2)
+                {
+                    (*this).readed = true;
+                    Serial.println("Sensor exited from deep Sleep");
+                    return (*this).readed;
+                }
+                /* code */
+            }
+        }
+        return (*this).readed;
+    }
+
     void reset()
     {
-        (*this).arrayData[9];
-
         (*this).counter = 0;
         (*this).readed = false;
         (*this).sendCommand = false;

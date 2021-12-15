@@ -58,7 +58,6 @@ public:
     byte *requestMeasuresToSlave(uint8_t slaveAdress, uint8_t bytesNumber)
     {
 
-        long data = 100; // comando
         byte command = 0x30;
 
         // Envia una peticion para que cargue los valores de los sensores
@@ -67,6 +66,7 @@ public:
         Wire.endTransmission();
 
         Serial.println("Waiting 10 seconds");
+
         // espera 5 segundos para la recepcion de datos y leidas de uarts
         delay(10000);
 

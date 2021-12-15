@@ -17,9 +17,14 @@
 // this function is registered as an event, see setup()
 
 const byte I2C_SLAVE_ADDR = 0x20;
+
+// comandos
 const byte REQUEST_COMMAND = 0x30;
+
 uint8_t arrayLength = 8;
 byte *arrayData = new byte[arrayLength];
+void wakeUpSensors();
+void sleepSensors();
 
 // para TVOC necesito 9 bits 2 BYTEs
 // para H2 necesito 10 bits 2 Bytes
@@ -49,6 +54,15 @@ bool readedSensor2 = false;
 bool readedSensor3 = false;
 bool readedSensor4 = false;
 bool readedSensor5 = false;
+
+bool wakedUpAllSensors = false;
+bool timerTrue(unsigned long lastmillis_, int interval)
+{
+  if (millis() > (lastmillis_ + interval))
+    return true;
+
+  return false;
+}
 
 void resetSensors()
 {
@@ -81,7 +95,7 @@ void receiveEvent(int bytes)
 {
   data = 0;
   uint8_t index = 0;
-  Serial.println("Requested command from Master");
+  Serial.println("Received instruction from Master");
   // lee el comando
   while (Wire.available())
   {
@@ -94,6 +108,7 @@ void receiveEvent(int bytes)
 void setup()
 {
   Serial.begin(9600);
+  Serial.println("Initialized Slave");
 
   serialtest.begin(9600);
   serialtest2.begin(9600);
@@ -101,10 +116,14 @@ void setup()
   sensor1.initSensor(9600);
   sensor2.initSensor(9600);
 
+  sleepSensors();
+
   Wire.begin(I2C_SLAVE_ADDR);
   Wire.onRequest(requestEvent);
   Wire.onReceive(receiveEvent);
 }
+int timeout = 7000;
+int mill = 0;
 
 void loop()
 {
@@ -117,6 +136,8 @@ void loop()
 
     if (data == REQUEST_COMMAND)
     {
+      wakeUpSensors();
+
       if (!readedSensor1)
       {
         if (sensor1.getMeasure() == 1)
@@ -135,6 +156,7 @@ void loop()
           Serial.print("Sensor2 Leido :");
           Serial.println(sensor2.getGasConcentration());
           data = 0;
+          sleepSensors();
         }
       }
 
@@ -148,6 +170,91 @@ void loop()
       arrayData[6] = 30;
       arrayData[7] = 90;
       // ejecutar el comando
+    }
+  }
+}
+bool wakedUP = false;
+// despierta a todos los sensores
+void wakeUpSensors()
+{
+  while (!wakedUP)
+  {
+    if (!readedSensor1)
+    {
+      if (sensor1.wakeUp() == 1)
+      {
+        readedSensor1 = true;
+      }
+      if (timerTrue(mill, 250))
+      {
+        readedSensor1 = true;
+        Serial.println("Timeout");
+        mill = millis();
+      }
+    }
+
+    if (readedSensor1 && !readedSensor2)
+    {
+      if (sensor2.wakeUp() == 1)
+      {
+        readedSensor2 = true;
+        wakedUP = true;
+        resetSensors();
+        break;
+      }
+      if (timerTrue(mill, 250))
+      {
+        readedSensor2 = true;
+        resetSensors();
+        Serial.println("Timeout");
+        mill = millis();
+        wakedUP = true;
+        break;
+      }
+    }
+  }
+}
+
+// funcion que duerme a todos los sensores
+void sleepSensors()
+{
+  while (true)
+  {
+
+    //durmiendo sensor 1
+    if (!readedSensor1)
+    {
+      // cuand
+      if (sensor1.sleep() == 1)
+      {
+        readedSensor1 = true;
+      }
+      if (timerTrue(mill, 1000))
+      {
+        readedSensor1 = true;
+        Serial.println("Timeout");
+        mill = millis();
+      }
+    }
+
+    // durmiendo sensor 2 si se ha dormido el sensor 1
+    if (readedSensor1 && !readedSensor2)
+    {
+      if (sensor2.sleep() == 1)
+      {
+        readedSensor2 = true;
+        wakedUP = false;
+        resetSensors();
+        break;
+      }
+      if (timerTrue(mill, 1000))
+      {
+        readedSensor2 = true;
+        Serial.println("Timeout");
+        mill = millis();
+        wakedUP = false;
+        break;
+      }
     }
   }
 }

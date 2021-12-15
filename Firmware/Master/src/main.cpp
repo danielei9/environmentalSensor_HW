@@ -87,6 +87,7 @@ void setup()
   // initCJM();
 
   // Set console baud rate
+  Serial.println("Requesting in 20 seconds");
 }
 void loop()
 {
