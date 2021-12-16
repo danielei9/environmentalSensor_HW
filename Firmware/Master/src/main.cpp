@@ -89,7 +89,7 @@ void setup()
   Lora.initPublisher();
   //esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
 
-  slaveController.initMaster();
+ // slaveController.initMaster();
   // initCJM();
 
   // Set console baud rate
@@ -107,12 +107,12 @@ void loop()
     {
       //     // get arrayData
       Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 8;
+     /* uint8_t bytesToRequest = 8;
       byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
       //     getModbusData();
 
       printBytesArray(arrayData, bytesToRequest);
-
+*/
       //     publisher->sendData(arrayData);
       mill = millis();
     }

@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <../lib/Utils.h>
 
 #define APPEUI_DEF                                     \
     {                                                  \
@@ -72,6 +71,7 @@ public:
         os_init();
         LMIC_reset();
         uint8_t firstData[10] = "FirstSend";
+        delay(100);
         sendData(&sendjob, firstData, DATA_PORT, sizeof(firstData));
     }
     bool join()

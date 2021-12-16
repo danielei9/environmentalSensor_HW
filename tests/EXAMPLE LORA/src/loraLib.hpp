@@ -3,6 +3,13 @@
 
 #include <lmic.h>
 #include <hal/hal.h>
+bool timerTrue(unsigned long lastmillis_, int interval)
+{
+    if (millis() > (lastmillis_ + interval))
+        return true;
+
+    return false;
+}
 
 #define APPEUI_DEF                                     \
     {                                                  \
@@ -47,7 +54,7 @@ bool txComplete;
 
 uint8_t recivedData[52];
 #define DATA_PORT 1
-class LoraOTAA : public Publisher
+class LoraOTAA
 {
 private:
     bool joined;
@@ -115,7 +122,7 @@ public:
         }
         // Next TX is scheduled after TX_COMPLETE event.
     }
-/**
+    /**
      * create a job to send PING 
      * @param j osjob to create the transmission
      * @param data data arr pointer 
@@ -124,7 +131,7 @@ public:
      * @param interval interval to send ping
      * @param previousMillis time last send
      */
-    void makePing(int interval, long previousMillis,osjob_t *j, uint8_t *data, unsigned int port, unsigned int size)
+    void makePing(int interval, long previousMillis, osjob_t *j, uint8_t *data, unsigned int port, unsigned int size)
     {
         unsigned long currentMillis = millis();
         if (currentMillis - previousMillis > interval)
@@ -141,8 +148,8 @@ public:
             }
         }
     }
-    
-/**
+
+    /**
      * Schedule events on the OS
      * @param ev event ocurred in the os
      */
