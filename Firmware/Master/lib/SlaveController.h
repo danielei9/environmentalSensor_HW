@@ -65,10 +65,10 @@ public:
         Wire.write((byte *)&command, sizeof(command));
         Wire.endTransmission();
 
-        Serial.println("Waiting 10 seconds");
+        Serial.println("Waiting 13 seconds");
 
         // espera 5 segundos para la recepcion de datos y leidas de uarts
-        delay(10000);
+        delay(13000);
 
         // crea un array vacio
         byte *arrayData = new byte[bytesNumber];
