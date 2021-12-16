@@ -10,8 +10,12 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <../Utils.h>
 #ifndef SLAVE_CONTROLLER_H_INCLUDED
 #define SLAVE_CONTROLLER_H_INCLUDED
+
+unsigned long millSensorsRequest = 0;
+
 class SlaveController
 {
 private:
@@ -67,8 +71,27 @@ public:
 
         Serial.println("Waiting 13 seconds");
 
+        bool waiting = false;
+        while (true)
+        {
+            // puede recibir suscripciones mqtt mientras lee de los archivos
+            mqttClient.poll();
+            if (timerTrue(millSensorsRequest, 13000))
+            {
+                if (waiting)
+                {
+                    millSensorsRequest = millis();
+                    waiting = false;
+                    break;
+                }
+                if (!waiting)
+                    waiting = true;
+
+                millSensorsRequest = millis();
+            }
+        }
+
         // espera 5 segundos para la recepcion de datos y leidas de uarts
-        delay(13000);
 
         // crea un array vacio
         byte *arrayData = new byte[bytesNumber];

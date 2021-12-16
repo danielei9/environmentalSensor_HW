@@ -45,7 +45,7 @@ TinyGsm modem(debugger);
 TinyGsm modem(SerialAT);
 #endif
 
-TinyGsmClient client(modem);
+TinyGsmClientSecure client(modem);
 #include <Wire.h>
 
 // I2C
@@ -54,10 +54,10 @@ TwoWire I2CPower = TwoWire(0);
 // MQTT CLIENT
 MqttClient mqttClient(client);
 
-// const char broker[] = "gesinen.es";
-const char broker[] = "broker.hivemq.com";
-// int port = 8882;
-int port = 1883;
+const char broker[] = "gesinen.es";
+// const char broker[] = "broker.hivemq.com";
+int port = 8882;
+// int port = 1883;
 const char *username = "gesinen";
 const char *password = "gesinen2110";
 // /codigoPostal/ambiental/idDispositivo/
@@ -65,7 +65,7 @@ char topic[] = "46701/ambiental/1/";
 const char codigoPostal[] = "";
 const char idDispositivo[] = "";
 
-const char topicSubscribed[] = "gesinen/#";
+const char topicSubscribed[] = "46701/ambiental/1/#";
 
 const long interval = 1000;
 unsigned long previousMillis = 0;

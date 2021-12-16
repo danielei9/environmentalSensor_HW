@@ -8,7 +8,6 @@
 #include <../lib/MCCI LoRaWAN LMIC library/src/lmic.h>
 #include <SPI.h>
 
-#include <../lib/SlaveController.h>
 #include "../lib/CJMCU.h"
 #include "../lib/Modbus/Modbus.hpp"
 #include "Adafruit_CCS811.h"
@@ -18,6 +17,7 @@
 
 #define PROTOCOL_4G
 #include <../lib/PublishersClient.h>
+#include <../lib/SlaveController.h>
 #include <SPI.h>
 #include <SD.h>
 #include <Ticker.h>
@@ -99,6 +99,8 @@ void loop()
   // float *coords = gps.getCoords();
   // gps.testLoop();
   // getCJMData();
+  mqttClient.poll();
+
   if (publisher->join())
   {
     if (timerTrue(mill, 20000))

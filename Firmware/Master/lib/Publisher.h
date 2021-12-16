@@ -27,11 +27,10 @@ public:
     virtual void initPublisher() = 0;
 
     // publica los datos
-    void sendData(uint8_t *)
-    {
-    }
-    void sendData(osjob_t *, uint8_t *, unsigned int , unsigned int ){
+    virtual void sendData(uint8_t *) = 0;
 
+    void sendData(osjob_t *, uint8_t *, unsigned int, unsigned int)
+    {
     }
 
     /**
