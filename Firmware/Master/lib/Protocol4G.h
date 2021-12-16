@@ -17,6 +17,9 @@
 #include <../lib/Utils.h>
 #include <esp_tls.h>
 #include <../lib/TLS/clientcert.h>
+#include <../lib/OTA/OTAUpdate.hpp>
+OTAUpdate OTAUpd;
+
 // TTGO T-Call pins
 #define MODEM_RST 5
 #define MODEM_PWKEY 4
@@ -26,26 +29,7 @@
 #define I2C_SDA 21
 #define I2C_SCL 22
 
-// Set serial for debug console (to Serial Monitor, default speed 115200)
-#define SerialMon Serial
-// Set serial for AT commands (to SIM800 module)
-#define SerialAT Serial1
 
-// Configure TinyGSM library
-#define TINY_GSM_MODEM_SIM7070  // Modem is SIM800
-#define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
-#include <TinyGsmClient.h>
-
-// #define DUMP_AT_COMMANDS
-#ifdef DUMP_AT_COMMANDS
-#include <StreamDebugger.h>
-StreamDebugger debugger(SerialAT, SerialMon);
-TinyGsm modem(debugger);
-#else
-TinyGsm modem(SerialAT);
-#endif
-
-TinyGsmClientSecure client(modem);
 #include <Wire.h>
 
 // I2C
@@ -65,7 +49,7 @@ char topic[] = "46701/ambiental/1/";
 const char codigoPostal[] = "";
 const char idDispositivo[] = "";
 
-const char topicSubscribed[] = "46701/ambiental/1/#";
+const char topicSubscribed[] = "46701/ambiental/2/#";
 
 const long interval = 1000;
 unsigned long previousMillis = 0;
@@ -126,6 +110,22 @@ private:
         mqttClient.subscribe(topic);
     }
 
+    static void scheduleRxMqtt(String payload)
+    {
+         if (payload == "ON")
+        {
+            Serial.println("Encender Dispositivo");
+        }
+        else if (payload == "OFF")
+        {
+            Serial.println("Apagar Dispositivo");
+        }
+         else if (payload == "UPDATE",)
+        {
+            Serial.println("UPDATE");
+             OTAUpd.updateFromServer();
+        }
+    }
     /**
      * Recibe mensajes de los topicos
      * @param messageSize tamaño del mensaje
@@ -138,18 +138,9 @@ private:
         String payload = mqttClient.readString();
         Serial.println("incoming: " + topic + ", length: " + messageSize + " ");
         Serial.println(payload);
-        if (payload == "ON")
-        {
-            Serial.println("Encender Dispositivo");
-        }
-        else if (payload == "OFF")
-        {
-            Serial.println("Apagar Dispositivo");
-        }
-
         Serial.println();
+        scheduleRxMqtt(payload,topic);
     }
-
     /*
     * Instancia los credenciales
     */
