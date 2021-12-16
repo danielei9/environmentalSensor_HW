@@ -1,8 +1,13 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <EEPROM.h>
-#include <../lib/IBM/src/lmic.h>
-#include <../lib/IBM/src/hal/hal.h>
+#define CFG_sx1276_radio 1 // HPD13A LoRa SoC
+
+#include <../lib/MCCI LoRaWAN LMIC library/src/hal/hal.h>
+
+#include <../lib/MCCI LoRaWAN LMIC library/src/lmic.h>
+#include <SPI.h>
+
 #include <../lib/SlaveController.h>
 #include "../lib/CJMCU.h"
 #include "../lib/Modbus/Modbus.hpp"
@@ -11,7 +16,7 @@
 #include "ESP32httpUpdate.h"
 #include "../lib/OTA/OTAU.hpp"
 
-#define PROTOCOL_4G
+#define PROTOCOL_LORA
 #include <../lib/PublishersClient.h>
 #include <SPI.h>
 #include <SD.h>
@@ -81,6 +86,7 @@ void setup()
   // listDir(SPIFFS, "/", 0);
 
   // publisher->initPublisher();
+  Lora.initPublisher();
   //esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
 
   slaveController.initMaster();
@@ -91,26 +97,26 @@ void setup()
 }
 void loop()
 {
-
+  os_runloop_once();
   // float *coords = gps.getCoords();
   // gps.testLoop();
   // getCJMData();
-  // if (publisher->join())
-  // {
-  if (timerTrue(mill, 20000))
+  if (Lora.join())
   {
-    //     // get arrayData
-    Serial.println("Requesting sensors data..");
-    uint8_t bytesToRequest = 8;
-    byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
-    //     getModbusData();
+    if (timerTrue(mill, 20000))
+    {
+      //     // get arrayData
+      Serial.println("Requesting sensors data..");
+      uint8_t bytesToRequest = 8;
+      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+      //     getModbusData();
 
-    printBytesArray(arrayData, bytesToRequest);
+      printBytesArray(arrayData, bytesToRequest);
 
-    //     publisher->sendData(arrayData);
-    mill = millis();  
+      //     publisher->sendData(arrayData);
+      mill = millis();
+    }
   }
-  // }
 }
 // slaveController.scanSlaves();
 void getModbusData()

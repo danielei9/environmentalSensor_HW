@@ -14,8 +14,6 @@
     {                                                                                                  \
         0xd6, 0x37, 0xf7, 0x50, 0xc3, 0xa7, 0xc2, 0x25, 0x21, 0xdc, 0x53, 0x27, 0x19, 0xaa, 0x6c, 0x53 \
     }
-
-    
 static u1_t APPEUI[8] = APPEUI_DEF;
 void os_getArtEui(u1_t *buf) { memcpy(buf, APPEUI, 8); }
 static const u1_t PROGMEM DEVEUI[8] = DEVEUI_DEF;
@@ -170,7 +168,6 @@ public:
             break;
         case EV_JOINED:
             Serial.println(F("EV_JOINED"));
-            joined = true;
             /*{
               u4_t netid = 0;
               devaddr_t devaddr = 0;

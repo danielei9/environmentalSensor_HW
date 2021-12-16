@@ -27,7 +27,12 @@ public:
     virtual void initPublisher() = 0;
 
     // publica los datos
-    virtual void sendData(uint8_t *) = 0;
+    void sendData(uint8_t *)
+    {
+    }
+    void sendData(osjob_t *, uint8_t *, unsigned int , unsigned int ){
+
+    }
 
     /**
      *  Se une a la red.
