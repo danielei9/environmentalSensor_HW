@@ -108,7 +108,7 @@ void loop()
     printBytesArray(arrayData, bytesToRequest);
 
     //     publisher->sendData(arrayData);
-    mill = millis();
+    mill = millis();  
   }
   // }
 }

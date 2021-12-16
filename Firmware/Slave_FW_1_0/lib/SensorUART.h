@@ -106,12 +106,13 @@ public:
             {
                 int sensorData = sensorSerial->read();
                 arrayData[counter] = sensorData;
-                Serial.print(sensorData);
+                Serial.println(sensorData);
                 (*this).counter++;
                 if ((*this).counter == 9)
                 {
                     (*this).readed = true;
                     Serial.println("Sensor Readed");
+                    reset();
                     return (*this).readed;
                 }
                 /* code */
