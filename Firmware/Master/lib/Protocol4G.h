@@ -29,7 +29,6 @@ OTAUpdate OTAUpd;
 #define I2C_SDA 21
 #define I2C_SCL 22
 
-
 #include <Wire.h>
 
 // I2C
@@ -110,9 +109,9 @@ private:
         mqttClient.subscribe(topic);
     }
 
-    static void scheduleRxMqtt(String payload,String topic)
+    static void scheduleRxMqtt(String payload, String topic)
     {
-         if (payload == "ON")
+        if (payload == "ON")
         {
             Serial.println("Encender Dispositivo");
         }
@@ -120,10 +119,10 @@ private:
         {
             Serial.println("Apagar Dispositivo");
         }
-         else if ((payload == "UPDATE")  and ( topic == "update")) 
+        else if ((payload == "UPDATE") and (topic == "update"))
         {
             Serial.println("UPDATE");
-             OTAUpd.updateFromServer();
+            OTAUpd.updateFromServer();
         }
     }
     /**
@@ -139,7 +138,7 @@ private:
         Serial.println("incoming: " + topic + ", length: " + messageSize + " ");
         Serial.println(payload);
         Serial.println();
-        scheduleRxMqtt(payload,topic);
+        scheduleRxMqtt(payload, topic);
     }
     /*
     * Instancia los credenciales
@@ -207,6 +206,7 @@ public:
         }
         else
         {
+            mqttClient.poll();
             return true;
         }
     }

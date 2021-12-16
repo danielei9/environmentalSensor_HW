@@ -47,10 +47,9 @@ uint8_t arrayData[52]; // array Data
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
 
-
 #define TTGO_SOFTWARE_SERIAL 1 // If use ttgo
-#define SENSOR_SUELO 1 // If we have sensor floor
-#define SENSOR_NOISE 1 // If we have sensor floor
+#define SENSOR_SUELO 1         // If we have sensor floor
+#define SENSOR_NOISE 1         // If we have sensor floor
 
 #ifdef SENSOR_SUELO
 //#define sensorPowerController 1
@@ -113,9 +112,8 @@ void setup()
   OTAUpd.init();
   // Set console baud rate
   Serial.println("Requesting in 20 seconds");
-Serial.begin(115200);
+  Serial.begin(115200);
   initModbus();
-
 }
 
 void initModbus()
@@ -155,17 +153,15 @@ void initModbus()
   modbus.begin(0x01, modbusSerial, DEREPin);
 #endif
 
-  #ifdef SENSOR_NOISE
+#ifdef SENSOR_NOISE
   modbus.changeAddrNoise();
-  #endif
+#endif
 }
 void loop()
 {
   // float *coords = gps.getCoords();
   // gps.testLoop();
   // getCJMData();
-  
-  mqttClient.poll();
 
   if (publisher->join())
   {
@@ -176,15 +172,18 @@ void loop()
       uint8_t bytesToRequest = 8;
       byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
       Serial.println("Received");
-      //     getModbusData();
+      getModbusData();
 
       printBytesArray(arrayData, bytesToRequest);
-
+#ifdef PROTOCOL_4G
       publisher->sendData(arrayData);
+#endif
+#ifdef PROTOCOL_LORA
+      publisher->sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
+#endif
       mill = millis();
     }
   }
-getModbusData();
 }
 // slaveController.scanSlaves();
 void getModbusData()
@@ -203,7 +202,7 @@ void getModbusData()
   Serial.println("Soil: ");
   Serial.println(soil);
   arrayData[7] = soil;
-  
+
   float noise = modbus.getNoise();
   Serial.println("Noise: ");
   Serial.println(noise);

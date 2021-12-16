@@ -66,9 +66,7 @@ public:
     }
     void initPublisher()
     {
-        Serial.begin(115200);
-        Serial.println("Starting");
-        Serial.print("INit");
+        Serial.print("INitLORA");
         os_init();
         LMIC_reset();
         uint8_t firstData[10] = "FirstSend";

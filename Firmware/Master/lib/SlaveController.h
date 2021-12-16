@@ -75,7 +75,7 @@ public:
         while (true)
         {
             // puede recibir suscripciones mqtt mientras lee de los archivos
-            mqttClient.poll();
+            //mqttClient.poll();
             if (timerTrue(millSensorsRequest, 13000))
             {
                 if (waiting)
