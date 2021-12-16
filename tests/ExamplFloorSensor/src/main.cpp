@@ -28,7 +28,7 @@ SoftwareSerial modbusSerial(SSRxPin, SSTxPin);
 HardwareSerial modbusSerial = Serial1;
 #endif
 #endif
-
+void initModbus();
 // Construct the modbus instance
 Modbus modbus;
 
@@ -37,6 +37,11 @@ Modbus modbus;
 // ---------------------------------------------------------------------------
 void setup()
 {
+  Serial.begin(9600);
+initModbus();
+}
+void initModbus(){
+
 #ifdef SENSOR_SUELO
 // Controller Modbus interface
 #ifdef TTGO_SOFTWARE_SERIAL
@@ -71,12 +76,10 @@ void setup()
   modbus.begin(0x01, modbusSerial, DEREPin);
 #endif
 
-  Serial.begin(9600);
   #ifdef SENSOR_NOISE
   modbus.changeAddrNoise();
   #endif
 }
-
 // ---------------------------------------------------------------------------
 // Main loop function
 // ---------------------------------------------------------------------------

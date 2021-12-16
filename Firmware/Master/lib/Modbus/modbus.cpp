@@ -1,30 +1,37 @@
-/* ----------------------------------------------------------------
- *   AUTHOR:        Daniel Burruchaga Sola 
- *   FILE:           modbus.cpp
- *   DATE:           22/11/2021
- *   STATE:          DONE
- *  ---------------------------------------------------------------- */
+// -*- mode: c++ -*-
 
+// --------------------------------------------------------------
+// Autor: Daniel Burruchaga Sola
+// Date: 03 - 12 - 2021
+// Name: Modbus.hpp
+// Description: Modbus class 
+// --------------------------------------------------------------
 #include "Arduino.h"
 #include "Modbus.hpp"
 #define RESPONSE_BUFFER_SIZE 256
 #define MODBUS_TIMEOUT 500
 #define MODBUS_FRAME_TIMEOUT 4
-
+//#define DEBUG
 // initialize the response buffer
 byte Modbus::responseBuffer[RESPONSE_BUFFER_SIZE] = {
     0x00,
 };
+// initialize the crc 
 byte Modbus::crcFrame[2] = {
     0x00,
 };
+//command to send to floor sensore
 byte Modbus::command[8] = {0x01, 0x04, 0x00, 0x00, 0x00, 0x03, 0xB0, 0x0B};
+// command to sen to get noise levels
+byte Modbus::commandNoise[8] = {0x02, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};
+//command to send to chang the addr of the noise sensore
+byte Modbus::changAddrNoise[8] = {0xFF, 0x06, 0x07, 0xD0, 0x00, 0x02, 0x1D, 0x58};
 
-/*
-This function will send a command request to the slave Modbus waiting to get Response
-command:byte[], commandLength:R -> sendCommand -> return stat:R
-*/
-// This sends a command to the sensor bus and listens for a response
+/**
+     * This sends a command to the sensor bus and listens for a response
+     * @param command commmand to send, 
+     * @param commandLength commmand to send 
+     */
 int Modbus::sendCommand(byte command[], int commandLength)
 {
     // Empty the response buffer
@@ -127,33 +134,69 @@ int Modbus::sendCommand(byte command[], int commandLength)
     }
 }
 
-//----------------------------------------------------------------------------
-//                           HELPER FUNCTIONS
-//----------------------------------------------------------------------------
-// getTemperature -> temp:R
+/**
+     * Get temperature from floor sensor
+     */
 float Modbus::getTemperature()
 {
     sendCommand(command, sizeof(command));
     return ((responseBuffer[3] * 256 + responseBuffer[4]) / 100);
 }
-// getSoilMoisture -> soil:R
+
+/**
+     * Change Address from the noise sensor
+     */
+void Modbus::changeAddrNoise()
+{
+    sendCommand(changAddrNoise, sizeof(command));
+   // return ((responseBuffer[3] * 256 + responseBuffer[4]) / 100);
+}
+
+/**
+     * Get noise from noise sensor
+     */
+float Modbus::getNoise()
+{
+    sendCommand(commandNoise, sizeof(commandNoise));
+    return (((responseBuffer[3]* 256  + responseBuffer[4])/ 10));
+}
+
+/**
+     * Get soilMoisture from floor sensor
+     */
 float Modbus::getSoilMoisture()
 {
     sendCommand(command, sizeof(command));
     return ((responseBuffer[5] * 256 + responseBuffer[6]) / 100);
 }
-// getEpsilon -> Epsilon:R
+
+/**
+     * Get epsilon from floor sensor
+     */
 float Modbus::getEpsilon()
 {
     sendCommand(command, sizeof(command));
     return responseBuffer[7] * 256 + responseBuffer[8];
 }
-// modbusSlaveId:R, Stream:Serial, enablePin:R -> begin ()
+
+
+/**
+     * Initialize the modbus config and begin 
+     * @param modbusSlaveID Id of the comm 
+     * @param stream Stream to use UART SOFTWARE SERIAL in this case 
+     * @param enablePin Pin wich select if is RX or rx
+     */
 bool Modbus::begin(byte modbusSlaveID, Stream &stream, int enablePin)
 {
     return begin(modbusSlaveID, &stream, enablePin);
 }
-// modbusSlaveId:R, Stream:Serial, enablePin:R -> begin ()
+
+/**
+     * Initialize the modbus config and begin 
+     * @param modbusSlaveID Id of the comm 
+     * @param stream Stream to use UART SOFTWARE SERIAL in this case 
+     * @param enablePin Pin wich select if is RX or rx
+     */
 bool Modbus::begin(byte modbusSlaveID, Stream *stream, int enablePin)
 {
     // Give values to variables;
@@ -170,8 +213,14 @@ bool Modbus::begin(byte modbusSlaveID, Stream *stream, int enablePin)
 
     return true;
 }
-// This flips the device/receive enable to DRIVER so the arduino can send text
-// driverEnable ()
+
+//----------------------------------------------------------------------------
+//                           PRIVATE HELPER FUNCTIONS
+//----------------------------------------------------------------------------
+
+/**
+     * Put This flips the device/receive enable to DRIVER so the arduino can send text
+     */
 void Modbus::driverEnable(void)
 {
     if (_enablePin >= 0)
@@ -184,8 +233,9 @@ void Modbus::driverEnable(void)
     }
 }
 
-// This flips the device/receive enable to RECIEVER so the sensor can send text
-// recieverEnable()
+/**
+     * This flips the device/receive enable to RECIEVER so the sensor can send text
+     */
 void Modbus::recieverEnable(void)
 {
     if (_enablePin >= 0)
@@ -197,9 +247,11 @@ void Modbus::recieverEnable(void)
         // delay(8);
     }
 }
+/**
+     *  This empties the serial buffer
+     * @param stream Stream to use UART SOFTWARE SERIAL in this case 
+     */
 
-// This empties the serial buffer
-// Stream:Serial -> emptySerialBuffer()
 void Modbus::emptySerialBuffer(Stream *stream)
 {
     while (stream->available() > 0)
@@ -209,9 +261,11 @@ void Modbus::emptySerialBuffer(Stream *stream)
     }
 }
 
-// Just a function to pretty-print the modbus hex frames
-// This is purely for debugging
-//  modbusFrame:R, length:R -> printFrameHex()
+/**
+     *  pretty-print the modbus hex frames for DEBUG
+     * @param modbusFrame  Frame to show 
+     * @param frameLength Frame length
+     */
 void Modbus::printFrameHex(byte modbusFrame[], int frameLength)
 {
     Serial.print("{");
@@ -227,10 +281,11 @@ void Modbus::printFrameHex(byte modbusFrame[], int frameLength)
     Serial.println("}");
 }
 
-// Calculates a Modbus RTC cyclical redudancy code (CRC)
-// and adds it to the last two bytes of a frame
-//  modbusFrame:R, length:R -> printFrameHex()
-//
+/**
+     * Calculates a Modbus RTC cyclical redudancy code (CRC) and adds it to the last two bytes of a frame
+     * @param modbusFrame  Frame to show 
+     * @param frameLength Frame length
+     */
 void Modbus::calculateCRC(byte modbusFrame[], int frameLength)
 {
     // Reset the CRC frame
@@ -262,7 +317,12 @@ void Modbus::calculateCRC(byte modbusFrame[], int frameLength)
     crcFrame[0] = crcLow;
     crcFrame[1] = crcHigh;
 }
-//  insertCRC:R, length:R -> printFrameHex()
+
+/**
+     * Insert the crc 
+     * @param modbusFrame  Frame to show 
+     * @param frameLength Frame length
+     */
 void Modbus::insertCRC(byte modbusFrame[], int frameLength)
 {
     // Calculate the CRC
@@ -273,9 +333,12 @@ void Modbus::insertCRC(byte modbusFrame[], int frameLength)
     modbusFrame[frameLength - 1] = crcFrame[1];
 }
 
-// This slices one array out of another
-// Used for slicing one or more registers out of a returned modbus RTU frame
-// inputArr:R , outPutArr:R, start:R, numBytes:R, reverseOrder:Bool -> SliceArray() 
+/**
+     * This slices one array out of another helper debug
+     * @param inputArray  Input to slice
+     * @param outputArray  Output from slice
+     */
+
 void Modbus::sliceArray(byte inputArray[], byte outputArray[],
                         int start_index, int numBytes, bool reverseOrder)
 {

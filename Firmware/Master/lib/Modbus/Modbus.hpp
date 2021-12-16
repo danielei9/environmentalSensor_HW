@@ -1,3 +1,11 @@
+// -*- mode: c++ -*-
+
+// --------------------------------------------------------------
+// Autor: Daniel Burruchaga Sola
+// Date: 03 - 12 - 2021
+// Name: Modbus.hpp
+// Description: Modbus class 
+// --------------------------------------------------------------
 #include "Arduino.h"
 #define MODBUS_TIMEOUT 500
 #define MODBUS_FRAME_TIMEOUT 4
@@ -15,7 +23,7 @@
 
 const int sensorPwrPin = 34;  // The pin sending power to the sensor
 const int adapterPwrPin = 35; // The pin sending power to the RS485 adapter
-const int DEREPin = 25;       // The pin controlling Recieve Enable and Driver Enable
+const int DEREPin = 0;       // The pin controlling Recieve Enable and Driver Enable
                               // on the RS485 adapter, if applicable (else, -1)
                               // Setting HIGH enables the driver (arduino) to send text
                               // Setting LOW enables the receiver (sensor) to send text
@@ -24,9 +32,11 @@ class Modbus
 {
 
 public:
+float getNoise();
     int sendCommand(byte command[], int commandLength);
     void driverEnable(void);
     float getTemperature();
+    void changeAddrNoise();
     float getSoilMoisture();
     float getEpsilon();
     void recieverEnable(void);
@@ -48,10 +58,9 @@ public:
 
     static byte crcFrame[2];
     static byte command[8];
+    static byte commandNoise[8];
+    static byte changAddrNoise[8];
 
-    // The modbus protocol defines that there can be no more than 1.5 characters
-    // of silence between characters in a frame and any space over 3.5 characters
-    // defines a new frame.
     const uint32_t modbusTimeout = MODBUS_TIMEOUT;       // The time to wait for response after a command (in ms)
     const int modbusFrameTimeout = MODBUS_FRAME_TIMEOUT; // the time to wait between characters within a frame (in ms)
 };

@@ -110,7 +110,7 @@ private:
         mqttClient.subscribe(topic);
     }
 
-    static void scheduleRxMqtt(String payload)
+    static void scheduleRxMqtt(String payload,String topic)
     {
          if (payload == "ON")
         {
@@ -120,7 +120,7 @@ private:
         {
             Serial.println("Apagar Dispositivo");
         }
-         else if (payload == "UPDATE",)
+         else if ((payload == "UPDATE")  and ( topic == "update")) 
         {
             Serial.println("UPDATE");
              OTAUpd.updateFromServer();

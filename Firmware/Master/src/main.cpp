@@ -47,11 +47,10 @@ uint8_t arrayData[52]; // array Data
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
 
-void initModbus();
-void getModbusData();
 
 #define TTGO_SOFTWARE_SERIAL 1 // If use ttgo
-#define SENSOR_SUELO 1         // If we have sensor floor
+#define SENSOR_SUELO 1 // If we have sensor floor
+#define SENSOR_NOISE 1 // If we have sensor floor
 
 #ifdef SENSOR_SUELO
 //#define sensorPowerController 1
@@ -60,14 +59,17 @@ void getModbusData();
 #if defined(TTGO_SOFTWARE_SERIAL)
 #include <SoftwareSerial.h>
 #ifdef TTGO_SOFTWARE_SERIAL
-const int SSRxPin = 32; // 2 Recieve pin for software serial (Rx on RS485 adapter)
-const int SSTxPin = 33; // 3 Send pin for software serial (Tx on RS485 adapter)
+const int SSRxPin = 15; // 2 Recieve pin for software serial (Rx on RS485 adapter)
+const int SSTxPin = 13; // 3 Send pin for software serial (Tx on RS485 adapter)
 #endif
 SoftwareSerial modbusSerial(SSRxPin, SSTxPin);
 #else
 HardwareSerial modbusSerial = Serial1;
 #endif
 #endif
+
+void initModbus();
+void getModbusData();
 uint32_t knownCRC32 = 0xD9971BA9;
 // Construct the modbus instance
 Modbus modbus;
@@ -90,7 +92,7 @@ bool isValidContentType = false;
 int readLength = 0;
 
 GPS gps;
-
+void initModbus();
 void setup()
 {
   // gps.init();
@@ -111,49 +113,9 @@ void setup()
   OTAUpd.init();
   // Set console baud rate
   Serial.println("Requesting in 20 seconds");
-}
-void loop()
-{
-  // float *coords = gps.getCoords();
-  // gps.testLoop();
-  // getCJMData();
-  mqttClient.poll();
+Serial.begin(115200);
+  initModbus();
 
-  if (publisher->join())
-  {
-    if (timerTrue(mill, 20000))
-    {
-      //     // get arrayData
-      Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 8;
-      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
-      Serial.println("Received");
-      //     getModbusData();
-
-      printBytesArray(arrayData, bytesToRequest);
-
-      publisher->sendData(arrayData);
-      mill = millis();
-    }
-  }
-}
-// slaveController.scanSlaves();
-void getModbusData()
-{
-  float temp = modbus.getTemperature();
-  Serial.println("Temperatura: ");
-  Serial.println(temp);
-  arrayData[5] = temp;
-
-  float epsi = modbus.getEpsilon();
-  Serial.println("Epsilon: ");
-  Serial.println(epsi);
-  arrayData[6] = epsi;
-
-  float soil = modbus.getSoilMoisture();
-  Serial.println("Soil: ");
-  Serial.println(soil);
-  arrayData[7] = soil;
 }
 
 void initModbus()
@@ -192,127 +154,58 @@ void initModbus()
 #endif
   modbus.begin(0x01, modbusSerial, DEREPin);
 #endif
+
+  #ifdef SENSOR_NOISE
+  modbus.changeAddrNoise();
+  #endif
 }
-/*
-void OTAUpdate()
+void loop()
 {
-  Serial.print("Connecting to ");
-  Serial.print(server);
-  // if you get a connection, report back via serial:
+  // float *coords = gps.getCoords();
+  // gps.testLoop();
+  // getCJMData();
+  
+  mqttClient.poll();
 
-  Serial.println(" OK");
-
-  if (client.connect(server, portServer))
+  if (publisher->join())
   {
-    Serial.println("Fetching bin file at: " + String("https://ycansam.upv.edu.es/js/firmware.bin")); // tells where its going to get the .bin and the name its looking for
-
-    // Get the contents of the bin file
-    client.print(String("GET ") + "https://ycansam.upv.edu.es/js/firmware.bin" + " HTTP/1.1\r\n" +
-                 "Host: " + String(server) + "\r\n" +
-                 "Cache-Control: no-cache\r\n" +
-                 "Connection: close\r\n\r\n");
-    unsigned long timeout = millis();
-    while (client.available() == 0)
+    if (timerTrue(mill, 20000))
     {
-      if (millis() - timeout > 5000)
-      {
-        Serial.println("Client Timeout !");
-        client.stop();
-        return;
-      }
-    }
-    Serial.println("Reading header");
+      //     // get arrayData
+      Serial.println("Requesting sensors data..");
+      uint8_t bytesToRequest = 8;
+      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+      Serial.println("Received");
+      //     getModbusData();
 
-    uint32_t contentLength = knownFileSize;
+      printBytesArray(arrayData, bytesToRequest);
 
-    File file = SPIFFS.open("/firmware.bin", FILE_APPEND);
-
-    while (client.available())
-    {
-      String line = client.readStringUntil('\n');
-      line.trim();
-      Serial.println(line); // Uncomment this to show response header
-      line.toLowerCase();
-      if (line.startsWith("content-length:"))
-      {
-        contentLength = line.substring(line.lastIndexOf(':') + 1).toInt();
-      }
-      else if (line.length() <= 0)
-      {
-        break;
-      }
-    }
-
-    timeout = millis();
-    CRC32 crc;
-
-    unsigned long timeElapsed = millis();
-    // printPercent(readLength, contentLength);
-
-    while (readLength < contentLength && client.connected() && millis() - timeout < 10000L)
-    {
-      while (client.available() && readLength < contentLength)
-      {
-        // read file data to spiffs
-        int c = client.read();
-        // client.write(file);
-        file.print((char)c);
-        crc.update((char)c);
-        readLength++;
-
-        printPercent(readLength, contentLength);
-        timeout = millis();
-      }
-      if (client.available() <= 0)
-        Serial.println("Client not Available");
-      if (millis() - timeout < 9500L)
-        Serial.println("TimeOut");
-    }
-
-    file.close();
-    Serial.println("  file.close();");
-    printPercent(readLength, contentLength);
-    timeElapsed = millis() - timeElapsed;
-    Serial.println();
-
-    client.stop();
-    Serial.println("stop client");
-
-    modem.gprsDisconnect();
-    Serial.println("gprs disconnect");
-    Serial.println();
-
-    float duration = float(timeElapsed) / 1000;
-
-    Serial.print("Tamaño de Archivo: ");
-    Serial.println(contentLength);
-    Serial.print("Leido:  ");
-    Serial.println(readLength);
-    Serial.print("Calculado. CRC32:    0x");
-    Serial.println(crc.finalize(), HEX);
-    Serial.print("Conocido CRC32:    0x");
-    Serial.println(knownCRC32, HEX);
-    Serial.print("Bajado en:       ");
-    Serial.print(duration);
-    Serial.println("s");
-
-    Serial.println("Se genera una espera de 3 segundos");
-    for (int i = 0; i < 3; i++)
-    {
-      Serial.print(String(i + 1) + "...");
-      delay(1000);
-    }
-
-    // Check if there is enough to OTA Update
-
-    readFile(SPIFFS, "/firmware.bin");
-
-    updateFromFS();
-
-    // Do nothing forevermoreContent-Type
-    while (true)
-    {
-      delay(1000);
+      publisher->sendData(arrayData);
+      mill = millis();
     }
   }
-}*/
+getModbusData();
+}
+// slaveController.scanSlaves();
+void getModbusData()
+{
+  float temp = modbus.getTemperature();
+  Serial.println("Temperatura: ");
+  Serial.println(temp);
+  arrayData[5] = temp;
+
+  float epsi = modbus.getEpsilon();
+  Serial.println("Epsilon: ");
+  Serial.println(epsi);
+  arrayData[6] = epsi;
+
+  float soil = modbus.getSoilMoisture();
+  Serial.println("Soil: ");
+  Serial.println(soil);
+  arrayData[7] = soil;
+  
+  float noise = modbus.getNoise();
+  Serial.println("Noise: ");
+  Serial.println(noise);
+  arrayData[7] = noise;
+}

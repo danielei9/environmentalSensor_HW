@@ -8,10 +8,10 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/include",
-                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/src",
-                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
-                "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
+                "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/include",
+                "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/src",
+                "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
+                "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/config",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_trace",
                 "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_update",
@@ -109,10 +109,10 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/include",
-                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/src",
-                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
-                    "C:/Users/dbs99/Downloads/environmentalSensor_HW-main (1)/environmentalSensor_HW-main/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
+                    "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/include",
+                    "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/src",
+                    "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/EspSoftwareSerial/src",
+                    "c:/Users/dbs99/Documents/GitHub/environmentalSensor_HW/tests/ExamplFloorSensor/.pio/libdeps/ttgo-lora32-v1/SensorModbusMaster/src",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/config",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_trace",
                     "C:/Users/dbs99/.platformio/packages/framework-arduinoespressif32/tools/sdk/include/app_update",
@@ -209,7 +209,7 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=50203",
+                "PLATFORMIO=50204",
                 "ARDUINO_TTGO_LoRa32_V2",
                 "ESP32",
                 "ESP_PLATFORM",
