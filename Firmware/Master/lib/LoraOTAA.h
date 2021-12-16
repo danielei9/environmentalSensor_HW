@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <EEPROM.h>
+#include <../lib/Utils.h> 
 
 #define APPEUI_DEF                                     \
     {                                                  \
@@ -65,7 +66,7 @@ public:
     }
     void initPublisher()
     {
-        Serial.begin(9600);
+        Serial.begin(115200);
         Serial.println("Starting");
         Serial.print("INit");
         os_init();

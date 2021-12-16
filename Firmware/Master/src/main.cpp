@@ -86,7 +86,7 @@ void setup()
   // listDir(SPIFFS, "/", 0);
 
   // publisher->initPublisher();
-  Lora.initPublisher();
+  publisher->initPublisher();
   //esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
 
  // slaveController.initMaster();
@@ -97,11 +97,10 @@ void setup()
 }
 void loop()
 {
-  os_runloop_once();
   // float *coords = gps.getCoords();
   // gps.testLoop();
   // getCJMData();
-  if (Lora.join())
+  if (publisher->join())
   {
     if (timerTrue(mill, 20000))
     {
