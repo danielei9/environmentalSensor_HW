@@ -103,17 +103,6 @@ void requestEvent()
 
   Serial.println("Requested data from Master...");
   Serial.println("Sending Data: ");
-  // Wire.beginTransmission(); // send the address and the write cmnd
-  for (int i = 0; i < arrayLength; i++)
-  {
-    Serial.print(arrayData1[i]);
-    // Serial.print(arrayData2[i]);
-    // Serial.print(arrayData3[i]);
-    if (i < arrayLength - 1)
-      Serial.print(":");
-
-    // Wire.write(arrayData[i]); // send three bytes
-  }
 
   // Wire.endTransmission();
   Serial.println();
@@ -197,24 +186,38 @@ void loop()
       arrayData1[5] = 1;
       arrayData1[6] = 1;
       arrayData1[7] = 1;
+      delay(10);
+      arrayData2[0] = sensor1.getSensorType();
+      arrayData2[1] = sensor2.getSensorType();
+      Serial.println(sensor2.getSensorType() + "aaa");
+      arrayData2[2] = sensor3.getSensorType();
+      arrayData2[3] = sensor4.getSensorType();
+      arrayData2[4] = sensor5.getSensorType();
+      arrayData2[5] = 2;
+      arrayData2[6] = 2;
+      arrayData2[7] = 2;
+      delay(10);
 
-      arrayData2[8] = sensor1.getSensorType();
-      arrayData2[9] = sensor2.getSensorType();
-      arrayData2[10] = sensor3.getSensorType();
-      arrayData2[11] = sensor4.getSensorType();
-      arrayData2[12] = sensor5.getSensorType();
-      arrayData2[13] = 2;
-      arrayData2[14] = 2;
-      arrayData2[15] = 2;
+      arrayData3[0] = sensor1.getUnit();
+      arrayData3[1] = sensor2.getUnit();
+      arrayData3[2] = sensor3.getUnit();
+      arrayData3[3] = sensor4.getUnit();
+      arrayData3[4] = sensor5.getUnit();
+      arrayData3[5] = 3;
+      arrayData3[6] = 3;
+      arrayData3[7] = 3;
+      delay(10);
 
-      arrayData3[16] = sensor1.getUnit();
-      arrayData3[17] = sensor2.getUnit();
-      arrayData3[18] = sensor3.getUnit();
-      arrayData3[19] = sensor4.getUnit();
-      arrayData3[20] = sensor5.getUnit();
-      arrayData3[21] = 3;
-      arrayData3[22] = 3;
-      arrayData3[23] = 3;
+      for (int i = 0; i < arrayLength; i++)
+      {
+        Serial.print(arrayData1[i]);
+        Serial.print(".");
+        Serial.print(arrayData2[i]);
+        Serial.print(".");
+        Serial.print(arrayData3[i]);
+        Serial.println();
+      }
+
       // ejecutar el comando
     }
   }

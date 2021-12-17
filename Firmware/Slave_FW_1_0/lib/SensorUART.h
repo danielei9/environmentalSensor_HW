@@ -250,10 +250,10 @@ public:
      * Devuelve el tipo de sensor
      * @returns  HEXADECIMAl tipo
      */
-    int getSensorType()
+    uint8_t getSensorType()
     {
         if (sensorType != -1 && sensorInformation[2] == sensorType)
-            return (sensorInformation[2]);
+            return (sensorType);
         else
         {
             getSensorInformation();
@@ -264,7 +264,7 @@ public:
      * Devuelve la unidad en la que se mide el sensor.
      * @returns HEXADECIMAL tipo
      */
-    int getUnit()
+    uint8_t getUnit()
     {
         if (sensorType != -1 && sensorInformation[5] == sensorUnit)
             return (sensorInformation[5]);

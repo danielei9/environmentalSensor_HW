@@ -171,7 +171,7 @@ void loop()
     {
       //     // get arrayData
       Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 8;
+      uint8_t bytesToRequest = 32;
       byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
 
       Serial.println("Received");
