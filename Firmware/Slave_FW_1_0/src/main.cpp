@@ -168,7 +168,7 @@ void setup()
   sensor3.initSensor(9600);
   sensor4.initSensor(9600);
   sensor5.initSensor(9600);
-  wakeUpSensors();
+  sleepSensors();
 
   Wire.begin(I2C_SLAVE_ADDR);
   Wire.onRequest(requestEvent);
@@ -183,16 +183,16 @@ void loop()
 
     if (data == REQUEST_COMMAND)
     {
-      // wakeUpSensors();
+      wakeUpSensors();
 
-      // if (wakedUP)
-      // {
+      if (wakedUP)
+      {
       delay(5200);
       requestSensorsInformation();
       delay(1000);
       requestDataSensors();
-      Serial.print("rabo");
-      // }
+      // Serial.print("rabo");
+      }
 
       // rellenando el array
       arrayData1[0] = sensor1.getGasConcentration();
@@ -320,7 +320,7 @@ void requestDataSensors()
       readedSensor5 = true;
       data = 0;
       resetSensors();
-      // sleepSensors();
+      sleepSensors();
       break;
     }
     if (timerTrue(mill, 1000))
@@ -330,7 +330,7 @@ void requestDataSensors()
       readedSensor5 = true;
       data = 0;
       resetSensors();
-      // sleepSensors();
+      sleepSensors();
       break;
     }
   }
