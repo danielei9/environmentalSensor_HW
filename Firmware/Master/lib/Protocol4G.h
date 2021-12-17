@@ -272,12 +272,12 @@ public:
             Serial.println(topicSend);
        for (int i = 0; i < 5; i++)
             {
-                
+            
                 // send message, the Print interface can be used to set the message contents
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\"deviceEui\":152,\"value\":");
                 mqttClient.print((String)arraySensors[i].value);
-                mqttClient.print(",\"name\":\"ambientalDevice1\"");
+                mqttClient.print(",\"name\":\"ambientalDevice"+String(i+26)+"\"");
                 mqttClient.print(", \"unit\":\"");
                 mqttClient.print((String)arraySensors[i].unit);
                  mqttClient.print("\", \"type\":\"");
