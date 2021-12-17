@@ -66,7 +66,7 @@ TinyGsmClientSecure client(modem);
 #include "../lib/OTA/OTAUpdate.hpp"
 #include <../lib/Sensor.h>
 uint8_t arrayData[52]; // array Data
-Sensor sensorsModbus[4];
+ Sensor sensorsModbus[4];
 
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
@@ -243,5 +243,5 @@ void getModbusData()
   Serial.println("Noise: ");
   Serial.println(noise);
   arrayData[28] = noise;
-  sensorsModbus[3] = Sensor(noise, "NOISE", "%");
+  sensorsModbus[3] = Sensor(noise, "NOISE", "dB");
 }

@@ -1,4 +1,12 @@
+// -*- mode: c++ -*-
 
+// --------------------------------------------------------------
+// Autor: Yeray Candel Sampedro
+// Date: 17 - 12 - 2021
+//
+// Description: Clase Sensor que es un objeto para controlar las
+// mediciones que llegan desde el esclavo
+// --------------------------------------------------------------
 #ifndef SENSOR_H_INCLUDED
 #define SENSOR_H_INCLUDED
 
@@ -8,14 +16,21 @@
 class Sensor
 {
 public:
+    // varuables publics
     uint32_t value = 0;
     String type = "";
     String unit = "";
 
+    // Constructor
     Sensor()
     {
     }
-
+    /**
+     * Constructor de la clase Sensor
+     * @param _value valor
+     * @param _type tipo de sensor
+     * @param _unit unidades en las que mide el sensor
+     */
     Sensor(uint32_t _value, String _type, String _unit)
     {
         (*this).value = _value;
@@ -23,6 +38,10 @@ public:
         (*this).unit = _unit;
     }
 
+    /**
+     * Classifica el tipo de sensor 
+     * @param _type tipo de sensor en bytes
+     */
     static String checkSensorType(byte type)
     {
         switch (type)
@@ -88,6 +107,11 @@ public:
             break;
         }
     }
+    
+    /**
+     * Classifica el tipo de unidad en la que mide el sensor
+     * @param _type tipo de sensor en bytes
+     */
     static String checkSensorUnit(byte unit)
     {
         switch (unit)

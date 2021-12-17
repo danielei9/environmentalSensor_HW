@@ -249,9 +249,16 @@ public:
             Serial.print(arraySensors[i].type);
             Serial.println(arraySensors[i].unit);
         }
+        // printeando los sensores de modbus
+        for (int i = 25; i < 29; i++)
+        {
+            Serial.println();
+            Serial.print(arraySensors[i].value);
+        }
+
         // // delay(1000);
 
-        String topicSend = topic;
+        String topicSend = "measure/send";
 
         mqttClient.poll();
 
@@ -263,56 +270,36 @@ public:
 
             Serial.println("Sending message to topic: ");
             Serial.println(topicSend);
-            
+            for (int i = 0; i < 5; i++)
+            {
+                
+                // send message, the Print interface can be used to set the message contents
+                mqttClient.beginMessage(topicSend);
+                mqttClient.print("{\"deviceEui\":152,\"value\": ");
+                mqttClient.print((String)arraySensors[i].value);
+                mqttClient.println(",\"name\":\"ambientalDevice"+i+1);
+                mqttClient.println("\", \"unit\":");
+                mqttClient.print((String)arraySensors[i].unit);
+                mqttClient.println("}");
+                mqttClient.endMessage();
+            }
 
-            // send message, the Print interface can be used to set the message contents
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[0]);
-            mqttClient.println(",\"type\": \"Co2\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[1]);
-            mqttClient.println(",\"type\": \"HSO\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[2]);
-            mqttClient.println(",\"type\": \"O3\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[3]);
-            mqttClient.println(",\"type\": \"CO\", \"unit\": \"pmm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[4]);
-            mqttClient.println(",\"type\": \"H2\", \"unit\": \"ppm\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[5]);
-            mqttClient.println(",\"type\": \"Temperature\", \"unit\": \"Cº\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[6]);
-            mqttClient.println(",\"type\": \"Epsilon\", \"unit\": \"Epsilon\"}");
-            mqttClient.endMessage();
-
-            mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"deviceEui\":1,\"value\": ");
-            mqttClient.print((String)arrayData[7]);
-            mqttClient.println(",\"type\": \"Soil\", \"unit\": \"Sº\"}");
-            mqttClient.endMessage();
+            for (int i = 25; i < 29; i++)
+            {
+                // send message, the Print interface can be used to set the message contents
+                mqttClient.beginMessage(topicSend);
+                mqttClient.print("{\"deviceEui\":152,\"value\": ");
+                mqttClient.print((String)arraySensors[i].value);
+                if (i == 25)
+                    mqttClient.println(",\"name\": \"temp\", \"unit\": \"Cº\"}");
+                if (i == 26)
+                    mqttClient.println(",\"name\": \"EPSI\", \"unit\": \"epsi\"}");
+                if (i == 27)
+                    mqttClient.println(",\"name\": \"SOIL\", \"unit\": \"%\"}");
+                if (i == 28)
+                    mqttClient.println(",\"name\": \"NOISE\", \"unit\": \"db\"}");
+                mqttClient.endMessage();
+            }
 
             Serial.println(" ");
             Serial.println(" ");
