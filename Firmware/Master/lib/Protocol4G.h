@@ -212,7 +212,26 @@ public:
             return true;
         }
     }
+    void sendLinkMessage(String topic_)
+    {
+        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"777\",\n      \"name\":\"mqttDev\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
+#ifdef DEBUG
+        Serial.println("sendLinkMessage");
+        Serial.print(msg);
+#endif
 
+        sendMqttMessage(msg, topic_);
+    }
+    void sendMqttMessage(String str, String topic_)
+    {
+#ifdef DEBUG
+        Serial.println("mqttClient.poll();");
+#endif
+        mqttClient.poll();
+        mqttClient.beginMessage(topic_);
+        mqttClient.print(str);
+        mqttClient.endMessage();
+    }
     /**
      * sendData() Envia los datos a la plataforma
      * @param arrayData -> Array de bytes con los datos a enviar

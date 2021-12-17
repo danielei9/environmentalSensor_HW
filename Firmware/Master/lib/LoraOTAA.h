@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <../lib/Utils.h> 
+#include <../lib/Utils.h>
 
 #define APPEUI_DEF                                     \
     {                                                  \
@@ -15,7 +15,6 @@
         0xd6, 0x37, 0xf7, 0x50, 0xc3, 0xa7, 0xc2, 0x25, 0x21, 0xdc, 0x53, 0x27, 0x19, 0xaa, 0x6c, 0x53 \
     }
 
-    
 static u1_t APPEUI[8] = APPEUI_DEF;
 void os_getArtEui(u1_t *buf) { memcpy(buf, APPEUI, 8); }
 static const u1_t PROGMEM DEVEUI[8] = DEVEUI_DEF;
@@ -51,6 +50,7 @@ class LoraOTAA : public Publisher
 {
 private:
     bool joined;
+    bool pending;
     unsigned long joinMillis;
 
     void once()
@@ -101,20 +101,23 @@ public:
      */
     void sendData(osjob_t *j, uint8_t *data, unsigned int port, unsigned int size)
     {
-        // Check if there is not a current TX/RX job running
-        if (LMIC.opmode & OP_TXRXPEND)
+        if (!pending && (size > 0))
         {
-            Serial.println(F("OP_TXRXPEND, not sending"));
+            // Check if there is not a current TX/RX job running
+            if (LMIC.opmode & OP_TXRXPEND)
+            {
+                Serial.println(F("OP_TXRXPEND, not sending"));
+            }
+            else
+            {
+                // Prepare upstream data transmission at the next possible time.
+                LMIC_setTxData2(port, data, size - 1, 1);
+                Serial.println(F("Packet queued"));
+            }
+            // Next TX is scheduled after TX_COMPLETE event.
         }
-        else
-        {
-            // Prepare upstream data transmission at the next possible time.
-            LMIC_setTxData2(port, data, size - 1, 1);
-            Serial.println(F("Packet queued"));
-        }
-        // Next TX is scheduled after TX_COMPLETE event.
     }
-/**
+    /**
      * create a job to send PING 
      * @param j osjob to create the transmission
      * @param data data arr pointer 
@@ -123,7 +126,7 @@ public:
      * @param interval interval to send ping
      * @param previousMillis time last send
      */
-    void makePing(int interval, long previousMillis,osjob_t *j, uint8_t *data, unsigned int port, unsigned int size)
+    void makePing(int interval, long previousMillis, osjob_t *j, uint8_t *data, unsigned int port, unsigned int size)
     {
         unsigned long currentMillis = millis();
         if (currentMillis - previousMillis > interval)
@@ -140,8 +143,8 @@ public:
             }
         }
     }
-    
-/**
+
+    /**
      * Schedule events on the OS
      * @param ev event ocurred in the os
      */
@@ -218,6 +221,7 @@ public:
             Serial.println(F("EV_TXCOMPLETE (includes waiting for RX windows)"));
             if (LMIC.txrxFlags & TXRX_ACK)
                 Serial.println(F("Received ack"));
+                pending = false;
             if (LMIC.dataLen)
             {
                 Serial.print(F("Received "));
@@ -253,6 +257,7 @@ public:
         */
         case EV_TXSTART:
             Serial.println(F("EV_TXSTART"));
+            pending = true;
             break;
         case EV_TXCANCELED:
             Serial.println(F("EV_TXCANCELED"));

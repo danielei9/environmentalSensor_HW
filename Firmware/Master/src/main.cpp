@@ -32,7 +32,28 @@ TinyGsm modem(debugger);
 #else
 TinyGsm modem(SerialAT);
 #endif
+// clang-format off
+// upload_speed 921600
+// board esp32dev
 
+#ifndef _IBOXLORA_H
+#define _IBOXLORA_H
+
+#include <stdint.h>
+
+#define CFG_sx1276_radio 1 // HPD13A LoRa SoC
+
+// Pins for LORA chip SPI interface, reset line and interrupt lines
+#define LORA_SCK  (18)
+#define LORA_CS   (5)
+#define LORA_MISO (19)
+#define LORA_MOSI (23)
+#define LORA_RST  (14) // old 15
+#define LORA_IRQ  (2) // old 27
+#define LORA_IO1  (32) // old 33
+#define LORA_IO2  NOT_A_PIN
+
+#endif
 TinyGsmClientSecure client(modem);
 
 #define PROTOCOL_4G
@@ -117,6 +138,7 @@ void setup()
   Serial.println("Requesting in 20 seconds");
   Serial.begin(115200);
   initModbus();
+
 }
 
 void initModbus()
@@ -160,6 +182,7 @@ void initModbus()
   modbus.changeAddrNoise();
 #endif
 }
+bool key = true;
 void loop()
 {
   // float *coords = gps.getCoords();
@@ -170,8 +193,13 @@ void loop()
 
   if (publisher->join())
   {
-    if (timerTrue(mill, 20000))
+    if (timerTrue(mill, 31000))
     {
+      if(key){
+  protocol4G.sendLinkMessage("deviceSync");
+key = false;
+      }
+
       //     // get arrayData
       Serial.println("Requesting sensors data..");
       uint8_t bytesToRequest = 24;
@@ -185,7 +213,7 @@ void loop()
       publisher->sendData(arrayData);
 #endif
 #ifdef PROTOCOL_LORA
-      publisher->sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
+      Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
 #endif
       mill = millis();
     }
