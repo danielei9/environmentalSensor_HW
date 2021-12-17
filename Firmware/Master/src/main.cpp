@@ -224,13 +224,13 @@ void getModbusData()
   float temp = modbus.getTemperature();
   Serial.println("Temperatura: ");
   Serial.println(temp);
-  arrayData[25] = temp;
+  arrayData[25] = (uint8_t)temp;
   sensorsModbus[0] = Sensor(temp, "TEMP", "Cº");
 
   float epsi = modbus.getEpsilon();
   Serial.println("Epsilon: ");
   Serial.println(epsi);
-  arrayData[26] = epsi;
+  arrayData[26] = (uint8_t)epsi;
   sensorsModbus[1] = Sensor(epsi, "EPSI", "espi");
 
   float soil = modbus.getSoilMoisture();
@@ -242,6 +242,35 @@ void getModbusData()
   float noise = modbus.getNoise();
   Serial.println("Noise: ");
   Serial.println(noise);
-  arrayData[28] = noise;
+  arrayData[28] = (uint8_t)noise;
   sensorsModbus[3] = Sensor(noise, "NOISE", "dB");
+
+        String topicSend = "measure/send";
+
+ 
+                // send message, the Print interface can be used to set the message contents
+                mqttClient.beginMessage(topicSend);
+                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
+                mqttClient.print(temp);
+                mqttClient.println(",\n\"name\": \"enviromentalDevice23\",\n \"unit\": \"Cº\"\n}");
+                mqttClient.endMessage();
+
+                mqttClient.beginMessage(topicSend);
+                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
+                mqttClient.print(epsi);
+                mqttClient.println(",\n\"name\": \"enviromentalDevice24\"\n, \"unit\": \"epsi\"\n}");
+                mqttClient.endMessage();
+                
+                mqttClient.beginMessage(topicSend);
+                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
+                mqttClient.print(soil);
+                mqttClient.println(",\n\"name\": \"enviromentalDevice25\",\n \"unit\": \"%\"\n}");
+                mqttClient.endMessage();
+
+                mqttClient.beginMessage(topicSend);
+                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
+                mqttClient.print(noise);
+                mqttClient.println(",\n\"name\": \"enviromentalDevice26\",\n \"unit\": \"db\"\n}");
+                mqttClient.endMessage();
+            
 }

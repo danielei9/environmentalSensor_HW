@@ -253,7 +253,7 @@ public:
         for (int i = 25; i < 29; i++)
         {
             Serial.println();
-            Serial.print(arraySensors[i].value);
+            Serial.print(arrayData[i]);
         }
 
         // // delay(1000);
@@ -270,26 +270,28 @@ public:
 
             Serial.println("Sending message to topic: ");
             Serial.println(topicSend);
-            for (int i = 0; i < 5; i++)
+       for (int i = 0; i < 5; i++)
             {
-                
+            
                 // send message, the Print interface can be used to set the message contents
                 mqttClient.beginMessage(topicSend);
-                mqttClient.print("{\"deviceEui\":152,\"value\": ");
+                mqttClient.print("{\"deviceEui\":152,\"value\":");
                 mqttClient.print((String)arraySensors[i].value);
-                mqttClient.println(",\"name\":\"ambientalDevice"+i+1);
-                mqttClient.println("\", \"unit\":");
+                mqttClient.print(",\"name\":\"ambientalDevice"+String(i+26)+"\"");
+                mqttClient.print(", \"unit\":\"");
                 mqttClient.print((String)arraySensors[i].unit);
-                mqttClient.println("}");
+                 mqttClient.print("\", \"type\":\"");
+                mqttClient.print((String)arraySensors[i].type);
+                mqttClient.println("\"}");
                 mqttClient.endMessage();
             }
 
-            for (int i = 25; i < 29; i++)
+           /* for (int i = 25; i < 29; i++)
             {
                 // send message, the Print interface can be used to set the message contents
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\"deviceEui\":152,\"value\": ");
-                mqttClient.print((String)arraySensors[i].value);
+                mqttClient.print((String)arrayData[i]);
                 if (i == 25)
                     mqttClient.println(",\"name\": \"temp\", \"unit\": \"Cº\"}");
                 if (i == 26)
@@ -299,7 +301,7 @@ public:
                 if (i == 28)
                     mqttClient.println(",\"name\": \"NOISE\", \"unit\": \"db\"}");
                 mqttClient.endMessage();
-            }
+            }*/
 
             Serial.println(" ");
             Serial.println(" ");
