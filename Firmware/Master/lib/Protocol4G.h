@@ -277,7 +277,7 @@ public:
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\"deviceEui\":152,\"value\":");
                 mqttClient.print((String)arraySensors[i].value);
-                mqttClient.print(",\"name\":\"ambientalDevice"+String(i+26)+"\"");
+                mqttClient.print(",\"name\":\"ambientalDevice"+String(i)+"\"");
                 mqttClient.print(", \"unit\":\"");
                 mqttClient.print((String)arraySensors[i].unit);
                  mqttClient.print("\", \"type\":\"");

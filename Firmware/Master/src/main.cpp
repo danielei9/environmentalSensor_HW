@@ -252,25 +252,25 @@ void getModbusData()
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
                 mqttClient.print(temp);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice23\",\n \"unit\": \"Cº\"\n}");
+                mqttClient.println(",\n\"name\": \"enviromentalDevice10\",\n \"unit\": \"Cº\"\n}");
                 mqttClient.endMessage();
 
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
                 mqttClient.print(epsi);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice24\"\n, \"unit\": \"epsi\"\n}");
+                mqttClient.println(",\n\"name\": \"enviromentalDevice11\"\n, \"unit\": \"epsi\"\n}");
                 mqttClient.endMessage();
                 
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
                 mqttClient.print(soil);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice25\",\n \"unit\": \"%\"\n}");
+                mqttClient.println(",\n\"name\": \"enviromentalDevice12\",\n \"unit\": \"%\"\n}");
                 mqttClient.endMessage();
 
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
                 mqttClient.print(noise);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice26\",\n \"unit\": \"db\"\n}");
+                mqttClient.println(",\n\"name\": \"enviromentalDevice13\",\n \"unit\": \"db\"\n}");
                 mqttClient.endMessage();
             
 }
