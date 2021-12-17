@@ -28,12 +28,11 @@ public:
 
 // publica los datosç
 #ifdef PROTOCOL_4G
-    virtual void sendData(uint8_t *) = 0;
+    virtual void sendData(uint8_t *, uint8_t);
 #endif
 #ifdef PROTOCOL_LORA
-    virtual void sendData(osjob_t *, uint8_t *, unsigned int, unsigned int) = 0;
+    virtual void sendData(osjob_t *, uint8_t *, unsigned int, unsigned int);
 #endif
-
     /**
      *  Se une a la red.
      *  @returns bool -> devuelve TRUE si se ha conectado a la red  y FALSE si no.

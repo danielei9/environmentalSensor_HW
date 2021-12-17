@@ -236,28 +236,24 @@ public:
      * sendData() Envia los datos a la plataforma
      * @param arrayData -> Array de bytes con los datos a enviar
      */
-    void sendData(byte *arrayData)
+    void sendData(byte *arrayData, uint8_t size)
     {
-        Sensor arraySensors[5];
-        for (int i = 0; i < 5; i++)
+        Sensor arraySensors[size];
+        for (int i = 0; i < size; i++)
         {
+
             Serial.println();
             String type = arraySensors[i].checkSensorType(arrayData[i + 8]);
             String unit = arraySensors[i].checkSensorUnit(arrayData[i + 16]);
-            arraySensors[i] = Sensor(arrayData[i], type, unit);
-            Serial.print(arraySensors[i].value);
-            Serial.print(arraySensors[i].type);
+            arraySensors[i] = Sensor(arrayData[i], type, unit, "ambientalDevice" + (String(i + 1)));
+            Serial.print("Sensor " + String(i + 1) + ":");
+            Serial.print(String(arraySensors[i].value) + " ");
+            Serial.print(arraySensors[i].type + " ");
             Serial.println(arraySensors[i].unit);
         }
-        // printeando los sensores de modbus
-        for (int i = 25; i < 29; i++)
-        {
-            Serial.println();
-            Serial.print(arrayData[i]);
-        }
 
-        // // delay(1000);
-
+        Serial.println(" ");
+        Serial.println(" ");
         String topicSend = "measure/send";
 
         mqttClient.poll();
@@ -270,38 +266,21 @@ public:
 
             Serial.println("Sending message to topic: ");
             Serial.println(topicSend);
-       for (int i = 0; i < 5; i++)
+            for (int i = 0; i < size; i++)
             {
-            
+
                 // send message, the Print interface can be used to set the message contents
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\"deviceEui\":152,\"value\":");
                 mqttClient.print((String)arraySensors[i].value);
-                mqttClient.print(",\"name\":\"ambientalDevice"+String(i)+"\"");
+                mqttClient.print(",\"name\":\"ambientalDevice" + String(i) + "\"");
                 mqttClient.print(", \"unit\":\"");
                 mqttClient.print((String)arraySensors[i].unit);
-                 mqttClient.print("\", \"type\":\"");
+                mqttClient.print("\", \"type\":\"");
                 mqttClient.print((String)arraySensors[i].type);
                 mqttClient.println("\"}");
                 mqttClient.endMessage();
             }
-
-           /* for (int i = 25; i < 29; i++)
-            {
-                // send message, the Print interface can be used to set the message contents
-                mqttClient.beginMessage(topicSend);
-                mqttClient.print("{\"deviceEui\":152,\"value\": ");
-                mqttClient.print((String)arrayData[i]);
-                if (i == 25)
-                    mqttClient.println(",\"name\": \"temp\", \"unit\": \"Cº\"}");
-                if (i == 26)
-                    mqttClient.println(",\"name\": \"EPSI\", \"unit\": \"epsi\"}");
-                if (i == 27)
-                    mqttClient.println(",\"name\": \"SOIL\", \"unit\": \"%\"}");
-                if (i == 28)
-                    mqttClient.println(",\"name\": \"NOISE\", \"unit\": \"db\"}");
-                mqttClient.endMessage();
-            }*/
 
             Serial.println(" ");
             Serial.println(" ");

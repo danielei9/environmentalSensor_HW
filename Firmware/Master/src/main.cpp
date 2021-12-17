@@ -65,8 +65,15 @@ TinyGsmClientSecure client(modem);
 #include "../lib/GPS.hpp"
 #include "../lib/OTA/OTAUpdate.hpp"
 #include <../lib/Sensor.h>
-uint8_t arrayData[52]; // array Data
- Sensor sensorsModbus[4];
+byte arrayData[52]; // array Data
+// EL USO DE ARRAY DATA ES:
+// 8 primeros BYTES PARA DATOS DE VALORES DE SENSORES
+// 8 SIGUIENTES PARA TIPO EN ORDEN DE VALORES
+// 8 SIGUIENTES PARA UNIDAD EN ORDEN DE VALORES
+
+
+Sensor sensorsModbus[4];
+byte slaves[128]; // array para guardar los sensores
 
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
@@ -92,7 +99,7 @@ HardwareSerial modbusSerial = Serial1;
 #endif
 
 void initModbus();
-void getModbusData();
+uint8_t* getModbusData();
 uint32_t knownCRC32 = 0xD9971BA9;
 // Construct the modbus instance
 Modbus modbus;
@@ -119,14 +126,7 @@ void initModbus();
 void setup()
 {
   // gps.init();
-  // initModbus();
-  // if (!SPIFFS.begin(true))
-  // {
-  //   Serial.println("SPIFFS Mount Failed");
-  //   return;
-  // }
-  // SPIFFS.format();
-  // listDir(SPIFFS, "/", 0);
+  initModbus();
 
   publisher->initPublisher();
   //esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
@@ -140,6 +140,55 @@ void setup()
   initModbus();
 
 }
+bool key = true;
+void loop()
+{
+  // float *coords = gps.getCoords();
+  // gps.testLoop();
+  // getCJMData();
+
+  if (publisher->join())
+  {
+    if (timerTrue(mill, 10000))
+    {
+      if(key){
+        protocol4G.sendLinkMessage("deviceSync");
+        key = false;
+      }
+      *slaves = slaveController.getSlaves(); // obtiene el array de esclavos
+      // envia los datos del modbus (Sensores conectados al modbus)
+      byte *arrayData =getModbusData();
+      #ifdef PROTOCOL_4G
+            publisher->sendData(arrayData, 4);
+          #endif
+          #ifdef PROTOCOL_LORA
+            Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
+          #endif
+           delay(100);
+
+      // recoge medidas de todos los esclavos disponibles
+      for(int i = 0;i<128;i ++){
+        if(slaves[i] != 0){
+          Serial.print("Requesting sensors data from slave: 0x");
+          Serial.println(slaves[i], HEX);
+          delay(10);
+          uint8_t bytesToRequest = 24;
+          byte *arrayData = slaveController.requestMeasuresToSlave(slaves[i], bytesToRequest);
+          printBytesArray(arrayData, bytesToRequest);
+
+          #ifdef PROTOCOL_4G
+            publisher->sendData(arrayData, 5);
+          #endif
+          #ifdef PROTOCOL_LORA
+            Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
+          #endif
+        }
+      }
+      mill = millis();
+    }
+  }
+}
+
 
 void initModbus()
 {
@@ -182,95 +231,42 @@ void initModbus()
   modbus.changeAddrNoise();
 #endif
 }
-bool key = true;
-void loop()
+
+/**
+ * Devuelve un array con las mediciones de los sensores por modbus
+ * @return devuelve el array 
+ */ 
+byte *getModbusData()
 {
-  // float *coords = gps.getCoords();
-  // gps.testLoop();
-  // getCJMData();
+  byte *arrayData = new byte[52];
+  byte temp = modbus.getTemperature();
+  Serial.print("Temperatura: ");
+  Serial.println((uint8_t)temp);
+  arrayData[0] = temp;
+  arrayData[0+8] = 0x50; // identificador TEMP
+  arrayData[0+16] = 0x10; // identificador Cº
 
-  // slaveController.scanSlaves();
+  byte epsi = modbus.getEpsilon();
+  Serial.print("Epsilon: ");
+  Serial.println((uint8_t)epsi);
+  arrayData[1] = epsi;
+  arrayData[1+8] = 0x52; // identificador EPSI
+  arrayData[1+16] = 0x11; // identificador EPSI
 
-  if (publisher->join())
-  {
-    if (timerTrue(mill, 31000))
-    {
-      if(key){
-  protocol4G.sendLinkMessage("deviceSync");
-key = false;
-      }
+  byte soil = modbus.getSoilMoisture();
+  Serial.print("Soil: ");
+  Serial.println((uint8_t)soil);
+  arrayData[2] = soil;
+  arrayData[2+8] = 0x53; // identificador SOIL
+  arrayData[2+16] = 0x08; // identificador EPSI
 
-      //     // get arrayData
-      Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 24;
-      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+  byte noise = modbus.getNoise();
+  Serial.print("Noise: ");
+  Serial.println((uint8_t)noise);
+  arrayData[3] = noise;
+  arrayData[3+8] = 0x51; // identificador NOISE
+  arrayData[3+16] = 0x12; // identificador DB
 
-      Serial.println("Received");
-      getModbusData();
-
-      printBytesArray(arrayData, bytesToRequest);
-#ifdef PROTOCOL_4G
-      publisher->sendData(arrayData);
-#endif
-#ifdef PROTOCOL_LORA
-      Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
-#endif
-      mill = millis();
-    }
-  }
-}
-void getModbusData()
-{
-  float temp = modbus.getTemperature();
-  Serial.println("Temperatura: ");
-  Serial.println(temp);
-  arrayData[25] = (uint8_t)temp;
-  sensorsModbus[0] = Sensor(temp, "TEMP", "Cº");
-
-  float epsi = modbus.getEpsilon();
-  Serial.println("Epsilon: ");
-  Serial.println(epsi);
-  arrayData[26] = (uint8_t)epsi;
-  sensorsModbus[1] = Sensor(epsi, "EPSI", "espi");
-
-  float soil = modbus.getSoilMoisture();
-  Serial.println("Soil: ");
-  Serial.println(soil);
-  arrayData[27] = soil;
-  sensorsModbus[2] = Sensor(soil, "SOIL", "%");
-
-  float noise = modbus.getNoise();
-  Serial.println("Noise: ");
-  Serial.println(noise);
-  arrayData[28] = (uint8_t)noise;
-  sensorsModbus[3] = Sensor(noise, "NOISE", "dB");
-
-        String topicSend = "measure/send";
-
- 
-                // send message, the Print interface can be used to set the message contents
-                mqttClient.beginMessage(topicSend);
-                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
-                mqttClient.print(temp);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice10\",\n \"unit\": \"Cº\"\n}");
-                mqttClient.endMessage();
-
-                mqttClient.beginMessage(topicSend);
-                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
-                mqttClient.print(epsi);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice11\"\n, \"unit\": \"epsi\"\n}");
-                mqttClient.endMessage();
-                
-                mqttClient.beginMessage(topicSend);
-                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
-                mqttClient.print(soil);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice12\",\n \"unit\": \"%\"\n}");
-                mqttClient.endMessage();
-
-                mqttClient.beginMessage(topicSend);
-                mqttClient.print("{\n\"deviceEui\":152,\n\"value\": ");
-                mqttClient.print(noise);
-                mqttClient.println(",\n\"name\": \"enviromentalDevice13\",\n \"unit\": \"db\"\n}");
-                mqttClient.endMessage();
+  return arrayData;
             
 }

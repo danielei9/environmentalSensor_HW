@@ -64,3 +64,4 @@ float getNoise();
     const uint32_t modbusTimeout = MODBUS_TIMEOUT;       // The time to wait for response after a command (in ms)
     const int modbusFrameTimeout = MODBUS_FRAME_TIMEOUT; // the time to wait between characters within a frame (in ms)
 };
+
