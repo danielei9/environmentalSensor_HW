@@ -38,7 +38,7 @@ byte *arrayData3 = new byte[arrayLength];
 void wakeUpSensors();
 void sleepSensors();
 void requestDataSensors();
-
+void resetArrayData();
 bool wakedUP = false;
 void requestSensorsInformation();
 
@@ -119,9 +119,26 @@ void requestEvent()
   Wire.flush();
 }
 
+void resetArrayData()
+{
+  // for (int i = 0; i < arrayLength; i++)
+  // {
+  //   arrayData1[i] = -1;
+  //   arrayData2[i] = -1;
+  //   arrayData3[i] = -1;
+  // }
+  sensor1.resetArrays();
+  sensor2.resetArrays();
+  sensor3.resetArrays();
+  sensor4.resetArrays();
+  sensor5.resetArrays();
+}
+
 // Funcion para recibir comandos desde el master
 void receiveEvent(int bytes)
 {
+  resetArrayData();
+
   Wire.flush();
   data = 0;
   uint8_t index = 0;
@@ -189,7 +206,6 @@ void loop()
       delay(10);
       arrayData2[0] = sensor1.getSensorType();
       arrayData2[1] = sensor2.getSensorType();
-      Serial.println(sensor2.getSensorType() + "aaa");
       arrayData2[2] = sensor3.getSensorType();
       arrayData2[3] = sensor4.getSensorType();
       arrayData2[4] = sensor5.getSensorType();

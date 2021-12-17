@@ -63,7 +63,6 @@ public:
      */
     bool getSensorInformation()
     {
-
         if (sensorUnit != sensorInformation[5] || sensorType != sensorInformation[2])
         {
             if (!(*this).sendCommand)
@@ -271,6 +270,14 @@ public:
         else
         {
             getSensorInformation();
+        }
+    }
+
+    void resetArrays()
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            (*this).sensorInformation[i] = 254;
         }
     }
 };

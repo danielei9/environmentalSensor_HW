@@ -43,7 +43,10 @@ TinyGsmClientSecure client(modem);
 #include <Ticker.h>
 #include "../lib/GPS.hpp"
 #include "../lib/OTA/OTAUpdate.hpp"
+#include <../lib/Sensor.h>
 uint8_t arrayData[52]; // array Data
+Sensor sensorsModbus[4];
+
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
 
@@ -171,7 +174,7 @@ void loop()
     {
       //     // get arrayData
       Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 32;
+      uint8_t bytesToRequest = 24;
       byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
 
       Serial.println("Received");
@@ -193,20 +196,24 @@ void getModbusData()
   float temp = modbus.getTemperature();
   Serial.println("Temperatura: ");
   Serial.println(temp);
-  arrayData[5] = temp;
+  arrayData[25] = temp;
+  sensorsModbus[0] = Sensor(temp, "TEMP", "Cº");
 
   float epsi = modbus.getEpsilon();
   Serial.println("Epsilon: ");
   Serial.println(epsi);
-  arrayData[6] = epsi;
+  arrayData[26] = epsi;
+  sensorsModbus[1] = Sensor(epsi, "EPSI", "espi");
 
   float soil = modbus.getSoilMoisture();
   Serial.println("Soil: ");
   Serial.println(soil);
-  arrayData[7] = soil;
+  arrayData[27] = soil;
+  sensorsModbus[2] = Sensor(soil, "SOIL", "%");
 
   float noise = modbus.getNoise();
   Serial.println("Noise: ");
   Serial.println(noise);
-  arrayData[13] = noise;
+  arrayData[28] = noise;
+  sensorsModbus[3] = Sensor(noise, "NOISE", "%");
 }
