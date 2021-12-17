@@ -12,6 +12,8 @@
 #define SENSOR_UART_H_INCLUDED
 #include <SoftwareSerial.h>
 
+// const uint8_t sensorsType[14] = {0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24};
+
 class SensorUART
 {
 private:
@@ -21,8 +23,15 @@ private:
     uint16_t baudios = 9600;
     SoftwareSerial *sensorSerial;
 
-    uint8_t arrayData[9];
+    uint8_t arrayData[9];         // array para guardar las medidas
+    uint8_t sensorInformation[9]; // array para guardar la informacion del sensor
 
+    // identificadores del sensor
+    uint8_t sensorType = -1;
+
+    uint8_t sensorUnit = -1;
+
+    // contadores y boleanos de lectura
     int counter = 0;
     bool readed = false;
     bool sendCommand = false;
@@ -44,6 +53,7 @@ public:
     {
         sensorSerial->begin(baudios);
     }
+
     /**
      * Obtiene un array de datos con la informacion del modulo
      * Informacion de 8 bytes.
@@ -51,34 +61,50 @@ public:
      *     0    1    2    3    4    5    6    7    8
      * EJ: 0x17 0x00 0XC8 0x02 0x00 0x00 0x00 0x01 0x1E
      */
-    byte *getType()
+    bool getSensorInformation()
     {
-        sensorSerial->begin((*this).baudios);
-        delay(500);
 
-        // envia el comando de pedir el tipoS
-        Serial.println("Enviando el comando 0xD1");
-        sensorSerial->write(0xD1);
-        Serial.println("Obteniendo datos...");
-        Serial.println();
-
-        // index para el array
-        uint8_t index = 0;
-        byte arrayData[8];
-        while (sensorSerial->available() > 0)
+        if (sensorUnit != sensorInformation[5] || sensorType != sensorInformation[2])
         {
-            Serial.print("Byte: " + index);
-            // recibiendo la respuesta del tipo
-            arrayData[index] = sensorSerial->read();
-            Serial.println(" : " + arrayData[index]);
-            Serial.write(sensorSerial->read());
-            index++;
-        }
-        sensorSerial->end();
-        Serial.println();
-        Serial.println("Tipo recibido.");
+            if (!(*this).sendCommand)
+            {
 
-        return arrayData;
+                byte arrayCommand[1] = {0xD7};
+
+                // enviando el comando a la uart del sensor
+                for (int i = 0; i < 1; i++)
+                {
+                    sensorSerial->write(arrayCommand[i]);
+                }
+                (*this).sendCommand = true;
+            }
+            if (!(*this).readed)
+            {
+                sensorSerial->listen();
+                while (sensorSerial->available() > 0)
+                {
+                    uint8_t sensorData = sensorSerial->read();
+                    sensorInformation[counter] = (sensorData);
+                    Serial.println(sensorData);
+                    (*this).counter++;
+                    if ((*this).counter == 9)
+                    {
+                        (*this).readed = true;
+                        Serial.println("Sensor Readed");
+                        sensorType = (sensorInformation[2]);
+                        Serial.println(sensorType);
+                        sensorUnit = (sensorInformation[5]);
+                        Serial.println(sensorUnit);
+                        return (*this).readed;
+                    }
+                }
+            }
+            return (*this).readed;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     /**
@@ -87,6 +113,8 @@ public:
      */
     int getMeasure()
     {
+        // intenta obtener la informacion del sensor si ha cambiado. Si no ha cambiado no lee la informacion
+        getSensorInformation();
         if (!(*this).sendCommand)
         {
 
@@ -119,14 +147,10 @@ public:
             }
         }
         return (*this).readed;
-        // devolviendo la lectura de hexadecimal a decimal
-        // return getGasConcentration(arrayData[6], arrayData[7]);
     }
 
     /**
      * Obtiene la concentracion del gas
-     * @param highConcentration concentracion alta del gas
-     * @param lowConcentration concentracion baja del gas
      * @returns valor de la concentracion del gas
      */
     int getGasConcentration()
@@ -213,12 +237,41 @@ public:
         }
         return (*this).readed;
     }
-
+    /**
+     * Resetea los valores de lectura del sensor
+     */
     void reset()
     {
         (*this).counter = 0;
         (*this).readed = false;
         (*this).sendCommand = false;
+    }
+    /**
+     * Devuelve el tipo de sensor
+     * @returns  HEXADECIMAl tipo
+     */
+    int getSensorType()
+    {
+        if (sensorType != -1 && sensorInformation[2] == sensorType)
+            return (sensorInformation[2]);
+        else
+        {
+            getSensorInformation();
+        }
+    }
+
+    /**
+     * Devuelve la unidad en la que se mide el sensor.
+     * @returns HEXADECIMAL tipo
+     */
+    int getUnit()
+    {
+        if (sensorType != -1 && sensorInformation[5] == sensorUnit)
+            return (sensorInformation[5]);
+        else
+        {
+            getSensorInformation();
+        }
     }
 };
 

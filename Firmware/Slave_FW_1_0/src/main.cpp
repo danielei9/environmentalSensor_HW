@@ -32,10 +32,15 @@ const byte I2C_SLAVE_ADDR = 0x20;
 const byte REQUEST_COMMAND = 0x30;
 
 uint8_t arrayLength = 8;
-byte *arrayData = new byte[arrayLength];
+byte *arrayData1 = new byte[arrayLength];
+byte *arrayData2 = new byte[arrayLength];
+byte *arrayData3 = new byte[arrayLength];
 void wakeUpSensors();
 void sleepSensors();
 void requestDataSensors();
+
+bool wakedUP = false;
+void requestSensorsInformation();
 
 // para TVOC necesito 9 bits 2 BYTEs
 // para H2 necesito 10 bits 2 Bytes
@@ -69,6 +74,7 @@ bool readedSensor2 = false;
 bool readedSensor3 = false;
 bool readedSensor4 = false;
 bool readedSensor5 = false;
+byte data = 0;
 
 void resetSensors()
 {
@@ -84,30 +90,50 @@ void resetSensors()
   sensor3.reset();
   sensor4.reset();
   sensor5.reset();
+
+  data = 0;
 }
 
 // Request event para enviar los datos
 void requestEvent()
 {
+  Wire.flush();
   resetSensors();
+  wakedUP = false;
 
   Serial.println("Requested data from Master...");
   Serial.println("Sending Data: ");
-  for (int i = 0; i < 8; i++)
+  // Wire.beginTransmission(); // send the address and the write cmnd
+  for (int i = 0; i < arrayLength; i++)
   {
-    Serial.print(arrayData[i]);
-    if (i < 7)
+    Serial.print(arrayData1[i]);
+    // Serial.print(arrayData2[i]);
+    // Serial.print(arrayData3[i]);
+    if (i < arrayLength - 1)
       Serial.print(":");
+
+    // Wire.write(arrayData[i]); // send three bytes
   }
+
+  // Wire.endTransmission();
   Serial.println();
   Serial.println();
-  Wire.write(arrayData, arrayLength);
+
+  Wire.write(arrayData1, arrayLength);
+  Wire.flush();
+  delay(10);
+  Wire.write(arrayData2, arrayLength);
+  Wire.flush();
+  delay(10);
+  Wire.write(arrayData3, arrayLength);
+  delay(10);
+  Wire.flush();
 }
 
 // Funcion para recibir comandos desde el master
-byte data = 0;
 void receiveEvent(int bytes)
 {
+  Wire.flush();
   data = 0;
   uint8_t index = 0;
   Serial.println("Received instruction from Master");
@@ -136,56 +162,14 @@ void setup()
   sensor3.initSensor(9600);
   sensor4.initSensor(9600);
   sensor5.initSensor(9600);
-  Serial.println("delay");
-  sleepSensors();
+  wakeUpSensors();
 
   Wire.begin(I2C_SLAVE_ADDR);
   Wire.onRequest(requestEvent);
   Wire.onReceive(receiveEvent);
 }
-bool wakedUP = false;
-
 void loop()
 {
-  // wakeUpSensors();
-  // if (wakedUP)
-  // {
-  //   delay(6000);
-  //   requestDataSensors();
-  //   Serial.println("Delay0");
-  //   delay(5000);
-  //   Serial.println("Delay1");
-  // }
-
-  // if (sensor1.getMeasure() == 1)
-  // {
-  //   sensor1.reset();
-  // }
-
-  // byte arrayCommand[9] = {0xFF, 0x00, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-
-  // // enviando el comando a la uart del sensor
-  // for (int i = 0; i < 9; i++)
-  // {
-  //   serialtest.write(arrayCommand[i]);
-  // }
-
-  // serialtest.listen();
-  // while (serialtest.available() > 0)
-  // {
-  //   int sensorData = serialtest.read();
-  //   arrayData[counter] = sensorData;
-  //   Serial.println(sensorData);
-
-  //   Serial.println(sensorData);
-  //   if (counter == 9)
-  //   {
-  //     readed = true;
-  //     Serial.println("Sensor Readed");
-  //     counter = 0;
-  //   }
-  //   /* code */
-  // }
   if (data != 0)
   {
     Serial.print("Command received: 0x");
@@ -193,33 +177,52 @@ void loop()
 
     if (data == REQUEST_COMMAND)
     {
-      wakeUpSensors();
+      // wakeUpSensors();
 
-      if (wakedUP)
-      {
-        delay(5200);
-        requestDataSensors();
-      }
+      // if (wakedUP)
+      // {
+      delay(5200);
+      requestSensorsInformation();
+      delay(1000);
+      requestDataSensors();
+      Serial.print("rabo");
+      // }
 
       // rellenando el array
-      arrayData[0] = sensor1.getGasConcentration();
-      arrayData[1] = sensor2.getGasConcentration();
-      arrayData[2] = sensor3.getGasConcentration();
-      arrayData[3] = sensor4.getGasConcentration();
-      arrayData[4] = sensor5.getGasConcentration();
-      arrayData[5] = 25;
-      arrayData[6] = 30;
-      arrayData[7] = 90;
+      arrayData1[0] = sensor1.getGasConcentration();
+      arrayData1[1] = sensor2.getGasConcentration();
+      arrayData1[2] = sensor3.getGasConcentration();
+      arrayData1[3] = sensor4.getGasConcentration();
+      arrayData1[4] = sensor5.getGasConcentration();
+      arrayData1[5] = 1;
+      arrayData1[6] = 1;
+      arrayData1[7] = 1;
+
+      arrayData2[8] = sensor1.getSensorType();
+      arrayData2[9] = sensor2.getSensorType();
+      arrayData2[10] = sensor3.getSensorType();
+      arrayData2[11] = sensor4.getSensorType();
+      arrayData2[12] = sensor5.getSensorType();
+      arrayData2[13] = 2;
+      arrayData2[14] = 2;
+      arrayData2[15] = 2;
+
+      arrayData3[16] = sensor1.getUnit();
+      arrayData3[17] = sensor2.getUnit();
+      arrayData3[18] = sensor3.getUnit();
+      arrayData3[19] = sensor4.getUnit();
+      arrayData3[20] = sensor5.getUnit();
+      arrayData3[21] = 3;
+      arrayData3[22] = 3;
+      arrayData3[23] = 3;
       // ejecutar el comando
     }
   }
 }
-int counter = 0;
 void requestDataSensors()
 {
   while (!readedSensor1)
   {
-    counter++;
     if (sensor1.getMeasure() == 1)
     {
       readedSensor1 = true;
@@ -227,7 +230,7 @@ void requestDataSensors()
       Serial.println(sensor1.getGasConcentration());
       break;
     }
-    if (timerTrue(mill, 500))
+    if (timerTrue(mill, 1000))
     {
       readedSensor1 = true;
       Serial.println("Timeout sensor 1");
@@ -238,7 +241,6 @@ void requestDataSensors()
 
   while (readedSensor1 && !readedSensor2)
   {
-    counter++;
     if (sensor2.getMeasure() == 1)
     {
       readedSensor2 = true;
@@ -257,7 +259,6 @@ void requestDataSensors()
 
   while (readedSensor2 && !readedSensor3)
   {
-    counter++;
     if (sensor3.getMeasure() == 1)
     {
       readedSensor3 = true;
@@ -276,7 +277,6 @@ void requestDataSensors()
 
   while (readedSensor3 && !readedSensor4)
   {
-    counter++;
     if (sensor4.getMeasure() == 1)
     {
       readedSensor4 = true;
@@ -294,7 +294,6 @@ void requestDataSensors()
   }
   while (readedSensor4 && !readedSensor5)
   {
-    counter++;
     if (sensor5.getMeasure() == 1)
     {
       Serial.print("Sensor5 Leido :");
@@ -302,7 +301,7 @@ void requestDataSensors()
       readedSensor5 = true;
       data = 0;
       resetSensors();
-      sleepSensors();
+      // sleepSensors();
       break;
     }
     if (timerTrue(mill, 1000))
@@ -312,11 +311,109 @@ void requestDataSensors()
       readedSensor5 = true;
       data = 0;
       resetSensors();
-      sleepSensors();
+      // sleepSensors();
       break;
     }
   }
 }
+
+void requestSensorsInformation()
+{
+  while (!readedSensor1)
+  {
+    bool readed = sensor1.getSensorInformation();
+    if (readed)
+    {
+      readedSensor1 = true;
+      Serial.print("Sensor1 Leido ");
+      Serial.println(sensor1.getSensorType(), HEX);
+      break;
+    }
+    if (timerTrue(mill, 100))
+    {
+      readedSensor1 = true;
+      Serial.println("Timeout sensor 1");
+      mill = millis();
+      break;
+    }
+  }
+
+  while (readedSensor1 && !readedSensor2)
+  {
+    if (sensor2.getSensorInformation() == 1)
+    {
+      readedSensor2 = true;
+      Serial.print("Sensor2 Leido ");
+      Serial.println(sensor2.getSensorType(), HEX);
+      break;
+    }
+    if (timerTrue(mill, 100))
+    {
+      readedSensor2 = true;
+      Serial.println("Timeout sensor 2");
+      mill = millis();
+      break;
+    }
+  }
+
+  while (readedSensor2 && !readedSensor3)
+  {
+    if (sensor3.getSensorInformation() == 1)
+    {
+      readedSensor3 = true;
+      Serial.print("Sensor3 Leido :");
+      Serial.println(sensor3.getSensorType(), HEX);
+      break;
+    }
+    if (timerTrue(mill, 100))
+    {
+      readedSensor3 = true;
+      Serial.println("Timeout sensor 3");
+      mill = millis();
+      break;
+    }
+  }
+
+  while (readedSensor3 && !readedSensor4)
+  {
+    if (sensor4.getSensorInformation() == 1)
+    {
+      readedSensor4 = true;
+      Serial.print("Sensor4 Leido :");
+      Serial.println(sensor4.getSensorType(), HEX);
+      break;
+    }
+    if (timerTrue(mill, 100))
+    {
+      readedSensor4 = true;
+      Serial.println("Timeout sensor 4");
+      mill = millis();
+      break;
+    }
+  }
+  while (readedSensor4 && !readedSensor5)
+  {
+    if (sensor5.getSensorInformation() == 1)
+    {
+      Serial.print("Sensor5 Leido :");
+      Serial.println(sensor5.getSensorType(), HEX);
+      readedSensor5 = true;
+      data = 0;
+      resetSensors();
+      break;
+    }
+    if (timerTrue(mill, 100))
+    {
+      Serial.println("Timeout sensor 5");
+      mill = millis();
+      readedSensor5 = true;
+      data = 0;
+      resetSensors();
+      break;
+    }
+  }
+}
+
 // despierta a todos los sensores
 void wakeUpSensors()
 {
@@ -385,6 +482,7 @@ void wakeUpSensors()
         readedSensor5 = true;
         resetSensors();
         wakedUP = true;
+        break;
       }
       if (timerTrue(mill, 200))
       {
@@ -393,6 +491,7 @@ void wakeUpSensors()
         mill = millis();
         resetSensors();
         wakedUP = true;
+        break;
       }
     }
   }

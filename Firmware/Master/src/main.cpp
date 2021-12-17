@@ -163,6 +163,8 @@ void loop()
   // gps.testLoop();
   // getCJMData();
 
+  // slaveController.scanSlaves();
+
   if (publisher->join())
   {
     if (timerTrue(mill, 20000))
@@ -171,6 +173,7 @@ void loop()
       Serial.println("Requesting sensors data..");
       uint8_t bytesToRequest = 8;
       byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+
       Serial.println("Received");
       getModbusData();
 
@@ -185,7 +188,6 @@ void loop()
     }
   }
 }
-// slaveController.scanSlaves();
 void getModbusData()
 {
   float temp = modbus.getTemperature();
@@ -206,5 +208,5 @@ void getModbusData()
   float noise = modbus.getNoise();
   Serial.println("Noise: ");
   Serial.println(noise);
-  arrayData[7] = noise;
+  arrayData[13] = noise;
 }

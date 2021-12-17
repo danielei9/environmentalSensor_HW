@@ -23,6 +23,9 @@ private:
     int8_t SDA = 0;
     int8_t SCL = 0;
 
+    byte *slaveAddresses[128];
+    uint8_t numberOfSlaves = 0;
+
 public:
     /**
      * Constructor de la clase SlaveController
@@ -76,7 +79,7 @@ public:
         {
             // puede recibir suscripciones mqtt mientras lee de los archivos
             //mqttClient.poll();
-            if (timerTrue(millSensorsRequest, 13000))
+            if (timerTrue(millSensorsRequest, 15000))
             {
                 if (waiting)
                 {
@@ -130,6 +133,23 @@ public:
                     Serial.print("0");
                 }
                 Serial.println(address, HEX);
+                // hace una busqueda de esclavos
+                // bool found = 0;
+                // for (int i = 0; i < 127; i++)
+                // {
+                //     if (*slaveAddresses[i] == address)
+                //     {
+                //         // si se encontro
+                //         found = 1;
+                //     }
+                // }
+                // // si no se ha encontrado el dispositivo
+                // if (!found)
+                // {
+                //     *slaveAddresses[numberOfSlaves] = address;
+                //     numberOfSlaves++;
+                //     found = 0;
+                // }
                 nDevices++;
             }
             else if (error == 4)
@@ -151,6 +171,12 @@ public:
             Serial.println("done\n");
         }
         delay(5000);
+    }
+
+    // devuelve el array de esclavos disponibles
+    byte *getSlaves()
+    {
+        return *slaveAddresses;
     }
 };
 
