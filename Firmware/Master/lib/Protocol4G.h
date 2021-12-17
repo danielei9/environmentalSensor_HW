@@ -258,7 +258,7 @@ public:
 
         // // delay(1000);
 
-        String topicSend = "measure2/send";
+        String topicSend = "measure/send";
 
         mqttClient.poll();
 
