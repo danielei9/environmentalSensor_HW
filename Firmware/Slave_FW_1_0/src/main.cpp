@@ -68,22 +68,10 @@ SoftwareSerial serialtest3(5, 4);
 SoftwareSerial serialtest4(7, 6);
 SoftwareSerial serialtest5(3, 2);
 
-// semaforos de los sensores
-bool readedSensor1 = false;
-bool readedSensor2 = false;
-bool readedSensor3 = false;
-bool readedSensor4 = false;
-bool readedSensor5 = false;
 byte data = 0;
 
 void resetSensors()
 {
-  //reseteando semaforos
-  readedSensor1 = false;
-  readedSensor2 = false;
-  readedSensor3 = false;
-  readedSensor4 = false;
-  readedSensor5 = false;
 
   sensor1.reset();
   sensor2.reset();
@@ -104,7 +92,6 @@ void requestEvent()
   Serial.println("Requested data from Master...");
   Serial.println("Sending Data: ");
 
-  // Wire.endTransmission();
   Serial.println();
   Serial.println();
 
@@ -168,7 +155,7 @@ void setup()
   sensor3.initSensor(9600);
   sensor4.initSensor(9600);
   sensor5.initSensor(9600);
-  sleepSensors();
+  wakeUpSensors();
 
   Wire.begin(I2C_SLAVE_ADDR);
   Wire.onRequest(requestEvent);
@@ -176,6 +163,7 @@ void setup()
 }
 void loop()
 {
+
   if (data != 0)
   {
     Serial.print("Command received: 0x");
@@ -187,11 +175,11 @@ void loop()
 
       if (wakedUP)
       {
-      delay(5200);
-      requestSensorsInformation();
-      delay(1000);
-      requestDataSensors();
-      // Serial.print("rabo");
+        delay(5200);
+        requestSensorsInformation();
+        delay(1000);
+        requestDataSensors();
+        // Serial.print("rabo");
       }
 
       // rellenando el array
@@ -204,11 +192,11 @@ void loop()
       arrayData1[6] = 1;
       arrayData1[7] = 1;
       delay(10);
-      arrayData2[0] = sensor1.getSensorType();
-      arrayData2[1] = sensor2.getSensorType();
-      arrayData2[2] = sensor3.getSensorType();
-      arrayData2[3] = sensor4.getSensorType();
-      arrayData2[4] = sensor5.getSensorType();
+      arrayData2[0] = sensor1.getType();
+      arrayData2[1] = sensor2.getType();
+      arrayData2[2] = sensor3.getType();
+      arrayData2[3] = sensor4.getType();
+      arrayData2[4] = sensor5.getType();
       arrayData2[5] = 2;
       arrayData2[6] = 2;
       arrayData2[7] = 2;
@@ -233,369 +221,55 @@ void loop()
         Serial.print(arrayData3[i]);
         Serial.println();
       }
-
       // ejecutar el comando
     }
   }
 }
 void requestDataSensors()
 {
-  while (!readedSensor1)
-  {
-    if (sensor1.getMeasure() == 1)
-    {
-      readedSensor1 = true;
-      Serial.print("Sensor1 Leido ");
-      Serial.println(sensor1.getGasConcentration());
-      break;
-    }
-    if (timerTrue(mill, 1000))
-    {
-      readedSensor1 = true;
-      Serial.println("Timeout sensor 1");
-      mill = millis();
-      break;
-    }
-  }
-
-  while (readedSensor1 && !readedSensor2)
-  {
-    if (sensor2.getMeasure() == 1)
-    {
-      readedSensor2 = true;
-      Serial.print("Sensor2 Leido :");
-      Serial.println(sensor2.getGasConcentration());
-      break;
-    }
-    if (timerTrue(mill, 1000))
-    {
-      readedSensor2 = true;
-      Serial.println("Timeout sensor 2");
-      mill = millis();
-      break;
-    }
-  }
-
-  while (readedSensor2 && !readedSensor3)
-  {
-    if (sensor3.getMeasure() == 1)
-    {
-      readedSensor3 = true;
-      Serial.print("Sensor3 Leido :");
-      Serial.println(sensor3.getGasConcentration());
-      break;
-    }
-    if (timerTrue(mill, 1000))
-    {
-      readedSensor3 = true;
-      Serial.println("Timeout sensor 3");
-      mill = millis();
-      break;
-    }
-  }
-
-  while (readedSensor3 && !readedSensor4)
-  {
-    if (sensor4.getMeasure() == 1)
-    {
-      readedSensor4 = true;
-      Serial.print("Sensor4 Leido :");
-      Serial.println(sensor4.getGasConcentration());
-      break;
-    }
-    if (timerTrue(mill, 1000))
-    {
-      readedSensor4 = true;
-      Serial.println("Timeout sensor 4");
-      mill = millis();
-      break;
-    }
-  }
-  while (readedSensor4 && !readedSensor5)
-  {
-    if (sensor5.getMeasure() == 1)
-    {
-      Serial.print("Sensor5 Leido :");
-      Serial.println(sensor5.getGasConcentration());
-      readedSensor5 = true;
-      data = 0;
-      resetSensors();
-      sleepSensors();
-      break;
-    }
-    if (timerTrue(mill, 1000))
-    {
-      Serial.println("Timeout sensor 5");
-      mill = millis();
-      readedSensor5 = true;
-      data = 0;
-      resetSensors();
-      sleepSensors();
-      break;
-    }
-  }
+  sensor1.getMeasure();
+  sensor2.getMeasure();
+  sensor3.getMeasure();
+  sensor4.getMeasure();
+  sensor5.getMeasure();
+  data = 0;
+  resetSensors();
 }
 
 void requestSensorsInformation()
 {
-  while (!readedSensor1)
-  {
-    bool readed = sensor1.getSensorInformation();
-    if (readed)
-    {
-      readedSensor1 = true;
-      Serial.print("Sensor1 Leido ");
-      Serial.println(sensor1.getSensorType(), HEX);
-      break;
-    }
-    if (timerTrue(mill, 100))
-    {
-      readedSensor1 = true;
-      Serial.println("Timeout sensor 1");
-      mill = millis();
-      break;
-    }
-  }
 
-  while (readedSensor1 && !readedSensor2)
-  {
-    if (sensor2.getSensorInformation() == 1)
-    {
-      readedSensor2 = true;
-      Serial.print("Sensor2 Leido ");
-      Serial.println(sensor2.getSensorType(), HEX);
-      break;
-    }
-    if (timerTrue(mill, 100))
-    {
-      readedSensor2 = true;
-      Serial.println("Timeout sensor 2");
-      mill = millis();
-      break;
-    }
-  }
-
-  while (readedSensor2 && !readedSensor3)
-  {
-    if (sensor3.getSensorInformation() == 1)
-    {
-      readedSensor3 = true;
-      Serial.print("Sensor3 Leido :");
-      Serial.println(sensor3.getSensorType(), HEX);
-      break;
-    }
-    if (timerTrue(mill, 100))
-    {
-      readedSensor3 = true;
-      Serial.println("Timeout sensor 3");
-      mill = millis();
-      break;
-    }
-  }
-
-  while (readedSensor3 && !readedSensor4)
-  {
-    if (sensor4.getSensorInformation() == 1)
-    {
-      readedSensor4 = true;
-      Serial.print("Sensor4 Leido :");
-      Serial.println(sensor4.getSensorType(), HEX);
-      break;
-    }
-    if (timerTrue(mill, 100))
-    {
-      readedSensor4 = true;
-      Serial.println("Timeout sensor 4");
-      mill = millis();
-      break;
-    }
-  }
-  while (readedSensor4 && !readedSensor5)
-  {
-    if (sensor5.getSensorInformation() == 1)
-    {
-      Serial.print("Sensor5 Leido :");
-      Serial.println(sensor5.getSensorType(), HEX);
-      readedSensor5 = true;
-      data = 0;
-      resetSensors();
-      break;
-    }
-    if (timerTrue(mill, 100))
-    {
-      Serial.println("Timeout sensor 5");
-      mill = millis();
-      readedSensor5 = true;
-      data = 0;
-      resetSensors();
-      break;
-    }
-  }
+  sensor1.getInformation();
+  sensor2.getInformation();
+  sensor3.getInformation();
+  sensor4.getInformation();
+  sensor5.getInformation();
+  data = 0;
+  resetSensors();
 }
 
 // despierta a todos los sensores
 void wakeUpSensors()
 {
-  while (!wakedUP)
-  {
-    if (!readedSensor1)
-    {
-      if (sensor1.wakeUp() == 1)
-      {
-        readedSensor1 = true;
-      }
-      if (timerTrue(mill, 200))
-      {
-        readedSensor1 = true;
-        Serial.println("Timeout wakingUp sensor 1");
-        mill = millis();
-      }
-    }
 
-    if (readedSensor1 && !readedSensor2)
-    {
-      if (sensor2.wakeUp() == 1)
-      {
-        readedSensor2 = true;
-      }
-      if (timerTrue(mill, 200))
-      {
-        readedSensor2 = true;
-        Serial.println("Timeout wakingUp sensor 2");
-        mill = millis();
-      }
-    }
-
-    if (readedSensor2 && !readedSensor3)
-    {
-      if (sensor3.wakeUp() == 1)
-      {
-        readedSensor3 = true;
-      }
-      if (timerTrue(mill, 200))
-      {
-        readedSensor3 = true;
-        Serial.println("Timeout wakingUp sensor 3");
-        mill = millis();
-      }
-    }
-
-    if (readedSensor3 && !readedSensor4)
-    {
-      if (sensor4.wakeUp() == 1)
-      {
-        readedSensor4 = true;
-      }
-      if (timerTrue(mill, 200))
-      {
-        readedSensor4 = true;
-        Serial.println("Timeout wakingUp sensor 4");
-        mill = millis();
-      }
-    }
-
-    if (readedSensor4 && !readedSensor5)
-    {
-      if (sensor4.wakeUp() == 1)
-      {
-        readedSensor5 = true;
-        resetSensors();
-        wakedUP = true;
-        break;
-      }
-      if (timerTrue(mill, 200))
-      {
-        readedSensor5 = true;
-        Serial.println("Timeout wakingUp sensor 5");
-        mill = millis();
-        resetSensors();
-        wakedUP = true;
-        break;
-      }
-    }
-  }
+  sensor1.wakeUp();
+  sensor2.wakeUp();
+  sensor3.wakeUp();
+  sensor4.wakeUp();
+  sensor5.wakeUp();
+  resetSensors();
+  wakedUP = true;
+  
 }
 
 // funcion que duerme a todos los sensores
 void sleepSensors()
 {
-  while (true)
-  {
-
-    //durmiendo sensor 1
-    if (!readedSensor1)
-    {
-      // cuand
-      if (sensor1.sleep() == 1)
-      {
-        readedSensor1 = true;
-      }
-      if (timerTrue(mill, 50))
-      {
-        readedSensor1 = true;
-        Serial.println("Timeout sleep sensor 1");
-        mill = millis();
-      }
-    }
-
-    // durmiendo sensor 2 si se ha dormido el sensor 1
-    if (readedSensor1 && !readedSensor2)
-    {
-      if (sensor2.sleep() == 1)
-      {
-        readedSensor2 = true;
-      }
-      if (timerTrue(mill, 50))
-      {
-        readedSensor2 = true;
-        Serial.println("Timeout sleep sensor 2");
-        mill = millis();
-      }
-    }
-    if (readedSensor2 && !readedSensor3)
-    {
-      if (sensor3.sleep() == 1)
-      {
-        readedSensor3 = true;
-      }
-      if (timerTrue(mill, 50))
-      {
-        readedSensor3 = true;
-        Serial.println("Timeout sleep sensor 3");
-        mill = millis();
-      }
-    }
-    if (readedSensor3 && !readedSensor4)
-    {
-      if (sensor4.sleep() == 1)
-      {
-        readedSensor4 = true;
-      }
-      if (timerTrue(mill, 50))
-      {
-        readedSensor4 = true;
-        Serial.println("Timeout sleep sensor 4");
-        mill = millis();
-      }
-    }
-    if (readedSensor4 && !readedSensor5)
-    {
-      if (sensor5.sleep() == 1)
-      {
-        readedSensor5 = true;
-        wakedUP = false;
-        resetSensors();
-        break;
-      }
-      if (timerTrue(mill, 50))
-      {
-        readedSensor5 = true;
-        Serial.println("Timeout sleep sensor 5");
-        mill = millis();
-        wakedUP = false;
-        resetSensors();
-        break;
-      }
-    }
-  }
+  sensor1.sleep();
+  sensor2.sleep();
+  sensor3.sleep();
+  sensor4.sleep();
+  sensor5.sleep();
+  resetSensors();
+  wakedUP = false;
 }

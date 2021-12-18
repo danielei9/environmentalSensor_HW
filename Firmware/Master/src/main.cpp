@@ -125,6 +125,7 @@ GPS gps;
 void initModbus();
 void setup()
 {
+  Serial.begin(115200);
   // gps.init();
   initModbus();
 
@@ -136,7 +137,6 @@ void setup()
   OTAUpd.init();
   // Set console baud rate
   Serial.println("Requesting in 20 seconds");
-  Serial.begin(115200);
   initModbus();
 
 }
@@ -155,17 +155,18 @@ void loop()
         protocol4G.sendLinkMessage("deviceSync");
         key = false;
       }
-      *slaves = slaveController.getSlaves(); // obtiene el array de esclavos
+
       // envia los datos del modbus (Sensores conectados al modbus)
       byte *arrayData =getModbusData();
       #ifdef PROTOCOL_4G
-            publisher->sendData(arrayData, 4);
-          #endif
-          #ifdef PROTOCOL_LORA
-            Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
-          #endif
+            protocol4G.sendData(arrayData, 4);
+      #endif
+      #ifdef PROTOCOL_LORA
+        Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
+      #endif
            delay(100);
 
+      *slaves = slaveController.getSlaves(); // obtiene el array de esclavos
       // recoge medidas de todos los esclavos disponibles
       for(int i = 0;i<128;i ++){
         if(slaves[i] != 0){
@@ -177,7 +178,7 @@ void loop()
           printBytesArray(arrayData, bytesToRequest);
 
           #ifdef PROTOCOL_4G
-            publisher->sendData(arrayData, 5);
+            protocol4G.sendData(arrayData, 5);
           #endif
           #ifdef PROTOCOL_LORA
             Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));

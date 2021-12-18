@@ -25,14 +25,6 @@ public:
     // inicializa el publicador
     //no es puramente virtual por que se necesita hacer overload tanto en la clase lora como 4g
     virtual void initPublisher() = 0;
-
-// publica los datosç
-#ifdef PROTOCOL_4G
-    virtual void sendData(uint8_t *, uint8_t);
-#endif
-#ifdef PROTOCOL_LORA
-    virtual void sendData(osjob_t *, uint8_t *, unsigned int, unsigned int);
-#endif
     /**
      *  Se une a la red.
      *  @returns bool -> devuelve TRUE si se ha conectado a la red  y FALSE si no.

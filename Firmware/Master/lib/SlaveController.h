@@ -50,10 +50,9 @@ public:
      * Inicializa el esclavo por I2C
      * @param baudios velocidad del Serial
      */
-    void initMaster(int baudios = 115200)
+    void initMaster()
     {
         Wire.begin(SDA, SCL);  // join i2c bus (address optional for master)
-        Serial.begin(baudios); // start serial for output
     }
 
     /**
@@ -72,7 +71,7 @@ public:
         Wire.write((byte *)&command, sizeof(command));
         Wire.endTransmission();
 
-        Serial.println("Waiting 13 seconds");
+        Serial.println("Waiting 15 seconds");
 
         bool waiting = false;
         while (true)
