@@ -246,10 +246,11 @@ public:
     uint8_t getUnit()
     {
         // si el tipo es diferente o no existe llama a la funcion para encontrar el tipo de unidad
-        if (sensorType != -1 && sensorInformation[5] == sensorUnit)
-            return (sensorInformation[5]);
+        if (sensorUnit != -1 && sensorInformation[5] == sensorUnit)
+            return (sensorUnit);
         else
         {
+            sensorInformation[5] = 0;
             getSensorInformation();
         }
     }
@@ -355,7 +356,8 @@ public:
     {
         for (int i = 0; i < 9; i++)
         {
-            (*this).sensorInformation[i] = 254;
+            (*this).sensorInformation[i] = 0;
+            (*this).arrayData[i] = 0;
         }
     }
 };
