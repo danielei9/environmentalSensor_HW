@@ -134,7 +134,7 @@ private:
             Serial.println("UPDATE");
             OTAUpd.updateFromServer();
         }
-        if ((payload == "{\n\"SYNCHRONIZED\":\"64471da3e1719913\"\n}") and (topic == "deviceSync/64471da3e1719913"))
+        if ((payload == "{\n\"SYNCHRONIZED\":\""+deveui+"\"\n}") and (topic == "deviceSync/"+deveui+""))
         {
             Serial.println("SYNCHRONIZED");
             sync = true;
@@ -215,7 +215,7 @@ public:
 
                 // se suscribe a un topico
                 subscribeToTopic(topicSubscribed);
-                subscribeToTopic("deviceSync/64471da3e1719913");     
+                subscribeToTopic("deviceSync/"+deveui);     
                 return true;
             }
         }
@@ -244,7 +244,7 @@ public:
             }
             return false;
         }
-        mqttClient.unsubscribe("deviceSync/64471da3e1719913");
+        mqttClient.unsubscribe("deviceSync/"+deveui);
         return true;
     }
 
