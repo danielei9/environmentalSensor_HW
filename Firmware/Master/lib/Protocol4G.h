@@ -134,7 +134,7 @@ private:
             Serial.println("UPDATE");
             OTAUpd.updateFromServer();
         }
-        if ((payload == "{\n\"SYNCHRONIZED\":\"64:47:1d:a3:e1:71:99:13\"\n}") and (topic == "deviceSync"))
+        if ((payload == "{\n\"SYNCHRONIZED\":\"64471da3e1719913\"\n}") and (topic == "deviceSync/64471da3e1719913"))
         {
             Serial.println("SYNCHRONIZED");
             sync = true;
@@ -215,7 +215,7 @@ public:
 
                 // se suscribe a un topico
                 subscribeToTopic(topicSubscribed);
-                subscribeToTopic("deviceSync");     
+                subscribeToTopic("deviceSync/64471da3e1719913");     
                 return true;
             }
         }
@@ -232,7 +232,7 @@ public:
             
             if (millis() > (lmill + 10000))
             {
-        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"64:47:1d:a3:e1:71:99:13\",\n      \"name\":\"mqttDev\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
+        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"64471da3e1719913\",\n      \"name\":\"mqttDev\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
 
 #ifdef DEBUG
                 Serial.println("sendLinkMessage");
@@ -244,7 +244,7 @@ public:
             }
             return false;
         }
-        mqttClient.unsubscribe("deviceSync");
+        mqttClient.unsubscribe("deviceSync/64471da3e1719913");
         return true;
     }
 
