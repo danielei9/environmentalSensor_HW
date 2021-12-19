@@ -7,7 +7,13 @@
 // Description: Clase 4G encargada de manejar el protocolo de comunicacion con
 // la plataforma via MQTT con 4G
 // --------------------------------------------------------------
+#ifndef DEVEUI_DEF
 
+#define DEVEUI_DEF                                     \
+    {                                                  \
+        0x64, 0x47, 0x1d, 0xa3, 0xe1, 0x71, 0x99, 0x13 \
+    }
+#endif
 #ifndef PROTOCOL_4G_H_INCLUDED
 #define PROTOCOL_4G_H_INCLUDED
 
@@ -52,8 +58,8 @@ const char idDispositivo[] = "";
 const char topicSubscribed[] = "46701/ambiental/2/#";
 
 const long interval = 1000;
-unsigned long previousMillis = 0;
-
+unsigned long previousMillis = 0, lmill = 0;
+bool sync = false;
 // --------------------------------------------------------------
 // --------------------------------------------------------------
 class Protocol4G : public Publisher
@@ -102,7 +108,6 @@ private:
     void subscribeToTopic(const char *topic)
     {
         mqttClient.onMessage(onMqttMessage);
-
         Serial.print("Subscribing to topic: ");
         Serial.println(topic);
         Serial.println();
@@ -113,6 +118,9 @@ private:
 
     static void scheduleRxMqtt(String payload, String topic)
     {
+
+        Serial.println("recived payload");
+        Serial.println(payload);
         if (payload == "ON")
         {
             Serial.println("Encender Dispositivo");
@@ -125,6 +133,11 @@ private:
         {
             Serial.println("UPDATE");
             OTAUpd.updateFromServer();
+        }
+        if ((payload == "{\n\"SYNCHRONIZED\":\"64:47:1d:a3:e1:71:99:13\"\n}") and (topic == "deviceSync"))
+        {
+            Serial.println("SYNCHRONIZED");
+            sync = true;
         }
     }
     /**
@@ -202,7 +215,7 @@ public:
 
                 // se suscribe a un topico
                 subscribeToTopic(topicSubscribed);
-
+                subscribeToTopic("deviceSync");     
                 return true;
             }
         }
@@ -212,20 +225,35 @@ public:
             return true;
         }
     }
-    void sendLinkMessage(String topic_)
+    bool sendLinkMessage(String topic_)
     {
-        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"777\",\n      \"name\":\"mqttDev\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
-#ifdef DEBUG
-        Serial.println("sendLinkMessage");
-        Serial.print(msg);
-#endif
+        if (!sync)
+        {
+            
+            if (millis() > (lmill + 10000))
+            {
+        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"64:47:1d:a3:e1:71:99:13\",\n      \"name\":\"mqttDev\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
 
-        sendMqttMessage(msg, topic_);
+#ifdef DEBUG
+                Serial.println("sendLinkMessage");
+                Serial.print(msg);
+                Serial.println("SYNC");
+#endif
+                lmill = millis();
+                sendMqttMessage(msg, topic_);
+            }
+            return false;
+        }
+        mqttClient.unsubscribe("deviceSync");
+        return true;
     }
+
+
     void sendMqttMessage(String str, String topic_)
     {
 #ifdef DEBUG
-        Serial.println("mqttClient.poll();");
+    Serial.println("sendMqttMessage");
+       
 #endif
         mqttClient.poll();
         mqttClient.beginMessage(topic_);
@@ -270,23 +298,23 @@ public:
 
             Serial.println("Sending message to topic: ");
             Serial.println(topicSend);
-       for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
-            
+
                 // send message, the Print interface can be used to set the message contents
                 mqttClient.beginMessage(topicSend);
                 mqttClient.print("{\"deviceEui\":152,\"value\":");
                 mqttClient.print((String)arraySensors[i].value);
-                mqttClient.print(",\"name\":\"ambientalDevice"+String(i)+"\"");
+                mqttClient.print(",\"name\":\"ambientalDevice" + String(i) + "\"");
                 mqttClient.print(", \"unit\":\"");
                 mqttClient.print((String)arraySensors[i].unit);
-                 mqttClient.print("\", \"type\":\"");
+                mqttClient.print("\", \"type\":\"");
                 mqttClient.print((String)arraySensors[i].type);
                 mqttClient.println("\"}");
                 mqttClient.endMessage();
             }
 
-           /* for (int i = 25; i < 29; i++)
+            /* for (int i = 25; i < 29; i++)
             {
                 // send message, the Print interface can be used to set the message contents
                 mqttClient.beginMessage(topicSend);
@@ -307,7 +335,7 @@ public:
             Serial.println(" ");
         }
     }
-
+/*
     void vinculateDevice()
     {
         String topicSend = "gesinen/divceSync";
@@ -322,17 +350,19 @@ public:
 
             Serial.println("Sending message to topic: ");
             Serial.println(topicSend);
-
+            xref2u1_t buff[8];
+            os_getDevEui(*buff);
+            //Serial.write(byte(buff));
             // send message, the Print interface can be used to set the message contents
             mqttClient.beginMessage(topicSend);
-            mqttClient.print("{\"gatewayMac\":\"24:232:23:232:23\",\"device\":{\"deviceEui\":\"decive25\",\"latitude\":\"20.0\",\"longitude\":\"30.0\"},");
+            mqttClient.print("{\"gatewayMac\":\"24:232:23:232:23\",\"device\":{\"deviceEui\":\"\",\"latitude\":\"20.0\",\"longitude\":\"30.0\"},");
             mqttClient.print("\"sensors\":[{");
             // mqttClient.print((String)arrayData[0]);
             mqttClient.println(",\"type\": \"Co2\", \"unit\": \"ppm\"}");
             mqttClient.endMessage();
         }
     }
-
+*/
     void receiveData(byte *arrayData)
     {
     }

@@ -3,6 +3,10 @@
 #include <EEPROM.h>
 #define CFG_sx1276_radio 1 // HPD13A LoRa SoC
 
+#define DEVEUI_DEF                                 \
+  {                                                \
+    0x64, 0x47, 0x1d, 0xa3, 0xe1, 0x71, 0x99, 0x13 \
+  }
 #include <../lib/MCCI LoRaWAN LMIC library/src/hal/hal.h>
 
 #include <../lib/MCCI LoRaWAN LMIC library/src/lmic.h>
@@ -66,7 +70,7 @@ TinyGsmClientSecure client(modem);
 #include "../lib/OTA/OTAUpdate.hpp"
 #include <../lib/Sensor.h>
 uint8_t arrayData[52]; // array Data
- Sensor sensorsModbus[4];
+Sensor sensorsModbus[4];
 
 SlaveController slaveController(21, 22);
 unsigned long mill = 0;
@@ -138,6 +142,7 @@ void setup()
   Serial.println("Requesting in 20 seconds");
   Serial.begin(115200);
   initModbus();
+  
 
 }
 
@@ -193,30 +198,26 @@ void loop()
 
   if (publisher->join())
   {
-    if (timerTrue(mill, 31000))
-    {
-      if(key){
-  protocol4G.sendLinkMessage("deviceSync");
-key = false;
-      }
+    if(protocol4G.sendLinkMessage("deviceSync")){
 
-      //     // get arrayData
-      Serial.println("Requesting sensors data..");
-      uint8_t bytesToRequest = 24;
-      byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+      if (timerTrue(mill, 31000)){ 
+        //     // get arrayData
+        Serial.println("Requesting sensors data..");
+        uint8_t bytesToRequest = 24;
+        byte *arrayData = slaveController.requestMeasuresToSlave(0x20, bytesToRequest);
+        Serial.println("Received");
+        getModbusData();
 
-      Serial.println("Received");
-      getModbusData();
-
-      printBytesArray(arrayData, bytesToRequest);
+        printBytesArray(arrayData, bytesToRequest);
 #ifdef PROTOCOL_4G
-      publisher->sendData(arrayData);
+        publisher->sendData(arrayData);
 #endif
 #ifdef PROTOCOL_LORA
-      Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
+        Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
 #endif
-      mill = millis();
-    }
+        mill = millis();
+      }
+    }   
   }
 }
 void getModbusData()
