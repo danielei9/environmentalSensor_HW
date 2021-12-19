@@ -59,7 +59,6 @@ TinyGsm modem(SerialAT);
 
 #endif
 TinyGsmClientSecure client(modem);
-
 #define PROTOCOL_4G
 #include <../lib/PublishersClient.h>
 #include <../lib/SlaveController.h>
@@ -124,9 +123,9 @@ void readFile(fs::FS &fs, const char *path);
 long contentLength; // How many bytes of data the .bin is
 bool isValidContentType = false;
 int readLength = 0;
-
 GPS gps;
 void initModbus();
+void timer();
 void setup()
 {
   Serial.begin(115200);
@@ -134,13 +133,11 @@ void setup()
   initModbus();
 
   publisher->initPublisher();
-  //esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
 
   slaveController.initMaster();
   // initCJM();
   OTAUpd.init();
   // Set console baud rate
-  Serial.println("Requesting in 20 seconds");
   initModbus();
   
 
@@ -156,24 +153,34 @@ void loop()
   
     if(protocol4G.sendLinkMessage("deviceSync")){
       // envia los datos del modbus (Sensores conectados al modbus)
-      byte *arrayData =getModbusData();
+      byte *arrayData = getModbusData();
       #ifdef PROTOCOL_4G
             protocol4G.sendData(arrayData, 4);
       #endif
       #ifdef PROTOCOL_LORA
         Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
       #endif
-           delay(100);
+      delay(100);
 
       *slaves = slaveController.getSlaves(); // obtiene el array de esclavos
       // recoge medidas de todos los esclavos disponibles
       for(int i = 0;i<128;i ++){
         if(slaves[i] != 0){
+          Serial.print("Waking up sensors from slave: 0x");
+          Serial.println(slaves[i], HEX);
+          
+          // despiera a todos los sensores de los esclavos y toman medidas
+          slaveController.wakeUpSlaveAndTakeMeasures(slaves[i]);
+        }
+      }
+      timer();
+
+      for(int i = 0;i<128;i ++){
+        if(slaves[i] != 0){
           Serial.print("Requesting sensors data from slave: 0x");
           Serial.println(slaves[i], HEX);
-          delay(10);
           uint8_t bytesToRequest = 24;
-          byte *arrayData = slaveController.requestMeasuresToSlave(slaves[i], bytesToRequest);
+          byte *arrayData = slaveController.getMeasuresArrayFromSlave(slaves[i], bytesToRequest);
           printBytesArray(arrayData, bytesToRequest);
 
           #ifdef PROTOCOL_4G
@@ -182,12 +189,41 @@ void loop()
           #ifdef PROTOCOL_LORA
             Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
           #endif
+          delay(10);
         }
       }
+      Serial.println("Requesting in 10 seconds");
       mill = millis();
     }
   }
 }
+
+void timer(){
+  Serial.println("Waiting 15 seconds");
+  bool waiting = false;
+  while (true)
+  {
+    #ifdef PROTOCOL_4G
+      mqttClient.poll();
+    #endif
+      // puede recibir suscripciones mqtt mientras lee de los archivos
+    if (timerTrue(millSensorsRequest, 15000))
+    {
+        if (waiting)
+        {
+            millSensorsRequest = millis();
+            waiting = false;
+            break;
+        }
+        if (!waiting)
+            waiting = true;
+
+        millSensorsRequest = millis();
+    }
+  }
+}
+
+
 
 
 void initModbus()

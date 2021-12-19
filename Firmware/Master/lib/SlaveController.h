@@ -52,7 +52,25 @@ public:
      */
     void initMaster()
     {
-        Wire.begin(SDA, SCL);  // join i2c bus (address optional for master)
+        Wire.begin(SDA, SCL); // join i2c bus (address optional for master)
+    }
+
+    /**
+     * Manda una peticion al esclavo seleccionado para que se despierte y coja las mediciones con antelicion antes de pedirlas
+     * @param slaveAdress direccion del esclavo
+     */
+    void wakeUpSlaveAndTakeMeasures(uint8_t slaveAdress)
+    {
+
+        byte command = 0x30;
+
+        // Envia una peticion para que cargue los valores de los sensores
+        Wire.flush();
+        Wire.beginTransmission(slaveAdress);
+        Wire.write((byte *)&command, sizeof(command));
+        Wire.endTransmission();
+        delay(14);
+        // delay between sends
     }
 
     /**
@@ -61,41 +79,8 @@ public:
      * @param bytesNumber bytes a pedir al esclavo.
      * @returns array de bytes (Todas las mesuras)
      */
-    byte *requestMeasuresToSlave(uint8_t slaveAdress, uint8_t bytesNumber)
+    byte *getMeasuresArrayFromSlave(uint8_t slaveAdress, uint8_t bytesNumber)
     {
-
-        byte command = 0x30;
-
-        // Envia una peticion para que cargue los valores de los sensores
-        Wire.beginTransmission(slaveAdress);
-        Wire.write((byte *)&command, sizeof(command));
-        Wire.endTransmission();
-
-        Serial.println("Waiting 15 seconds");
-
-        bool waiting = false;
-        while (true)
-        {
-
-            // puede recibir suscripciones mqtt mientras lee de los archivos
-            //mqttClient.poll();
-            if (timerTrue(millSensorsRequest, 15000))
-            {
-                if (waiting)
-                {
-                    millSensorsRequest = millis();
-                    waiting = false;
-                    break;
-                }
-                if (!waiting)
-                    waiting = true;
-
-                millSensorsRequest = millis();
-            }
-        }
-
-        // espera 5 segundos para la recepcion de datos y leidas de uarts
-
         // crea un array vacio
         byte *arrayData = new byte[bytesNumber];
         uint16_t i = 0; // contador
@@ -111,6 +96,7 @@ public:
             i++;
         }
         Serial.println("Received");
+        delay(50);
         return arrayData;
     }
 
