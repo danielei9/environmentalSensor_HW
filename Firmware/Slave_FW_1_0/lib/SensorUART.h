@@ -28,7 +28,6 @@ private:
 
     // identificadores del sensor
     uint8_t sensorType = -1;
-
     uint8_t sensorUnit = -1;
 
     // contadores y boleanos de lectura
@@ -48,6 +47,7 @@ private:
         // si es distinto del tipo obtenido anteriormente vuelve a escanear el sensor
         if (sensorUnit != sensorInformation[5] || sensorType != sensorInformation[2])
         {
+            // envia el comando para escuchar a los sensores
             byte arrayCommand[1] = {0xD7};
             writeCommand(arrayCommand, 1);
 
@@ -81,101 +81,72 @@ private:
     }
 
     /**
-     * Obtiene la medida del sensor
-     * @returns devuelve un array
+     * Se encarga de leer las medidas
+     * @returns devuelve true si se ha leido y false si no
      */
     int read()
     {
         // intenta obtener la informacion del sensor si ha cambiado. Si no ha cambiado no lee la informacion
         getSensorInformation();
 
+        // escribe en la uart el comando para obtener medidas del sensor
         byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
         writeCommand(arrayCommand, 9);
 
-        if (!(*this).readed)
+        // escucha al sensor con una respuesta de 9 bytes.
+        bool response = listenToResponse(9);
+        if (response)
         {
-            sensorSerial->listen();
-            while (sensorSerial->available() > 0)
-            {
-                int sensorData = sensorSerial->read();
-                arrayData[counter] = sensorData;
-                Serial.println(sensorData);
-                (*this).counter++;
-                if ((*this).counter == 9)
-                {
-                    (*this).readed = true;
-                    Serial.println("Sensor Readed");
-                    reset();
-                    return (*this).readed;
-                }
-                /* code */
-            }
+            Serial.println("Sensor Readed");
+            return response;
         }
-        return (*this).readed;
+        return response;
     }
     /**
-     * Obtiene la medida del sensor
-     * @returns devuelve un array
+     * Duerme al sensor
+     * @returns devuelve true si se ha dormido y false si no
      */
     bool sleepSensor()
     {
+        // envia el comando para escuchar al sensor
         byte arrayCommand[6] = {0xAF, 0x53, 0x6C, 0x65, 0x65, 0x70};
         writeCommand(arrayCommand, 6);
 
-        if (!(*this).readed)
+        // espera a la escucha de la respuesta del sensor si se ha dormido o no.
+        bool response = listenToResponse(2);
+        if (response)
         {
-            sensorSerial->listen();
-            while (sensorSerial->available() > 0)
-            {
-
-                int data = sensorSerial->read();
-                arrayData[counter] = data;
-                Serial.println(data);
-                (*this).counter++;
-                if ((*this).counter == 2)
-                {
-                    (*this).readed = true;
-                    Serial.println("Sensor is sleeping...");
-                    return (*this).readed;
-                }
-                /* code */
-            }
+            Serial.println("Sensor is sleeping...");
+            return response;
         }
-        return (*this).readed;
+        return response;
     }
 
     /**
-     * Obtiene la medida del sensor
-     * @returns devuelve un array
+     * Despierta al sensor
+     * @returns devuelve true si se ha despertado y false si no
      */
     bool wakeUpSensor()
     {
-
+        // envia el comando para despertar al sensor
         byte arrayCommand[5] = {0xAE, 0x45, 0x78, 0x69, 0x74};
         writeCommand(arrayCommand, 5);
 
-        if (!(*this).readed)
+        // espera una respuesta del sensor
+        bool response = listenToResponse(2);
+        if (response)
         {
-            sensorSerial->listen();
-            while (sensorSerial->available() > 0)
-            {
-
-                int data = sensorSerial->read();
-                arrayData[counter] = data;
-                Serial.println(data);
-                (*this).counter++;
-                if ((*this).counter == 2)
-                {
-                    (*this).readed = true;
-                    Serial.println("Sensor exited from deep Sleep");
-                    return (*this).readed;
-                }
-                /* code */
-            }
+            Serial.println("Sensor exited from deep Sleep");
+            return response;
         }
-        return (*this).readed;
+        return response;
     }
 
+    /**
+     * Envia comandos por uart al sensor
+     * @param array array con el comando a enviar
+     * @param size es el tamaño del comando
+     */
     void writeCommand(byte *array, uint8_t size)
     {
         if (!(*this).sendCommand)
@@ -187,6 +158,33 @@ private:
             }
             (*this).sendCommand = true;
         }
+    }
+    /**
+     * Escucha a la respuesta del sensor despues de enviar un comando
+     * @param size es el tamaño de la respuesta
+     * @return devuelve true si se ha leido y false si no
+     */
+    bool listenToResponse(uint8_t size)
+    {
+        if (!(*this).readed)
+        {
+            sensorSerial->listen();
+            while (sensorSerial->available() > 0)
+            {
+
+                int data = sensorSerial->read();
+                arrayData[counter] = data;
+                Serial.println(data);
+                (*this).counter++;
+                if ((*this).counter == size)
+                {
+                    (*this).readed = true;
+                    return (*this).readed;
+                }
+                /* code */
+            }
+        }
+        return (*this).readed;
     }
 
 public:
@@ -295,7 +293,7 @@ public:
                 Serial.println(getType());
                 break;
             }
-            if (timerTrue(mill, 100))
+            if (timerTrue(mill, 200))
             {
                 sensorReaded = true;
                 Serial.println("Timeout on get sensor information ");
@@ -318,7 +316,7 @@ public:
                 sensorReaded = true;
                 break;
             }
-            if (timerTrue(mill, 100))
+            if (timerTrue(mill, 200))
             {
                 sensorReaded = true;
                 Serial.println("Timeout on sleep sensor");
@@ -340,7 +338,7 @@ public:
                 sensorReaded = true;
                 break;
             }
-            if (timerTrue(mill, 100))
+            if (timerTrue(mill, 200))
             {
                 sensorReaded = true;
                 Serial.println("Timeout on Wake Up Sensor ");

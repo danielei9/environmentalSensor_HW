@@ -145,7 +145,6 @@ void loop()
 {
   // float *coords = gps.getCoords();
   // gps.testLoop();
-  // getCJMData();
 
   if (publisher->join())
   {

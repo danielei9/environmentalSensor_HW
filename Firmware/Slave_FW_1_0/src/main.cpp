@@ -83,6 +83,7 @@ void resetSensors()
 }
 
 // Request event para enviar los datos
+// esta funcion es llamada por el maestro
 void requestEvent()
 {
   Wire.flush();
@@ -90,30 +91,27 @@ void requestEvent()
   wakedUP = false;
 
   Serial.println("Requested data from Master...");
-  Serial.println("Sending Data: ");
 
-  Serial.println();
-  Serial.println();
-
+  // envia el primer array con la medida de los sensores
   Wire.write(arrayData1, arrayLength);
   Wire.flush();
   delay(10);
+
+  // envia el segundo array con el tipo de sensor
   Wire.write(arrayData2, arrayLength);
   Wire.flush();
   delay(10);
+
+  // envia el tercer array con el tipo de medida del sensor
   Wire.write(arrayData3, arrayLength);
   delay(10);
   Wire.flush();
+  Serial.println("Data sended");
+  Serial.println();
 }
 
 void resetArrayData()
 {
-  // for (int i = 0; i < arrayLength; i++)
-  // {
-  //   arrayData1[i] = -1;
-  //   arrayData2[i] = -1;
-  //   arrayData3[i] = -1;
-  // }
   sensor1.resetArrays();
   sensor2.resetArrays();
   sensor3.resetArrays();
@@ -139,11 +137,9 @@ void receiveEvent(int bytes)
   }
 }
 
-void setup()
+// inicializa los sensores
+void initSensors()
 {
-  Serial.begin(9600);
-  Serial.println("Initialized Slave");
-
   serialtest.begin(9600);
   serialtest2.begin(9600);
   serialtest3.begin(9600);
@@ -155,12 +151,22 @@ void setup()
   sensor3.initSensor(9600);
   sensor4.initSensor(9600);
   sensor5.initSensor(9600);
+  Serial.println("Initialized Sensors");
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.println("Initialized Slave");
+  initSensors();
   wakeUpSensors();
 
   Wire.begin(I2C_SLAVE_ADDR);
   Wire.onRequest(requestEvent);
   Wire.onReceive(receiveEvent);
+  Serial.println("Initialized I2C Communication");
 }
+
 void loop()
 {
 
@@ -179,7 +185,6 @@ void loop()
         requestSensorsInformation();
         delay(1000);
         requestDataSensors();
-        // Serial.print("rabo");
       }
 
       // rellenando el array
@@ -214,6 +219,8 @@ void loop()
 
       for (int i = 0; i < arrayLength; i++)
       {
+        if (i < 5)
+          Serial.print("Sensor " + String(i + 1) + ": ");
         Serial.print(arrayData1[i]);
         Serial.print(".");
         Serial.print(arrayData2[i]);
@@ -225,17 +232,8 @@ void loop()
     }
   }
 }
-void requestDataSensors()
-{
-  sensor1.getMeasure();
-  sensor2.getMeasure();
-  sensor3.getMeasure();
-  sensor4.getMeasure();
-  sensor5.getMeasure();
-  data = 0;
-  resetSensors();
-}
 
+// Pide la informacion del tipo de sensor, unidades en las que mide, etc.  a todos los sensores
 void requestSensorsInformation()
 {
 
@@ -248,6 +246,18 @@ void requestSensorsInformation()
   resetSensors();
 }
 
+// pide las medidas a todos los sensores
+void requestDataSensors()
+{
+  sensor1.getMeasure();
+  sensor2.getMeasure();
+  sensor3.getMeasure();
+  sensor4.getMeasure();
+  sensor5.getMeasure();
+  data = 0;
+  resetSensors();
+  // sleepSensors();
+}
 // despierta a todos los sensores
 void wakeUpSensors()
 {
@@ -259,7 +269,6 @@ void wakeUpSensors()
   sensor5.wakeUp();
   resetSensors();
   wakedUP = true;
-  
 }
 
 // funcion que duerme a todos los sensores
