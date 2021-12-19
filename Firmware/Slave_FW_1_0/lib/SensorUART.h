@@ -269,7 +269,7 @@ public:
                 Serial.println(getGasConcentration());
                 break;
             }
-            if (timerTrue(mill, 500))
+            if (timerTrue(mill, 1000))
             {
                 sensorReaded = true;
                 Serial.println("Timeout ");
@@ -294,7 +294,7 @@ public:
                 Serial.println(getType());
                 break;
             }
-            if (timerTrue(mill, 200))
+            if (timerTrue(mill, 300))
             {
                 sensorReaded = true;
                 Serial.println("Timeout on get sensor information ");
