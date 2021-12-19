@@ -123,7 +123,6 @@ void resetArrayData()
 void receiveEvent(int bytes)
 {
   resetArrayData();
-
   Wire.flush();
   data = 0;
   uint8_t index = 0;

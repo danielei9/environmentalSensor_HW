@@ -137,8 +137,6 @@ void setup()
   slaveController.initMaster();
   // initCJM();
   OTAUpd.init();
-  // Set console baud rate
-  initModbus();
   
 
 }
@@ -190,6 +188,7 @@ void loop()
             Lora.sendData(&sendjob, arrayData, DATA_PORT, sizeof(arrayData));
           #endif
           delay(10);
+          slaves[i] = 0;
         }
       }
       Serial.println("Requesting in 10 seconds");
@@ -222,9 +221,6 @@ void timer(){
     }
   }
 }
-
-
-
 
 void initModbus()
 {
