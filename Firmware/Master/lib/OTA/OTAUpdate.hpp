@@ -12,44 +12,45 @@
 #include <esp_tls.h>
 #include "FS.h"
 #include <CRC32.h>
+#include <CRC32.h>
 const char server[] = "ycansam.upv.edu.es";
 
 class OTAUpdate
 {
 private:
-  const int portServer = 443;
-  //uint32_t knownCRC32 = 0x6f50d767;
-  uint32_t knownFileSize = 1024; // In case server does not send it
-  long contentLength;            // How many bytes of data the .bin is
-  bool isValidContentType = false;
-  int readLength = 0;
-  void updateFromFS();
-  void printPercent(uint32_t readLength, uint32_t contentLength);
-  void listDir(fs::FS &fs, const char *dirname, uint8_t levels);
-  void performUpdate(Stream &updateSource, size_t updateSize);
-  void readFile(fs::FS &fs, const char *path);
-  void appendFile(fs::FS &fs, const char *path, const char *message);
-  void writeFile(fs::FS &fs, const char *path, const char *message);
-  void deleteFile(fs::FS &fs, const char *path);
-  String getHeaderValue(String header, String headerName);
-  
+      const int portServer = 443;
+      //uint32_t knownCRC32 = 0x6f50d767;
+      uint32_t knownFileSize = 1024; // In case server does not send it
+      long contentLength;            // How many bytes of data the .bin is
+      bool isValidContentType = false;
+      int readLength = 0;
+      void updateFromFS();
+      void printPercent(uint32_t readLength, uint32_t contentLength);
+      void listDir(fs::FS &fs, const char *dirname, uint8_t levels);
+      void performUpdate(Stream &updateSource, size_t updateSize);
+      void readFile(fs::FS &fs, const char *path);
+      void appendFile(fs::FS &fs, const char *path, const char *message);
+      void writeFile(fs::FS &fs, const char *path, const char *message);
+      void deleteFile(fs::FS &fs, const char *path);
+      String getHeaderValue(String header, String headerName);
 
 public:
-  OTAUpdate();
-  void init();
-  void updateFromServer();
+      OTAUpdate();
+      void init();
+      void updateFromServer();
 };
 
 // DEBUG DEIFNE TO SHOW DATA DEBUG
 #define DEBUG
 
-  String updateUrl = "https://ycansam.upv.edu.es/js/firmware.bin";
+String updateUrl = "https://ycansam.upv.edu.es/js/firmware.bin";
 // //----------------------------------------------------------------------------
 // //                           PRIVATE FUNCTIONS
 // //----------------------------------------------------------------------------
 // Constructor
- OTAUpdate::OTAUpdate(){
- }
+OTAUpdate::OTAUpdate()
+{
+}
 /**
      * appendFile to update
      * @param fs File bin with firmware
@@ -340,7 +341,7 @@ void OTAUpdate::performUpdate(Stream &updateSource, size_t updateSize)
 void OTAUpdate::printPercent(uint32_t readLength, uint32_t contentLength)
 {
 #ifdef DEBUG
-     // Serial.println("printPercent");
+      // Serial.println("printPercent");
 #endif
       // If we know the total length
       if (contentLength != -1)
@@ -357,7 +358,7 @@ void OTAUpdate::printPercent(uint32_t readLength, uint32_t contentLength)
       }
 }
 
-// 
+//
 
 /**
      * used to extract header value from headers for ota update
@@ -391,7 +392,7 @@ void OTAUpdate::init()
       // publisher->initPublisher();
 #include <../lib/TLS/clientcert.h>
 
-      esp_tls_set_global_ca_store( certYcansam, sizeof(certYcansam)); //  TODO: VER NAME
+      esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam)); //  TODO: VER NAME
 }
 
 /**
@@ -407,6 +408,10 @@ void OTAUpdate::updateFromServer()
       Serial.println(" OK");
 #endif
     }*/
+      // poniendo el certificado antes de actualizar
+      Serial.print("TRYING TO UPDATE...");
+      esp_tls_set_global_ca_store(certYcansam, sizeof(certYcansam));
+
       if (client.connect(server, portServer))
       {
 #ifdef DEBUG

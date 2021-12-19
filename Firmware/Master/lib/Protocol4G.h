@@ -129,7 +129,7 @@ private:
         {
             Serial.println("Apagar Dispositivo");
         }
-        else if ((payload == "UPDATE") and (topic == "update"))
+        else if (payload == "UPDATE")
         {
             Serial.println("UPDATE");
             OTAUpd.updateFromServer();
@@ -281,7 +281,7 @@ public:
         }
 
         Serial.println(" ");
-        Serial.println(" ");
+        Serial.println(" ------------------------------------ ");
         String topicSend = "measure/send";
 
         mqttClient.poll();
@@ -292,7 +292,7 @@ public:
             // save the last time a message was sent
             previousMillis = currentMillis;
 
-            Serial.println("Sending message to topic: ");
+            Serial.print("Sending message to topic: ");
             Serial.println(topicSend);
             for (int i = 0; i < size; i++)
             {
@@ -309,8 +309,7 @@ public:
                 mqttClient.println("\"}");
                 mqttClient.endMessage();
             }
-
-            Serial.println(" ");
+            Serial.println("... Message sended");
             Serial.println(" ");
         }
     }
