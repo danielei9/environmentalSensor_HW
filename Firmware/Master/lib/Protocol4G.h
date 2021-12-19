@@ -16,7 +16,7 @@
 #endif
 #ifndef PROTOCOL_4G_H_INCLUDED
 #define PROTOCOL_4G_H_INCLUDED
-
+String deveui = "64471da3e1719913";
 #include "Publisher.h"
 #include <Arduino.h>
 #include "../lib/Sensor.h"
@@ -232,7 +232,7 @@ public:
             
             if (millis() > (lmill + 10000))
             {
-        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"64471da3e1719913\",\n      \"name\":\"mqttDev\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
+        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"" +deveui+ "\",\n      \"name\":\"mqttDev\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
 
 #ifdef DEBUG
                 Serial.println("sendLinkMessage");
@@ -299,7 +299,7 @@ public:
 
                 // send message, the Print interface can be used to set the message contents
                 mqttClient.beginMessage(topicSend);
-                mqttClient.print("{\"deviceEui\":152,\"value\":");
+                mqttClient.print("{\"deviceEui\":\"" +deveui+ "\",\"value\":");
                 mqttClient.print((String)arraySensors[i].value);
                 mqttClient.print(",\"name\":\"ambientalDevice" + String(i) + "\"");
                 mqttClient.print(", \"unit\":\"");

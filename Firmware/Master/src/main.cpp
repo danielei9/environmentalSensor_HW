@@ -128,7 +128,7 @@ void setup()
   slaveController.initMaster();
   // initCJM();
   OTAUpd.init();
-  
+  initModbus();
 
 }
 bool key = true;
