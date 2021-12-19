@@ -23,7 +23,7 @@ private:
     int8_t SDA = 0;
     int8_t SCL = 0;
 
-    byte *slaveAddresses[128];
+    byte slaveAddresses[128];
     uint8_t numberOfSlaves = 0;
 
 public:
@@ -50,10 +50,9 @@ public:
      * Inicializa el esclavo por I2C
      * @param baudios velocidad del Serial
      */
-    void initMaster(int baudios = 115200)
+    void initMaster()
     {
         Wire.begin(SDA, SCL);  // join i2c bus (address optional for master)
-        Serial.begin(baudios); // start serial for output
     }
 
     /**
@@ -72,13 +71,12 @@ public:
         Wire.write((byte *)&command, sizeof(command));
         Wire.endTransmission();
 
-        Serial.println("Waiting 13 seconds");
+        Serial.println("Waiting 15 seconds");
 
         bool waiting = false;
         while (true)
         {
 
-            
             // puede recibir suscripciones mqtt mientras lee de los archivos
             //mqttClient.poll();
             if (timerTrue(millSensorsRequest, 15000))
@@ -112,6 +110,7 @@ public:
             arrayData[i] = (byte)Wire.read();
             i++;
         }
+        Serial.println("Received");
         return arrayData;
     }
 
@@ -136,22 +135,22 @@ public:
                 }
                 Serial.println(address, HEX);
                 // hace una busqueda de esclavos
-                // bool found = 0;
-                // for (int i = 0; i < 127; i++)
-                // {
-                //     if (*slaveAddresses[i] == address)
-                //     {
-                //         // si se encontro
-                //         found = 1;
-                //     }
-                // }
-                // // si no se ha encontrado el dispositivo
-                // if (!found)
-                // {
-                //     *slaveAddresses[numberOfSlaves] = address;
-                //     numberOfSlaves++;
-                //     found = 0;
-                // }
+                bool found = 0;
+                for (int i = 0; i < 127; i++)
+                {
+                    if (slaveAddresses[i] == address)
+                    {
+                        // si se encontro
+                        found = 1;
+                    }
+                }
+                // si no se ha encontrado el dispositivo
+                if (!found)
+                {
+                    slaveAddresses[numberOfSlaves] = address;
+                    numberOfSlaves++;
+                    found = 0;
+                }
                 nDevices++;
             }
             else if (error == 4)
@@ -172,12 +171,21 @@ public:
         {
             Serial.println("done\n");
         }
-        delay(5000);
+        Serial.println("Devices in arraylist: ");
+        for (int i = 0; i < 127; i++)
+        {
+            if (slaveAddresses[i] != 0)
+            {
+                Serial.print("0x");
+                Serial.println(slaveAddresses[i], HEX);
+            }
+        }
     }
 
     // devuelve el array de esclavos disponibles
-    byte *getSlaves()
+    byte getSlaves()
     {
+        scanSlaves();
         return *slaveAddresses;
     }
 };

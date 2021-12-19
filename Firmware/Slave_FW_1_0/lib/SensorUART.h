@@ -28,31 +28,12 @@ private:
 
     // identificadores del sensor
     uint8_t sensorType = -1;
-
     uint8_t sensorUnit = -1;
 
     // contadores y boleanos de lectura
     int counter = 0;
     bool readed = false;
     bool sendCommand = false;
-
-public:
-    /**
-     * Constructor de la clase SensorUART
-     */
-    SensorUART(int8_t rx, int8_t tx)
-    {
-        (*this).RX = rx;
-        (*this).TX = tx;
-        sensorSerial = new SoftwareSerial(rx, tx);
-    }
-    /**
-     * Inicializa el Sensor
-     */
-    void initSensor(uint16_t baudios = 9600)
-    {
-        sensorSerial->begin(baudios);
-    }
 
     /**
      * Obtiene un array de datos con la informacion del modulo
@@ -63,20 +44,13 @@ public:
      */
     bool getSensorInformation()
     {
+        // si es distinto del tipo obtenido anteriormente vuelve a escanear el sensor
         if (sensorUnit != sensorInformation[5] || sensorType != sensorInformation[2])
         {
-            if (!(*this).sendCommand)
-            {
+            // envia el comando para escuchar a los sensores
+            byte arrayCommand[1] = {0xD7};
+            writeCommand(arrayCommand, 1);
 
-                byte arrayCommand[1] = {0xD7};
-
-                // enviando el comando a la uart del sensor
-                for (int i = 0; i < 1; i++)
-                {
-                    sensorSerial->write(arrayCommand[i]);
-                }
-                (*this).sendCommand = true;
-            }
             if (!(*this).readed)
             {
                 sensorSerial->listen();
@@ -107,45 +81,129 @@ public:
     }
 
     /**
-     * Obtiene la medida del sensor
-     * @returns devuelve un array
+     * Se encarga de leer las medidas
+     * @returns devuelve true si se ha leido y false si no
      */
-    int getMeasure()
+    int read()
     {
         // intenta obtener la informacion del sensor si ha cambiado. Si no ha cambiado no lee la informacion
         getSensorInformation();
+
+        // escribe en la uart el comando para obtener medidas del sensor
+        byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+        writeCommand(arrayCommand, 9);
+
+        // escucha al sensor con una respuesta de 9 bytes.
+        bool response = listenToResponse(9);
+        if (response)
+        {
+            Serial.println("Sensor Readed");
+            return response;
+        }
+        return response;
+    }
+    /**
+     * Duerme al sensor
+     * @returns devuelve true si se ha dormido y false si no
+     */
+    bool sleepSensor()
+    {
+        // envia el comando para escuchar al sensor
+        byte arrayCommand[6] = {0xAF, 0x53, 0x6C, 0x65, 0x65, 0x70};
+        writeCommand(arrayCommand, 6);
+
+        // espera a la escucha de la respuesta del sensor si se ha dormido o no.
+        bool response = listenToResponse(2);
+        if (response)
+        {
+            Serial.println("Sensor is sleeping...");
+            return response;
+        }
+        return response;
+    }
+
+    /**
+     * Despierta al sensor
+     * @returns devuelve true si se ha despertado y false si no
+     */
+    bool wakeUpSensor()
+    {
+        // envia el comando para despertar al sensor
+        byte arrayCommand[5] = {0xAE, 0x45, 0x78, 0x69, 0x74};
+        writeCommand(arrayCommand, 5);
+
+        // espera una respuesta del sensor
+        bool response = listenToResponse(2);
+        if (response)
+        {
+            Serial.println("Sensor exited from deep Sleep");
+            return response;
+        }
+        return response;
+    }
+
+    /**
+     * Envia comandos por uart al sensor
+     * @param array array con el comando a enviar
+     * @param size es el tamaño del comando
+     */
+    void writeCommand(byte *array, uint8_t size)
+    {
         if (!(*this).sendCommand)
         {
-
-            byte arrayCommand[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-
             // enviando el comando a la uart del sensor
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < size; i++)
             {
-                sensorSerial->write(arrayCommand[i]);
+                sensorSerial->write(array[i]);
             }
             (*this).sendCommand = true;
         }
+    }
+    /**
+     * Escucha a la respuesta del sensor despues de enviar un comando
+     * @param size es el tamaño de la respuesta
+     * @return devuelve true si se ha leido y false si no
+     */
+    bool listenToResponse(uint8_t size)
+    {
         if (!(*this).readed)
         {
             sensorSerial->listen();
             while (sensorSerial->available() > 0)
             {
-                int sensorData = sensorSerial->read();
-                arrayData[counter] = sensorData;
-                Serial.println(sensorData);
+
+                int data = sensorSerial->read();
+                arrayData[counter] = data;
+                Serial.println(data);
                 (*this).counter++;
-                if ((*this).counter == 9)
+                if ((*this).counter == size)
                 {
                     (*this).readed = true;
-                    Serial.println("Sensor Readed");
-                    reset();
                     return (*this).readed;
                 }
                 /* code */
             }
         }
         return (*this).readed;
+    }
+
+public:
+    /**
+     * Constructor de la clase SensorUART
+     */
+    SensorUART(int8_t rx, int8_t tx)
+    {
+        (*this).RX = rx;
+        (*this).TX = tx;
+        sensorSerial = new SoftwareSerial(rx, tx);
+    }
+    /**
+     * Inicializa el Sensor
+     */
+    void initSensor(uint16_t baudios = 9600)
+    {
+        sensorSerial->begin(baudios);
+        getSensorInformation();
     }
 
     /**
@@ -157,85 +215,6 @@ public:
         return arrayData[2] * 255 + arrayData[3];
     }
 
-    /**
-     * Obtiene la medida del sensor
-     * @returns devuelve un array
-     */
-    bool sleep()
-    {
-        if (!(*this).sendCommand)
-        {
-            //
-            byte arrayCommand[6] = {0xAF, 0x53, 0x6C, 0x65, 0x65, 0x70};
-
-            // enviando el comando a la uart del sensor
-            for (int i = 0; i < 6; i++)
-            {
-                sensorSerial->write(arrayCommand[i]);
-            }
-            (*this).sendCommand = true;
-        }
-        if (!(*this).readed)
-        {
-            sensorSerial->listen();
-            while (sensorSerial->available() > 0)
-            {
-
-                int data = sensorSerial->read();
-                arrayData[counter] = data;
-                Serial.println(data);
-                (*this).counter++;
-                if ((*this).counter == 2)
-                {
-                    (*this).readed = true;
-                    Serial.println("Sensor is sleeping...");
-                    return (*this).readed;
-                }
-                /* code */
-            }
-        }
-        return (*this).readed;
-    }
-
-    /**
-     * Obtiene la medida del sensor
-     * @returns devuelve un array
-     */
-    bool wakeUp()
-    {
-        if (!(*this).sendCommand)
-        {
-            //
-            byte arrayCommand[5] = {0xAE, 0x45, 0x78, 0x69, 0x74};
-
-            // enviando el comando a la uart del sensor
-            for (int i = 0; i < 5; i++)
-            {
-                sensorSerial->write(arrayCommand[i]);
-            }
-            (*this).sendCommand = true;
-        }
-        if (!(*this).readed)
-        {
-            sensorSerial->listen();
-            while (sensorSerial->available() > 0)
-            {
-
-                int data = sensorSerial->read();
-                arrayData[counter] = data;
-                Serial.println(data);
-                (*this).counter++;
-                if ((*this).counter == 2)
-                {
-                    (*this).readed = true;
-                    Serial.println("Sensor exited from deep Sleep");
-                    return (*this).readed;
-                }
-                /* code */
-            }
-        }
-        return (*this).readed;
-    }
     /**
      * Resetea los valores de lectura del sensor
      */
@@ -249,8 +228,9 @@ public:
      * Devuelve el tipo de sensor
      * @returns  HEXADECIMAl tipo
      */
-    uint8_t getSensorType()
+    uint8_t getType()
     {
+        // si el tipo es diferente o no existe llama a la funcion para encontrar el tipo
         if (sensorType != -1 && sensorInformation[2] == sensorType)
             return (sensorType);
         else
@@ -265,6 +245,7 @@ public:
      */
     uint8_t getUnit()
     {
+        // si el tipo es diferente o no existe llama a la funcion para encontrar el tipo de unidad
         if (sensorType != -1 && sensorInformation[5] == sensorUnit)
             return (sensorInformation[5]);
         else
@@ -272,7 +253,104 @@ public:
             getSensorInformation();
         }
     }
+    /**
+     * Se encarga de llamar al sensor para realizar las mediciones
+     */
+    void getMeasure()
+    {
+        bool sensorReaded = false;
+        while (!sensorReaded)
+        {
+            if (read() == 1)
+            {
+                sensorReaded = true;
+                Serial.print("Sensor Leido ");
+                Serial.println(getGasConcentration());
+                break;
+            }
+            if (timerTrue(mill, 500))
+            {
+                sensorReaded = true;
+                Serial.println("Timeout ");
+                mill = millis();
+                break;
+            }
+        }
+    }
 
+    /**
+     * Obtiene toda la informacion del sensor Unidad / tipo / etc
+     */
+    void getInformation()
+    {
+        bool sensorReaded = false;
+        while (!sensorReaded)
+        {
+            if (getSensorInformation() == 1)
+            {
+                sensorReaded = true;
+                Serial.print("Sensor Type Obtained: ");
+                Serial.println(getType());
+                break;
+            }
+            if (timerTrue(mill, 200))
+            {
+                sensorReaded = true;
+                Serial.println("Timeout on get sensor information ");
+                mill = millis();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Se encarga de llamar a la funcion para dormir al sensor
+     */
+    void sleep()
+    {
+        bool sensorReaded = false;
+        while (!sensorReaded)
+        {
+            if (sleepSensor() == 1)
+            {
+                sensorReaded = true;
+                break;
+            }
+            if (timerTrue(mill, 200))
+            {
+                sensorReaded = true;
+                Serial.println("Timeout on sleep sensor");
+                mill = millis();
+                break;
+            }
+        }
+    }
+    /**
+     * Se encarga de ejecutar la llamada del sensor para despertarlo
+     */
+    void wakeUp()
+    {
+        bool sensorReaded = false;
+        while (!sensorReaded)
+        {
+            if (wakeUpSensor() == 1)
+            {
+                sensorReaded = true;
+                break;
+            }
+            if (timerTrue(mill, 200))
+            {
+                sensorReaded = true;
+                Serial.println("Timeout on Wake Up Sensor ");
+                mill = millis();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Resetea el array que contiene la informacion del sensor
+     */
     void resetArrays()
     {
         for (int i = 0; i < 9; i++)
