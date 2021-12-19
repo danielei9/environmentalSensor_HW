@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <../lib/LoraOTAA.h>
 #include <EEPROM.h>
@@ -25,9 +26,9 @@ void loop()
     Lora.once();
     if (Lora.join())
     {
-        if (timerTrue(mill, 20000))
+        if (timerTrue(mill, 40000))
         {
-            Lora.sendData(&sendjob,mydata,PORT_DATA);
+            Lora.sendData(&sendjob,mydata,PORT_DATA,sizeof(mydata));
             mill = millis();
         }
     }
