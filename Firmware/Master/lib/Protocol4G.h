@@ -232,7 +232,7 @@ public:
             
             if (millis() > (lmill + 10000))
             {
-        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"" +deveui+ "\",\n      \"name\":\"Abidown\",\n      \"latitude\":12,\n      \"longitude\":76\n   },\n   \"sensors\":[]\n}";
+        String msg = "{\n   \"gatewayMac\":\"SXV16431C\",\n   \"device\":{\n      \"deviceEui\":\"" +deveui+ "\",\n      \"name\":\"BuchuDev\",\n      \"latitude\":38.96,\n      \"longitude\":-0.186\n   },\n   \"sensors\":[]\n}";
 
 #ifdef DEBUG
                 Serial.println("sendLinkMessage");
