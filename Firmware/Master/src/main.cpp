@@ -141,6 +141,7 @@ void loop()
   {
   
     if(protocol4G.sendLinkMessage("deviceSync")){
+         if (timerTrue(mill, 31000)){ 
       // envia los datos del modbus (Sensores conectados al modbus)
       byte *arrayData = getModbusData();
       #ifdef PROTOCOL_4G
@@ -186,7 +187,7 @@ void loop()
       mill = millis();
     }
   }
-}
+}}
 
 void timer(){
   Serial.println("Waiting 15 seconds");
